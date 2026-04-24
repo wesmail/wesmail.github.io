@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models I</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models I</h2>
+                    <p class="blog-post-meta">April 24, 2026</p>
+
+                    <p>
+                        If you've ever fitted a model to data, a Breit-Wigner resonance, a spectral energy distribution, 
+                        a pulsar timing residual, etc., you've already done machine learning. 
+                        You wrote down a model, defined a goodness-of-fit criterion (hello, \( \chi^2 \)), and let an optimiser minimise it. 
+                        That loop: \( \text{model} \rightarrow \text{loss} \rightarrow \text{minimise} \) is, without exaggeration, the engine behind every neural network, 
+                        every generative model, and every AI system making headlines today.
+                    </p>
+
+                    <p>
+                        The gap between "I can fit a Gaussian to a histogram" and "I understand how 
+                        <a href="https://arxiv.org/abs/2106.12594">DINGO</a> reconstructs gravitational wave posteriors" 
+                        is smaller than it looks. What fills that gap is not exotic new mathematics, it's the 
+                        same least-squares logic you already know, applied to increasingly expressive models.
+                    </p>
+
+                    <p>
+                        This series closes that gap, step by step, starting from linear regression and ending at normalising flows, 
+                        the class of generative models now used across gravitational wave astronomy, collider physics, 
+                        and cosmological inference to learn exact probability densities in high dimensions. 
+                        Along the way we'll pass through classification, neural networks, regularisation, density estimation, 
+                        autoencoders, and variational autoencoders (VAEs), building each concept on the one before it.
+                    </p>
+
+                    <p>
+                        Every step is accompanied by working Python code with detailed comments, no black boxes 😁, no hand-waving. 
+                        By the end you'll not only know how these models work, you'll have implemented them yourself 😊.
+                    </p>
+
+                    <p>
+                        Let's go. 🚀
+                    </p>
+                    <h2 class="fstyle-secondary">Section 1: What Machine Learning Actually Is</h2>
+                    <p>
+                      Machine learning is not a new kind of mathematics; it is a systematic, scalable way of doing what physicists 
+                      have always done: given some observations, find the model that describes them best. This section builds that idea 
+                      from the ground up. By the end of it, you will have a precise definition of what "learning" means mathematically, 
+                      an intuition for why the same formula governs everything from a straight-line fit to a <strong>deep neural network</strong>, 
+                      and a working Python example you can run and modify yourself 😊.
+                    </p>
+                    <hr>
+                    <h3 class="fstyle-secondary">The three ingredients</h3>
+                    <p>
+                        Every machine learning problem, no matter how complex, is assembled from three things: 
+                        <strong>data</strong>, a <strong>model</strong>, and a <strong>loss function</strong>. 
+                        Understanding each one clearly is the whole game.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Data</h4>
+                    <p>
+                        Data is simply a collection of observed pairs. We write each observation as <code>(x<sub>i</sub>, y<sub>i</sub>)</code>, 
+                        where <code>x<sub>i</sub></code> is the input, something we can measure or already know, and <code>y<sub>i</sub></code> 
+                        is the target, and this is what we want to <strong>predict</strong>. In a physics context, <code>x<sub>i</sub></code> might be the distance to a star 
+                        and <code>y<sub>i</sub></code> its apparent luminosity. In a particle physics context, <code>x<sub>i</sub></code> might be 
+                        a vector of detector signals and <code>y<sub>i</sub></code> a label saying whether the event is signal or noise. 
+                        The specific meaning of <code>x</code> and <code>y</code> changes from problem to problem, but the structure is always 
+                        the same: <code>N</code> pairs of (input, output), collected from some process we are trying to understand.
+                    </p>
+                    <p>
+                        It helps to think of <code>x<sub>i</sub></code> as everything you hand to the model, and <code>y<sub>i</sub></code> 
+                        as the answer you are trying to <strong>reproduce</strong>. The dataset is your <strong>ground truth</strong>, 
+                        (the true answer) that the model is accountable to.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Model</h4>
+                    <p>
+                        A model is a mathematical function that takes an input <code>x</code> and produces a prediction <code>ŷ</code>:
+                    </p>
+                    <p style="text-align: center;">
+                        \[
+                            \hat{y} = f(x; \theta)
+                        \]
+                    </p>
+                    <p>
+                        The semicolon separates the input <code>x</code> from the parameters <code>θ</code>. Parameters are the internal 
+                        knobs of the model, the numbers it is allowed to tune in order to fit the data better. For the simplest possible model, 
+                        a straight line, the function is:
+                    </p>
+                    <p style="text-align: center;">
+                        \[
+                            \hat{y} = m x + b
+                        \]
+                    </p>
+                    <p>
+                        and the parameter vector is just \( \theta = (m, b) \): the slope and the intercept. For a neural network with millions of <strong>neurons</strong> 
+                        (neurons are the basic building blocks of neural networks, think of them as computational units that process information),
+                        \( \theta \) contains millions of weights and biases, but conceptually it is still the same thing, a list of tunable 
+                        numbers that shape what the function does.
+                    </p>
+                    <p>
+                        The key insight is that the model's <strong>structure</strong> (straight line, polynomial, neural network) is chosen by 
+                        you based on your prior knowledge about the problem. The parameters \( \theta \) are what the computer learns.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Loss function</h4>
+                    <p>
+                        Once you have a model making predictions, you need a way to measure how wrong/correct those predictions are. That is the job of 
+                        the loss function, written \( L(\theta) \). For regression, predicting a continuous number, the standard choice 
+                        is the <strong>Mean Squared Error (MSE)</strong>:
+                    </p>
+                    <p style="text-align: center;">
+                        \[
+                            L(\theta) = \frac{1}{N} \sum_{i=1}^{N} \left( y_i - \hat{y}_i \right)^2
+                        \]
+                    </p>
+                    <p>
+                        Read this formula carefully, because it will appear in one form or another throughout this entire series. For each data 
+                        point, you compute the difference between the true value \( y_i \) and the model's prediction \( \hat{y}_i \). 
+                        You square that difference (so that positive and negative errors do not cancel, and so that large errors are penalised 
+                        more than small ones). Then you average across all \( N \) points. The result is a single number, a score of 
+                        "how wrong" the model currently is.
+                    </p>
+                    <p>
+                        When the predictions are perfect, every term in the sum is <strong>zero</strong> and \( L = 0 \). When the predictions are terrible, 
+                        \( L \) is large. Everything the computer does during training is aimed at making \( L \) smaller (officially minimising the loss).
+                    </p>
+
+                    <h4 class="fstyle-secondary">The central equation</h4>
+                    <p>
+                        With data, model, and loss in hand, the definition of machine learning becomes a single line:
+                    </p>
+                    
+                    <p>
+                        $$\theta^* = \arg \min_{\theta} L(\theta)$$
+                    </p>
+                    
+                    <p>
+                        This is read: "find the parameter values $\theta^*$ that make the loss as small as possible." The superscript star is 
+                        conventional notation for "the best version of something." The expression <em>arg min</em> means "the argument that minimises" 
+                        not the minimum value itself, but the $\theta$ that achieves it.
+                    </p>
+                    
+                    <p>
+                        That is machine learning. Everything else: convolutional networks, attention mechanisms, normalising flows, etc., is an 
+                        elaboration of this one idea. The model becomes more expressive, the loss function changes to suit the problem, 
+                        the optimiser becomes more sophisticated, but the goal is always the same: minimise $L(\theta)$ over the data.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Visualising the full loop</h4>
+                    <p>
+                        The figure below shows this as a complete cycle. Starting from the data (observed pairs of $x$ and $y$), 
+                        the model produces predictions $\hat{y}$. The loss function measures the gap between predictions and truth. 
+                        An optimiser then nudges $\theta$ in the direction that reduces the loss, and the loop repeats.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/ml_core_idea_regression.svg" alt="The machine learning loop diagram" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 1 — The machine learning loop. The left panel shows the data (blue dots), the fitted line (orange), 
+                            and the residuals (red vertical bars) — these residuals are exactly the terms being squared and summed in the MSE. 
+                            The right panel shows the loss surface: a map of $L(\theta)$ over all possible values of slope and intercept. 
+                            The cyan star marks where the optimiser lands; the white cross is the true parameter value. They nearly coincide.*</em>
+                        </p>
+                    </div>
+                    
+                    <p>
+                        Notice how the residuals in the left panel connect directly to the loss surface on the right. Each red bar is 
+                        one term $(y_i - \hat{y}_i)^2$ in the MSE formula. The loss surface is what you get when you evaluate that 
+                        formula at every possible combination of slope and intercept, a landscape of error, and training is the 
+                        process of rolling downhill to its minimum.
+                    </p>
+
+                    <h4 class="fstyle-secondary">The physics connection</h4>
+                    <p>
+                        If you have worked with \( \chi^2 \) fitting before and if you are a physicist, you almost certainly have, this should 
+                        feel deeply familiar, because it is the same thing. The \( \chi^2 \) statistic for a fit under Gaussian measurement 
+                        noise is:
+                    </p>
+                    
+                    <p>
+                        \[
+                            \chi^2 = \sum_{i=1}^{N} \frac{(y_i - f(x_i; \theta))^2}{\sigma_i^2}
+                        \]
+                    </p>
+                    
+                    <p>
+                        Compare this to the MSE formula. Apart from the weighting by \( \sigma_i^2 \) (the measurement uncertainty on each point), 
+                        the structure is identical: sum of squared residuals, minimised over \( \theta \). When all \( \sigma_i \) are equal, 
+                        minimising \( \chi^2 \) and minimising MSE give exactly the same answer.
+                    </p>
+                    
+                    <p>
+                        More formally, minimising MSE under Gaussian noise is equivalent to maximising the likelihood \( p(\mathbf{y} \mid \mathbf{x}, \theta) \) 
+                        a connection we will make precise later, when we talk about density estimation and the negative log-likelihood 
+                        as a general training objective. For now, the takeaway is this: <strong>you already understand the loss function</strong>. 
+                        It is \( \chi^2 \) in slightly different clothing.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">What the code does</h4>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p>
+                    
+                    <p>
+                        The <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_01_regression.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> for this section generates synthetic star luminosity data from a known linear law with added Gaussian 
+                        noise. Crucially, because we generated the data ourselves, we always know the true answer and can check whether 
+                        the model recovers it. From there it walks through three concrete exercises. It first manually evaluates the MSE 
+                        loss at a deliberately wrong set of parameters and then at the true parameters, so you can watch the loss change 
+                        as a number before any optimisation happens. It then hands the problem to <code>sklearn</code>'s 
+                        <code>LinearRegression</code>, which finds \( \theta^* \) automatically, and prints a side-by-side comparison of the 
+                        recovered slope and intercept against the ground truth. Finally it produces two plots: the fitted line with 
+                        residuals drawn in red, and the full loss surface as a contour map over all possible slope-intercept combinations, 
+                        with the optimiser's solution marked on it.
+                    </p>
+                    
+                    <p>
+                        The single most valuable thing you can do at this stage is run the notebook, read the printed numbers, and look 
+                        at those two figures together. The goal is not to memorise the formulas but to build a concrete sense of what 
+                        "reducing the loss" actually means: both as a number decreasing on screen and as a point sliding into a valley 
+                        on the loss landscape.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">A note on what comes next</h4>
+                    <p>Linear regression is intentionally the simplest possible case: one input, one output, two parameters, a <strong>convex</strong> loss surface with a single <strong>global minimum</strong>. 
+                        Real problems however, are messier, the output might be a category rather than a number, the model might have millions of parameters, and the loss surface might be a highly non-convex 
+                        landscape with many <strong>local minima</strong>. But the loop never changes. In the following section, we will take the first step beyond regression by asking what happens when \( y \)
+                        is a label (signal or noise?) rather than a continuous measurement and you will see that the answer requires only one new ingredient: a different loss function 🙃.
+                    </p>
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+</body>
+</html>
