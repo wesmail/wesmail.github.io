@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models I</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models II</h2>
+                    <p class="blog-post-meta">April 24, 2026</p>
+                    <h2 class="fstyle-secondary">Section 2: Classification: Teaching a Model to Make Decisions</h2>
+                    <h3 class="fstyle-secondary">From numbers to choices</h3>
+
+                    <p>
+                        In the <a href="../ml-from-scratch-I/index.html">previous blog</a>, we taught a model to predict a number, the luminosity of a star given
+                        its distance, or the flux of a source given its position. The model output lived
+                        on a continuous real line, the loss was Mean Squared Error, and the whole exercise
+                        was a dressed-up version of the \(\chi^2\) fitting you have done a hundred times. The
+                        machinery was familiar even if the language was new.
+                        Now we ask a different kind of question. Not "how bright is this source?" but
+                        "is this source real, or is it an artefact?" Not "what is the energy of this
+                        particle?" but "is this a Higgs decay or a QCD background event?" The output is
+                        no longer a number on a continuous scale. It is a decision from a discrete set
+                        of options <strong>a category</strong>. This is <strong>classification</strong>, and it is arguably the most
+                        common task in experimental physics today.
+                        The good news is that the core principle from the <a href="../ml-from-scratch-I/index.html">previous blog</a> does not change at all. We
+                        still choose a model, define a loss function, and minimise that loss over the data.
+                        What changes are two things: the model must now output a <strong>probability</strong> rather
+                        than an arbitrary real number, and we need a loss function that is appropriate for
+                        probabilities. Both changes turn out to be elegant and well-motivated.
+                    </p>
+
+                    <hr>
+
+                    <h3 class="fstyle-secondary">Why physicists need classification</h3>
+                    <p>
+                        Before getting into the mechanics, it is worth dwelling on why this matters in
+                        your field specifically, because the applications are everywhere and they are
+                        consequential.
+                        In <strong>gravitational-wave astronomy</strong>, <a target="_blank" rel="noopener noreferrer" href="https://www.ligo.org/">LIGO</a> and 
+                        <a target="_blank" rel="noopener noreferrer" href="https://www.virgo-gw.eu/">Virgo</a> produce <strong>strain time-series</strong>
+                        sampled at thousands of hertz. After the matched-filter pipeline processes the
+                        data, it produces a list of triggers, time stamps where the filter output
+                        exceeded some threshold. The overwhelming majority of these triggers are
+                        instrumental glitches: scattered light artefacts, seismic transients, electronic
+                        noise. A real compact binary merger is one event buried among tens of thousands
+                        of noise triggers per day. The pipeline then characterises each trigger with a
+                        set of features: the signal-to-noise ratio (SNR), the chirp mass inferred by the
+                        best-matching template, the coherence between the two LIGO detectors and Virgo,
+                        the \(\chi^2\)-based signal consistency test, and several others. A <strong>classifier</strong> takes
+                        these features and assigns each trigger a probability of being a genuine
+                        astrophysical event. This probability is what <a target="_blank" rel="noopener noreferrer" href="https://pycbc.org/">PyCBC</a> 
+                        calls the ranking statistic and what <a target="_blank" rel="noopener noreferrer" href="https://arxiv.org/abs/2010.05082"></a>GstLAL</a> calls the likelihood ratio. 
+                        Understanding classification is understanding how modern GW searches make decisions.
+                    </p>
+                    <p>
+                        In <strong>particle physics</strong>, the situation at a hadron collider is structurally
+                        identical. A proton-proton collision produces hundreds of particles, reconstructed
+                        as jets, leptons, and missing transverse energy. Most collisions are QCD
+                        multijet events <strong>background</strong>. A rare few are the <strong></strong>signal process</strong> 
+                        you care about, whether that is a Higgs boson decaying to two photons, a top quark pair, or a
+                        hypothetical new resonance. A <strong>classifier</strong> trained on Monte Carlo simulations takes
+                        the event kinematics as input and outputs a probability that the event is signal.
+                        The cut you place on that probability defines your selection, and the trade-off
+                        between signal efficiency and background rejection is at the heart of every
+                        search analysis.
+                    </p>
+                    <p>
+                        In <strong>gamma-ray astronomy</strong>, the <a target="_blank" rel="noopener noreferrer" href="https://fermi.gsfc.nasa.gov/">Fermi-LAT</a> must decide, 
+                        photon by photon, whether a detected event is a <strong>real gamma-ray</strong> or a <strong>charged cosmic-ray background event</strong>
+                        that leaked through the detector's veto. In <strong>radio astronomy</strong>, every candidate
+                        pulsar must be separated from radio-frequency interference. In multi-messenger
+                        follow-up campaigns, sky localisation alerts must be classified as binary neutron
+                        star, neutron star–black hole, or binary black hole mergers to decide which
+                        telescopes to point. Classification is not a peripheral machine learning application in astrophysics, it is the central computational task.
+                    </p>
+                    
+                    <hr>
+
+                    <h3 class="fstyle-secondary">What changes from regression</h3>
+                    <p>
+                        In regression, the model output \(\hat{y}\) was any real number: positive, negative,
+                        large, small. There were no constraints on it. In classification, we need the
+                        model to output a <strong>probability</strong>, a number between 0 and 1 representing the
+                        model's confidence that an event belongs to the positive class (say, signal). Call
+                        this \(p=P(y=1∣x)\). The complementary probability \(1−p\) is then the probability of the negative class (noise).
+                        This constraint \(p \in [0,1]\) is the first new ingredient. The second is the <strong>loss function</strong>. 
+                        We will see shortly that <strong>MSE</strong>, which worked well for regression, is
+                        a poor choice for probabilities, and the right replacement emerges naturally from
+                        a beautiful detour through <strong>information theory</strong>.
+                    </p>
+
+                    <h4 class="fstyle-secondary">The sigmoid: squashing a line into a probability</h4>
+                    <p>
+                        The linear model from the <a href="../ml-from-scratch-I/index.html">previous blog</a> computes:
+                        \[
+                            z = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \cdots = \boldsymbol{\theta}^\top \mathbf{x}
+                        \]
+                        This \(z\) can be any real number. To convert it into a probability, we apply the
+                        <strong>sigmoid function</strong> \(\sigma\):
+                        \[
+                            p = \sigma(z) = \frac{1}{1 + e^{-z}}
+                        \]
+                        It is worth pausing to appreciate why this formula works so well. When \(z\) is
+                        very large and positive, \(e^{-z} \approx 0\) and \(p \approx 1\). When \(z\) is very
+                        large and negative, \(e^{-z} \to \infty\) and \(p \approx 0\). When \(z = 0\), \(p = 0.5\) exactly — the model is completely uncertain. 
+                        The sigmoid smoothly maps the entire real line into the open interval \((0,1)\), giving us a valid probability for any linear combination of features. 
+                        The point \(z = 0\), where the model transitions from predicting noise to predicting signal, 
+                        is called the <strong>decision boundary</strong>. In two dimensions it is a line; in \(D\) dimensions it is a hyperplane.
+                        The full model, a linear combination of features fed into a sigmoid,is called <strong>logistic regression</strong>. 
+                        Despite the name, the logistic regression is a classification model. The word <strong>regression</strong> refers to the internal linear step, not to the type of output.                        
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step2_sigmoid.svg" alt="The sigmoid function sigma(z)" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 1 — The sigmoid function \(\sigma(z)\). For large positive \(z\) the model is
+                                confidently predicting signal (green region); for large negative \(z\) it predicts noise (red region). At \(z = 0\) the model is uncertain: \(p = 0.5\) is the natural decision threshold.*</em>
+                        </p>
+                    </div>
+                    
+                    <hr>
+
+                    <h3 class="fstyle-secondary">The right loss function: a path through information theory</h3>
+                    <p>
+                        We now need to choose a loss function. The natural first instinct is to reuse MSE: just compute \((y_i - p_i)^2\) and minimise. 
+                        This actually works, in the sense that gradient descent<sup id="fnref-gd"><a href="#fn-gd" class="text-decoration-none">1</a></sup> 
+                        will converge to something reasonable. But it is not the right choice, and using it means leaving accuracy on the table. To understand what 
+                        the right loss is and why, we need to take a short detour into <strong>information theory</strong>. It is a detour well worth taking.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Entropy: measuring surprise</h4>
+                    <p>
+                        Imagine you are monitoring a detector that, on any given day, reports one of two
+                        outcomes: either everything is quiet (outcome \(A\)) or a transient glitch occurred
+                        (outcome \(B\)). Consider two extreme scenarios.
+                        In scenario 1, the detector almost never glitches: \(P(A) = 0.99\) and \(P(B) = 0.01\).
+                        If the report comes in and says "quiet day," you are completely unsurprised, because that was the overwhelmingly likely outcome. If it says "glitch," you
+                        are very surprised. Most days carry almost no information because you already knew what would happen.
+                        In scenario 2, the detector glitches roughly half the time: \(P(A) = 0.50\) and \(P(B) = 0.50\). Now every daily report carries a genuine surprise. You have no
+                        idea what to expect, and each outcome tells you something meaningful.
+                        <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Claude_Shannon">Claude Shannon</a> formalised this intuition in 1948 with the 
+                        concept of <strong>entropy</strong>, defined for a distribution \(P\) over \(K\) possible outcomes as:
+                        \[
+                            H(P) = -\sum_{k=1}^{K} P(k) \log P(k)
+                        \]
+                        The unit depends on the base of the logarithm: base 2 gives <strong>bits</strong>, natural log
+                        gives <strong>nats</strong>. Let us compute it for our two scenarios using natural log.                        
+                    </p>
+                    <p>
+                        For scenario 1:
+                        \[
+                        H = -[0.99 \ln(0.99) + 0.01 \ln(0.01)] \approx -[-0.01005 + (-0.04605)] \approx 0.056 \text{ nats}
+                        \]
+                        For scenario 2:
+                        \[
+                        H = -[0.5 \ln(0.5) + 0.5 \ln(0.5)] = -\ln(0.5) \approx 0.693 \text{ nats}
+                        \]
+                    </p>
+                    <p>
+                        The perfectly uncertain distribution has entropy \(\approx 0.693\) nats; the nearly deterministic one has entropy \(\approx 0.056\) nats. 
+                        Entropy is a precise measure of how much uncertainty (or surprise) is baked into a distribution. 
+                        A fair coin has maximum entropy; a coin that lands heads 99% of the time has very low entropy.
+                    </p>
+
+                    <h4 class="fstyle-secondary">Cross-entropy: comparing two distributions</h4>
+
+                    <p>
+                        Now suppose we have a <strong>true distribution</strong> \(P\)
+                        (the actual labels: this event really is signal or really is noise) and a <strong>model distribution</strong> \(Q\)
+                        (our model's predicted probabilities). How well does \(Q\) approximate \(P\)?
+                    </p>
+                    <p>
+                        The <strong>cross-entropy</strong> between \(P\) and \(Q\) is:
+                        \[
+                        H(P,Q) = -\sum_{k} P(k) \log Q(k)
+                        \]
+                        Compare this to the entropy \(H(P) = -\sum_{k} P(k) \log P(k)\). The only difference
+                        is that we have replaced \(P(k)\) inside the logarithm with \(Q(k)\). Cross-entropy
+                        asks: "how surprised would I be, on average, if I were expecting distribution \(Q\)
+                        but events were actually drawn from distribution \(P\)?"                        
+                    </p>
+
+                    <p>
+                        It can be shown that \(H(P,Q) \geq H(P)\), always, with equality if and only if
+                        \(P = Q\). This is a direct consequence of the non-negativity of the <strong>Kullback-Leibler (KL) divergence</strong>
+                        <sup id="fnref-kl"><a href="#fn-kl" class="text-decoration-none">2</a></sup>. The cross-entropy is minimised when
+                        our model \(Q\) perfectly matches the true distribution \(P\). This makes it the
+                        natural training objective: we want to find the parameters \(\theta\) that bring
+                        \(Q_\theta\) as close to \(P\) as possible, which means minimising \(H(P,Q_\theta)\).
+                    </p>
+
+                    <h4 class="fstyle-secondary">The binary cross-entropy loss</h4>
+                    <p>
+                        In binary classification, the true label \(y_i \in \{0, 1\}\) defines a
+                        distribution over two outcomes: \(P = (y_i,\, 1 - y_i)\). The model's prediction
+                        \(p_i = \sigma(z_i)\) defines another: \(Q = (p_i,\, 1 - p_i)\). Substituting into
+                        the cross-entropy formula and averaging over all \(N\) training examples gives the
+                        binary cross-entropy loss, also called log-loss:
+                        \[
+                        L(\theta) = -\frac{1}{N} \sum_{i=1}^{N} \left[ y_i \log p_i + (1 - y_i) \log(1 - p_i) \right]
+                        \]
+                        Read this term by term. When \(y_i = 1\) (the event is genuinely signal), the
+                        second term vanishes and only \(-\log p_i\) contributes. If the model correctly
+                        assigns \(p_i \approx 1\), then \(-\log(1) = 0\): no penalty. If the model wrongly
+                        assigns \(p_i \approx 0\), then \(-\log(0) \to \infty\): a catastrophic penalty. When
+                        \(y_i = 0\) (the event is noise), by symmetry, only \(-\log(1 - p_i)\) contributes,
+                        and the same logic applies. The loss function screams loudest at confident wrong
+                        answers, which is exactly the behaviour you want in a detection (classification) task.     
+                    </p>
+                    <p>
+                        The figure below makes this concrete by comparing MSE and cross-entropy as a
+                        function of the model's predicted probability, for a true label of \(y = 1\).
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step2_loss_comparison.svg" alt="The loss comparison between MSE and cross-entropy" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>
+                                *Figure 2 — Both losses are plotted for a true label
+                                \(y = 1\) as a function of the model's predicted probability \(p\). MSE (blue) grows quadratically and remains
+                                finite even at \(p = 0.01\). Cross-entropy (orange) diverges logarithmically as
+                                \(p \to 0\), imposing a crushing penalty on confident mistakes. This asymmetry is why cross-entropy produces better-calibrated classifiers.*                                
+                            </em>
+                        </p>
+                    </div>
+                    
+                    <p>
+                        Notice also the connection to maximum likelihood estimation, which will feel
+                        familiar from the <a href="../ml-from-scratch-I/index.html">previous blog</a>. The probability of observing a label \(y_i\)
+                        given the model output \(p_i\) is:
+                        \[
+                        P(y_i \mid p_i) = p_i^{y_i} \cdot (1 - p_i)^{1 - y_i}
+                        \]
+                    </p>
+                    <p>
+                        This is simply a Bernoulli probability: \(p_i\) when \(y_i = 1\), and \(1 - p_i\) when \(y_i = 0\).
+                        Taking the log and summing over all events:
+                        \[
+                        \log L(\theta) = \sum_{i=1}^{N} \left[ y_i \log p_i + (1 - y_i) \log(1 - p_i) \right]
+                        \]                     
+                    </p>
+
+                    <p>
+                        Minimising the cross-entropy loss is therefore identical to maximising the
+                        log-likelihood of the data under a Bernoulli model. Just as minimising MSE was
+                        equivalent to maximising a Gaussian likelihood in the <a href="../ml-from-scratch-I/index.html">previous blog</a>, minimising cross-entropy
+                        is equivalent to maximising a Bernoulli likelihood here. The loss function is never
+                        an arbitrary choice, it always encodes an assumption about the statistical nature of the output.   
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">From probability to decision: the classification pipeline</h3>
+                    <p>
+                        With the model and loss defined, the full pipeline looks like this. First, each
+                        event is described by a feature vector \(\mathbf{x}\), in a GW context this might
+                        be \(\mathbf{x} = (\text{SNR}, \text{chirp mass estimate}, \text{\(\chi^2\)-consistency}, \text{detector coherence})\).
+                        The model computes \(z = \boldsymbol{\theta}^\top \mathbf{x}\) and then applies the sigmoid
+                        to get \(p = \sigma(z)\). Training minimises the cross-entropy loss over all
+                        labelled events using gradient descent, exactly as in the <a href="../ml-from-scratch-I/index.html">previous blog</a>. At inference time,
+                        a new trigger arrives, the model outputs \(p\), and a decision threshold converts
+                        this to a binary decision: if \(p > 0.5\), classify as signal; otherwise, noise.                        
+                    </p>
+
+                    <p>
+                        The decision boundary — the set of all \(\mathbf{x}\)
+                        for which \(p = 0.5\), i.e. \(z = 0\) is a hyperplane in feature space. This is the geometric meaning of
+                        logistic regression: it partitions the feature space into two half-spaces with a
+                        flat cut. In the figure below, the boundary is the black line separating the green
+                        (signal) from the red (noise) region, and the background colour shows the
+                        predicted probability \(p\) across the entire feature space.
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step2_classification.svg" alt="The classification pipeline" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>
+                                *Figure 3 — Left: the learned decision boundary in the two-dimensional
+                                (SNR, chirp-mass) feature space. The colour map shows \(P(\text{signal} \mid
+                                \mathbf{x})\), and the black contour is the \(p = 0.5\) boundary. Middle: the
+                                confusion matrix on the held-out test set. Right: the ROC curve (see the next section).* 
+                            </em>
+                        </p>
+                    </div>
+                    <hr>
+                    <h3 class="fstyle-secondary">Evaluating a classifier: beyond accuracy</h3>
+                    <p>
+                        Once a classifier is trained, how do we know if it is good? <strong>Accuracy</strong>, which is the fraction of
+                        events correctly classified, is the first thing people reach for, but it is
+                        deeply misleading whenever one class is much rarer than the other. In GW searches
+                        this is always the case: there might be tens of thousands of glitch triggers for
+                        every genuine astrophysical event. A model that labels every single trigger as
+                        "noise" achieves 99.9% accuracy while being completely useless. We need better
+                        metrics.                        
+                    </p>
+                    
+                    <p>
+                        The <strong>confusion matrix</strong> is the starting point. It tabulates four counts: 
+                        <strong>true positives</strong> \(\text{TP}\) (signal correctly identified), <strong>true negatives</strong> \(\text{TN}\) (noise correctly
+                        identified), <strong>false positives</strong> \(\text{FP}\) (noise mistakenly labelled signal: a false alarm),
+                        and <strong>false negatives</strong> \(\text{FN}\) (signal mistakenly labelled noise: a missed detection). In
+                        GW astronomy these map directly to the quantities that matter operationally:
+                        false positives cost telescope time on empty sky localisations; false negatives mean missed astrophysical events.                        
+                    </p>
+
+                    <p>
+                        <strong>Precision</strong> is the fraction of predicted signals that are genuinely signals:
+                        \[
+                        \text{Precision} = \text{TP} / (\text{TP} + \text{FP})
+                        \]
+                        <strong>Recall</strong> (also called sensitivity or detection efficiency) is the fraction of true signals that
+                        were correctly identified:
+                        \[
+                        \text{Recall} = \text{TP} / (\text{TP} + \text{FN})
+                        \]
+                        The <strong>F1 score</strong> is their harmonic mean:
+                        \[
+                        \text{F1 score} = 2 \cdot \text{Precision} \cdot \text{Recall} / (\text{Precision} + \text{Recall})
+                        \]
+                        The F1 score is their harmonic mean. These three numbers tell you much more than accuracy alone.
+                    </p>
+
+                    <p>
+                        The most important diagnostic in a physics search is the <strong>ROC curve</strong> (Receiver
+                        Operating Characteristic). It plots the true positive rate (detection efficiency)
+                        against the false positive rate (false alarm rate) as the decision threshold
+                        varies from 0 to 1. Every point on the curve represents a different operating
+                        point, a different trade-off between catching signals and tolerating false alarms.
+                        The <strong>AUC</strong> (Area Under the Curve) summarises the whole curve in one number: a
+                        perfect classifier has AUC = 1, a random classifier has AUC = 0.5. In the figure
+                        above (right panel), the orange dot marks the \(p > 0.5\) operating point; by moving
+                        the threshold you slide along the curve, trading efficiency for purity or vice
+                        versa. This is the ML equivalent of choosing a cut value in a traditional
+                        one-dimensional variable selection.
+                    </p>
+
+                    <hr>
+
+                    <h3 class="fstyle-secondary">What the code does</h3>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p>
+                    
+                    <p>
+                        The accompanying The <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_02_classification.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> builds a complete GW-inspired
+                        binary classification pipeline from scratch. It starts with Part A, which plots
+                        MSE and cross-entropy side by side for a fixed true label. Run this first and
+                        stare at the two curves until the logarithmic explosion of cross-entropy near
+                        \(p = 0\) feels intuitive rather than abstract. Part C generates a synthetic dataset
+                        of 600 noise triggers and 200 signal triggers, with features chosen to mimic the
+                        SNR and chirp-mass distributions you would see from a matched-filter pipeline,
+                        the class imbalance of 3:1 is realistic and intentional. Parts D and E train a
+                        classifier using sklearn and print a detailed classification
+                        report, including the cross-entropy loss on the held-out test set. Part F produces
+                        the three-panel figure above: decision boundary, confusion matrix, and ROC curve.                        
+                    </p>
+
+                    <p>
+                        Pay particular attention to the printed confusion matrix and the AUC value. Try
+                        moving the decision threshold manually in the code (search for <code>predict_proba</code> and
+                        change the 0.5 cutoff) and observe how the confusion matrix changes. This is
+                        the most important intuition to take away from this section: the threshold is a
+                        policy choice, not a property of the model, and different physics analyses call
+                        for different policies.                        
+                    </p>
+
+                    <hr>
+
+                    <h3 class="fstyle-secondary">The full picture so far</h3> 
+                    
+                    <p>
+                        After these two sections: Regression and Classification, the pattern is already visible. Regression chose a linear model and MSE loss. 
+                        This is equivalent to Gaussian maximum likelihood. Classification chose the same linear model, added a sigmoid output layer, and switched to 
+                        cross-entropy loss, equivalent to Bernoulli maximum likelihood. The optimisation machinery (gradient descent 
+                        over the training data) did not change at all. The table below summarises where we stand.
+                    </p>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333;">
+                                <th style="padding: 10px;"></th>
+                                <th style="padding: 10px;">Regression</th>
+                                <th style="padding: 10px;">Classification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Output</strong></td>
+                                <td style="padding: 10px;">$\hat{y} \in \mathbb{R}$</td>
+                                <td style="padding: 10px;">$p \in [0, 1]$</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Output layer</strong></td>
+                                <td style="padding: 10px;">Identity</td>
+                                <td style="padding: 10px;">Sigmoid $\sigma(z)$</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Loss function</strong></td>
+                                <td style="padding: 10px;">MSE</td>
+                                <td style="padding: 10px;">Cross-entropy</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Statistical interpretation</strong></td>
+                                <td style="padding: 10px;">Gaussian MLE</td>
+                                <td style="padding: 10px;">Bernoulli MLE</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Evaluation metric</strong></td>
+                                <td style="padding: 10px;">MSE, $R^2$</td>
+                                <td style="padding: 10px;">AUC, precision, recall</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>
+                        The one thing that has not changed is the central equation: \( \theta^* = \arg \min_{\theta} L(\theta) \). 
+                        We are still rolling a ball downhill on the same loss landscape. In the next blog, we will ask what happens when a 
+                        single linear boundary is not enough, when the signal and background regions are curved, overlapping, or 
+                        interleaved in a way no hyperplane can separate. That is where neural networks enter, and you will see 
+                        that they are simply a way of making \( f(x; \theta) \) more expressive without changing the loss function 
+                        or the optimiser at all.
+                    </p>                    
+
+                    <hr>
+
+                    <section aria-label="Footnotes">
+                        <p id="fn-gd" class="small text-body-secondary mb-0">
+                            <sup>1</sup> Gradient descent is an optimization algorithm that finds the minimum of a function by iteratively moving in the direction of the steepest descent.
+                            <a href="#fnref-gd" class="text-decoration-none" aria-label="Back to reference">↩</a>
+                        </p>
+                        <p id="fn-kl" class="small text-body-secondary mb-0">
+                            <sup>2</sup> A quantity we will meet formally later when we talk about variational autoencoders.
+                            <a href="#fnref-kl" class="text-decoration-none" aria-label="Back to reference">↩</a>
+                        </p>
+                    </section>
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+</body>
+</html>
