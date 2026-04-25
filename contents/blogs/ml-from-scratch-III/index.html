@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models III</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models III</h2>
+                    <p class="blog-post-meta">April 25, 2026</p>
+                    <h2 class="fstyle-secondary">Section 3: Neural Networks: Learning to Draw Curves</h2>
+                    <h3 class="fstyle-secondary">The wall we hit in Section 2</h3>
+
+                    <p>
+                        By the end of <a href="../ml-from-scratch-II/index.html">section 2</a> we had a working classifier, <strong>logistic regression</strong> takes a feature vector, computes a linear 
+                        combination \( z = \boldsymbol{\theta}^\top \mathbf{x} \), feeds it through a sigmoid, and outputs a probability. 
+                        Training minimises the cross-entropy loss using gradient descent, the same algorithm from <a href="../ml-from-scratch-I/index.html">section 1</a>, now with a 
+                        different output and a different loss.
+                    </p>
+                    
+                    <p>
+                        But there is a silent assumption buried in the model that we never made explicit: the decision boundary is a 
+                        <strong>straight line</strong>. In two dimensions it is a line, in three dimensions it is a plane, in \(D\) dimensions 
+                        it is a hyperplane. The model is geometrically committed to partitioning feature space with a single flat cut, 
+                        no matter how much data you give it or how long you train it. That is not a limitation of the training 
+                        procedure, it is a limitation of the model's mathematical form.
+                    </p>
+                    
+                    <p>
+                        For many real physics problems, this simply is not good enough. A GW signal does not occupy one side of a line 
+                        in (SNR, chirp-mass) space: it occupies an <strong>island</strong>, a roughly elliptical region surrounded by noise 
+                        triggers on all sides. Cosmic-ray muon events from a certain decay channel form a ring in (energy, angle) 
+                        space, not a half-plane. Photometric redshift depends on all five or six photometric bands simultaneously 
+                        in a highly non-linear way, no single linear combination of colours gives you a clean prediction. In all 
+                        of these cases, logistic regression is structurally unable to fit the data well, no matter how it tunes 
+                        its weights. <strong>We need a model that can draw curves.</strong>
+                    </p>
+                    
+                    <p>
+                        That model is the <strong>neural network</strong>. The key idea turns out to be almost comically simple: take the logistic 
+                        regression unit, copy it many times, stack the copies in layers, and connect them. Nothing else about the 
+                        training procedure changes.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The building block: one neuron</h3>
+                    <p>
+                        Before stacking anything, let us understand a single neuron completely. A neuron (see Figure 1) takes a vector of inputs 
+                        \( \mathbf{x} = (x_1, x_2, \dots, x_D) \), computes a weighted sum, adds a bias, and passes the result through 
+                        an activation function:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[ z = w_1x_1 + w_2x_2 + \dots + w_Dx_D + b = \mathbf{w}^\top \mathbf{x} + b \]
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[ a = \phi(z) \]
+                    </p>
+                    
+                    <p>
+                        Here \( \mathbf{w} \) is the weight vector, \( b \) is the bias, and \( \phi \) is an activation function. The weights 
+                        and bias are the <strong>learnable parameters</strong> of this neuron. The activation function is a fixed, <strong>non-linear</strong> function 
+                        chosen by the designer, we will discuss the choices in a moment.
+                    </p>
+                    
+                    <p>
+                        If this looks exactly like logistic regression with a sigmoid activation function, that is because a single neuron 
+                        is logistic regression. The neuron is the atomic unit. What makes neural networks powerful is not 
+                        the neuron itself but the way neurons are composed.
+                    </p>
+                    
+                    <p>
+                        Notice the <a href="https://en.wikipedia.org/wiki/Biological_neuron_model" target="_blank" rel="noopener noreferrer">biological metaphor</a> embedded in the terminology. The weights \( \mathbf{w} \) represent the strength 
+                        of connections from other neurons (or inputs) to this one. The bias \( b \) controls how easy it is to activate 
+                        the neuron, a large negative bias means the neuron fires only when the input is strongly positive. The 
+                        activation function \( \phi \) determines how the neuron responds to its total input. This is a loose analogy 
+                        to biology, but it is useful for building intuition. The mathematics that matters is simply a weighted sum 
+                        followed by a non-linear function.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/single_neuron_diagram.svg" alt="A single neuron computes a weighted sum of its inputs plus a bias, z = w^top x + b, then passes the result through a non-linear activation function phi to produce its output a = phi(z). Stacking many such neurons in layers is all a neural network is." style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 1: A single neuron computes a weighted sum of its inputs plus a bias, 
+                                \( z = \mathbf{w}^\top \mathbf{x} + b \), then passes the result through a non-linear activation 
+                                function \( \phi \) to produce its output \( a = \phi(z) \). 
+                                Stacking many such neurons in layers is all a neural network is.*</em>
+                        </p>
+                    </div>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">From one neuron to a network: the forward pass</h3>
+                    
+                    <p>
+                        A neural network is built by arranging neurons into <strong>layers</strong>. Every neuron in one layer 
+                        receives its input from every neuron in the previous layer, and sends its output to every neuron in the 
+                        next layer. The first layer receives the raw input features; the last layer produces the final prediction; 
+                        everything in between is called a <strong>hidden layer</strong>. Let us trace the computation for a small 
+                        network with two hidden layers.
+                    </p>
+                    
+                    <p>
+                        <strong>Layer 1</strong> receives the input \(\mathbf{x}\) and produces a vector of activations:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[\mathbf{a}_1 = \phi(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)\]
+                    </p>
+                    
+                    <p>
+                        Here \(\mathbf{W}_1\) is a matrix of weights, one row per neuron in the layer, and \(\mathbf{b}_1\) 
+                        is a bias vector. The activation \(\phi\) is applied element-wise to every entry of \(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1\).
+                    </p>
+                    
+                    <p>
+                        <strong>Layer 2</strong> takes the output of layer 1 as its input:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[\mathbf{a}_2 = \phi(\mathbf{W}_2 \mathbf{a}_1 + \mathbf{b}_2)\]
+                    </p>
+                    
+                    <p>
+                        <strong>Output layer</strong> takes the output of layer 2 and produces the final prediction. For binary 
+                        classification it uses a sigmoid activation function:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[z = \sigma(\mathbf{w}_3^\top \mathbf{a}_2 + b_3)\]
+                    </p>
+
+                    <div class="my-4">
+                        <iframe
+                            src="./assets/neural_network_forward_pass.html"
+                            title="Neural network forward pass interactive widget"
+                            style="width: 100%; min-height: 440px; border: 1px solid #d0d7de; border-radius: 8px; background: transparent;"
+                            loading="lazy">
+                        </iframe>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px; text-align: center;">
+                            <em>*Figure 2: A forward pass through a two-hidden-layer network. Drag the sliders to change the input event; use Next → to walk layer by layer. Purple edges carry positive weights, red carry negative. The output neuron turns green above \(p = 0.5\).* </em>
+                        </p>
+                    </div>
+                    
+                    <p>
+                        This sequential computation, input enters on the left, activations propagate right, prediction exits on 
+                        the right, is called the <strong>forward pass</strong>. Nothing is computed in loops or with memory; 
+                        it is a single left-to-right sweep through the function composition. Every parameter in every 
+                        \(\mathbf{W}_l\) and \(\mathbf{b}_l\) is a knob that training will adjust. The total number of parameters 
+                        is the sum over all layers of (number of inputs) \(\times\) (number of neurons) + (number of neurons). 
+                        For our toy network with architecture \(2 \to 32 \to 32 \to 1\), this works out as:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[2 \times 32 + 32 \;\; + \;\; 32 \times 32 + 32 \;\; + \;\; 32 \times 1 + 1 = 1,121 \text{ parameters}\]
+                    </p>
+                    
+                    <p>
+                        All 1,121 of these are updated simultaneously during training. As an example, <a href="https://openai.com/gpt-4/" target="_blank" rel="noopener noreferrer">GPT-4</a> has roughly one trillion parameters 
+                        the same principle, vastly more scale.
+                    </p>
+                    
+                    <hr>      
+                    <h3 class="fstyle-secondary">Why non-linearity is essential</h3>
+
+                    <p>
+                        If you removed the activation functions and set \(\phi(z) = z\) everywhere, the entire network would collapse 
+                        to a single linear transformation, no matter how many layers you stacked. Layer 2 would compute 
+                        \(\mathbf{W}_2 (\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1) + \mathbf{b}_2 = (\mathbf{W}_2 \mathbf{W}_1) \mathbf{x} + (\mathbf{W}_2 \mathbf{b}_1 + \mathbf{b}_2)\), 
+                        which is just another linear function with a combined weight matrix \(\mathbf{W}_2 \mathbf{W}_1\). 
+                        Depth without non-linearity buys you nothing.
+                    </p>
+                    
+                    <p>
+                        The activation function breaks this degeneracy. By applying a non-linear transformation at every neuron, 
+                        the network gains the ability to represent curved boundaries, local clusters, multiple modes, structures 
+                        that no linear function can capture. The 1989 <strong>Universal Approximation Theorem</strong> formalises 
+                        this: a neural network with a single hidden layer and a non-linear activation can approximate any 
+                        continuous function on a compact domain to arbitrary precision, given enough neurons. Depth (many layers) 
+                        turns out to be more parameter-efficient than width (many neurons in one layer) for many practical 
+                        problems, which is why modern architectures tend to be deep rather than wide.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">The choice of activation: ReLU vs sigmoid</h4>
+                    <p>
+                        Two activation functions dominate in practice and it is worth understanding both.
+                    </p>
+                    
+                    <p>
+                        The <strong>sigmoid</strong> \(\sigma(z) = 1/(1 + e^{-z})\) maps any real number to \((0, 1)\). We have used 
+                        it extensively for the output layer of a classifier because it produces a valid probability. The problem 
+                        with sigmoid in <em>hidden</em> layers is that its gradient nearly vanishes for large \(|z|\): 
+                        \(\sigma'(z) \approx 0\) when \(|z|\) is large. During backpropagation, these near-zero gradients are 
+                        multiplied together across layers, and the product decays exponentially. The parameters in early layers 
+                        receive essentially no gradient signal — they stop learning. This is called the 
+                        <strong>vanishing gradient problem</strong> and it plagued deep networks throughout the 1990s and 2000s.
+                    </p>
+                    
+                    <p>
+                        The <strong>Rectified Linear Unit (ReLU)</strong>, \(\phi(z) = \max(0, z)\), solves this with remarkable 
+                        simplicity. Its gradient is exactly 1 for \(z > 0\) and 0 for \(z < 0\). There is no decay across layers: 
+                        a gradient that passes through a ReLU neuron either survives intact (if the neuron was active) or is 
+                        blocked entirely (if it was not). In practice, ReLU networks train faster, converge more reliably, and 
+                        reach lower loss values than sigmoid networks of the same size. This is why ReLU has been the default 
+                        choice for hidden layers since around 2012.
+                    </p>
+                    
+                    <p>
+                        The practical rule: <strong>use ReLU in hidden layers, sigmoid (or softmax for multi-class) in the output layer.</strong>
+                    </p>
+
+                    <hr>      
+                    <h3 class="fstyle-secondary">How the network learns: gradient descent and backpropagation</h3>
+                    <p>
+                        The loss function for our neural network classifier is still cross-entropy, exactly as in <a href="../ml-from-scratch-II/index.html">section 2</a>. 
+                        What changes is that the loss is now a function of thousands of parameters spread across multiple layers, 
+                        rather than just a slope and an intercept. We can no longer solve for the minimum analytically — 
+                        instead we use <strong>gradient descent</strong>.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Gradient descent: the ball on the hill</h4>
+                    <p>
+                        The gradient \(\nabla_{\theta} L\) is a vector that points in the direction of *steepest increase* of the loss. 
+                        Taking a step in the opposite direction, the direction of steepest decrease, is gradient descent. 
+                        In one dimension, this update rule is:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[\theta \leftarrow \theta - \eta \cdot \frac{\partial L}{\partial \theta}\]
+                    </p>
+                    
+                    <p>
+                        where \(\eta\) is the <strong>learning rate</strong>, a small positive number controlling the step size. In the multi-parameter 
+                        case, exactly the same formula applies to every parameter simultaneously, with partial derivatives replacing 
+                        the ordinary derivative.
+                    </p>
+                    
+                    <p>
+                        The figure below shows gradient descent on the simplest possible loss function, \(L(\theta) = (\theta - 3)^2\), 
+                        for three different learning rates. The coloured dots are successive positions of the parameter as training proceeds.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step3_gradient_descent.svg" alt="A single neuron computes a weighted sum of its inputs plus a bias, z = w^top x + b, then passes the result through a non-linear activation function phi to produce its output a = phi(z). Stacking many such neurons in layers is all a neural network is." style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 3: Gradient descent on \( L(\theta) = (\theta - 3)^2 \) for three learning
+                                rates \( \eta \). Left: \( \eta = 0.05 \):  the ball rolls slowly and takes many steps to
+                                converge. Middle: \( \eta = 0.30 \): clean convergence in roughly ten steps. Right:
+                                \( \eta = 0.95 \): the step is too large, the parameter overshoots the minimum on
+                                every iteration and oscillates. The learning rate is not a free lunch: too small
+                                wastes computation, too large causes divergence.*</em>
+                        </p>
+                    </div>
+                    
+                    <p>
+                        The learning rate is one of the most important hyperparameters in deep
+                        learning, a parameter about the training process rather than about the model.
+                        In practice, adaptive optimisers like <a href="https://arxiv.org/abs/1412.6980" target="_blank" rel="noopener noreferrer">Adam</a> (which we use in <a href="../ml-from-scratch-VI/index.html">section 6</a>) 
+                        adjust the learning rate automatically for each parameter based on the history of its
+                        gradients, which makes training much less sensitive to the initial choice of \( \eta \).                        
+                    </p>
+
+                    <h4 class="fstyle-secondary">Backpropagation: gradient descent made efficient</h4>
+                    <p>
+                        For a network with 1,121 parameters, naively computing each partial derivative \(\partial L / \partial \theta_k\) by 
+                        perturbing one parameter at a time would require 1,121 forward passes per update step. Backpropagation reduces this 
+                        to a single forward pass followed by a single backward pass, a computational cost of the same order as two forward passes, regardless of the number of parameters.
+                      </p>
+                      
+                      <p>
+                        The key insight is the chain rule of calculus. The loss is a composition of functions: 
+                        \(L = L(\mathbf{a}_3(\mathbf{a}_2(\mathbf{a}_1(\mathbf{x}))))\). The chain rule tells us how to differentiate a composition:
+                      </p>
+                      
+                      <p style="text-align: center;">
+                        \[\frac{\partial L}{\partial \mathbf{W}_1} = \frac{\partial L}{\partial \mathbf{a}_3} \cdot \frac{\partial \mathbf{a}_3}{\partial \mathbf{a}_2} \cdot \frac{\partial \mathbf{a}_2}{\partial \mathbf{a}_1} \cdot \frac{\partial \mathbf{a}_1}{\partial \mathbf{W}_1}\]
+                      </p>
+                      
+                      <p>
+                        Backpropagation computes this product efficiently by starting from the output layer and working backwards, reusing 
+                        intermediate results at each step. The name refers to the direction of this computation: gradients 
+                        <em>propagate backwards</em> through the network from the loss to the inputs. Frameworks like
+                        <span style="display: inline-flex; gap: 8px; vertical-align: middle; margin: 0 4px;">
+                          <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" aria-label="PyTorch">
+                            <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch" style="height: 24px; border-radius: 6px;">
+                          </a>
+                          <a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" aria-label="TensorFlow">
+                            <img src="https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="TensorFlow" style="height: 24px; border-radius: 6px;">
+                          </a>
+                        </span>
+                        implement this automatically, you write the forward pass and the framework computes the backward pass for you. 
+                        You never write gradient formulas by hand.
+                      </p>
+                      
+                      <p>
+                        A good mental model: the forward pass asks "what is the prediction?"; the backward pass asks "how should each 
+                        parameter change to make the prediction better?" Together they define one training step, and repeating this 
+                        thousands or millions of times is training.
+                      </p>
+                      
+                      <hr>      
+                      <h3 class="fstyle-secondary">The failure mode of the linear model</h3>
+                      
+                      <p>
+                        The figure below makes the limitation of logistic regression concrete. The dataset
+                        for this step contains GW-inspired triggers whose "signal" population forms two
+                        elliptical islands in \((\text{SNR}, \text{chirp-mass})\) space, a rough model of two distinct
+                        compact binary populations, rather than the single blob of <a href="../ml-from-scratch-II/index.html">section 2</a>.                        
+                      </p>
+
+                      <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step3_neural_network.svg" alt="Left: logistic regression draws a single straight boundary and achieves modest AUC. The signal islands are on the wrong side of the line in some regions, and the model cannot fix this regardless of training duration, the constraint is architectural. Middle: a two-hidden-layer network with 32 neurons per layer learns a curved boundary that wraps around both islands, achieving substantially higher AUC. Right: the training loss curve for the neural network, a fast initial drop as the network learns the broad structure, followed by a plateau as it refines the boundary details." style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 4: Left: logistic regression draws a single straight boundary and
+                                achieves modest AUC. The signal islands are on the wrong side of the line in
+                                some regions, and the model cannot fix this regardless of training duration,
+                                the constraint is architectural. Middle: a two-hidden-layer network with 32
+                                neurons per layer learns a curved boundary that wraps around both islands,
+                                achieving substantially higher AUC. Right: the training loss curve for the
+                                neural network, a fast initial drop as the network learns the broad structure,
+                                followed by a plateau as it refines the boundary details.*</em>
+                        </p>
+                    </div>
+                    
+                    <p>
+                        The contrast between the left and middle panels is the whole argument for neural
+                        networks in one image. The logistic regression boundary is a line that cannot
+                        possibly separate two islands from their surrounding noise. The neural network
+                        boundary bends, curves, and finds the right shape because the composition of
+                        non-linear layers gives it the expressive power to represent any smooth boundary.
+                        The right panel shows the training loss decreasing over epochs, gradient descent
+                        rolling downhill on the cross-entropy surface, exactly as in <a href="../ml-from-scratch-II/index.html">section 2</a>, just in a
+                        much higher-dimensional parameter space.                        
+                    </p>
+
+                    <hr>      
+                    <h3 class="fstyle-secondary">What a neural network actually learns</h3>
+                    <p>
+                        There is a useful perspective from representation learning that is worth carrying through the rest of this 
+                        series. Each hidden layer of a neural network can be understood as computing a <strong>representation</strong>, 
+                        a transformed version of the input that makes the classification task easier for the next layer.
+                    </p>
+                    
+                    <p>
+                        The first hidden layer receives the raw features (SNR, chirp mass) and applies its weight matrix and ReLU 
+                        activation. The output of that layer is a new set of numbers that can be thought of as learned features, 
+                        nonlinear combinations of the originals that the network found useful. The second hidden layer takes 
+                        those learned features and computes another set of even more abstract features. The output layer then 
+                        performs logistic regression in this learned feature space, which, by design, is much more linearly 
+                        separable than the original space.
+                    </p>
+                    
+                    <p>
+                        This is why neural networks with many layers are called "deep": the word refers to the depth of the 
+                        representation hierarchy, not the number of parameters. And it is why deep learning has proved so 
+                        useful in physics: it can discover the relevant combinations of raw detector signals automatically, 
+                        without a physicist having to hand-design the feature set. In a <a href="https://en.wikipedia.org/wiki/Cherenkov_Telescope_Array_Observatory" target="_blank" rel="noopener noreferrer">Cherenkov telescope array</a>, the 
+                        network might learn to combine pixel intensities in ways that approximate the shower image parameters 
+                        (length, width, orientation) that physicists spent years deriving by hand. It does not always do 
+                        better, but it often does, and it does it without domain knowledge.
+                    </p>
+                    <hr>      
+                    <h3 class="fstyle-secondary">Counting parameters: making the abstraction concrete</h3>
+                    
+                    <p>
+                        For the network in this step (architecture \(2 \to 32 \to 32 \to 1\), with ReLU hidden activations 
+                        and sigmoid output), the parameter count breaks down as follows.
+                    </p>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333;">
+                                <th style="padding: 10px;">Layer</th>
+                                <th style="padding: 10px;">Weights</th>
+                                <th style="padding: 10px;">Biases</th>
+                                <th style="padding: 10px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Input \(\to\) Hidden 1</td>
+                                <td style="padding: 10px;">\(2 \times 32 = 64\)</td>
+                                <td style="padding: 10px;">\(32\)</td>
+                                <td style="padding: 10px;">\(96\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Hidden 1 \(\to\) Hidden 2</td>
+                                <td style="padding: 10px;">\(32 \times 32 = 1024\)</td>
+                                <td style="padding: 10px;">\(32\)</td>
+                                <td style="padding: 10px;">\(1056\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Hidden 2 \(\to\) Output</td>
+                                <td style="padding: 10px;">\(32 \times 1 = 32\)</td>
+                                <td style="padding: 10px;">\(1\)</td>
+                                <td style="padding: 10px;">\(33\)</td>
+                            </tr>
+                            <tr style="font-weight: bold;">
+                                <td style="padding: 10px;">Total</td>
+                                <td style="padding: 10px;"></td>
+                                <td style="padding: 10px;"></td>
+                                <td style="padding: 10px;">\(1,121\)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>
+                        All 1,121 parameters are updated by gradient descent on every training step. The comparison with <a href="https://openai.com/gpt-4/" target="_blank" rel="noopener noreferrer">GPT-4</a>'s 
+                        one trillion parameters is not meant to be humbling — it is meant to make the point that the <strong>principle</strong> 
+                        scales. The same forward pass, the same cross-entropy loss, the same gradient descent update rule, the 
+                        same backpropagation algorithm: from 1,121 parameters to \(10^{12}\), the recipe does not change. What 
+                        changes is the architecture, the scale of the compute, and the volume of training data.
+                    </p>
+                    
+                    <hr>
+
+                    <h3 class="fstyle-secondary">What the code does</h3>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p>
+
+                    <p>
+                        The accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_03_neural_networks.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> is structured in six parts. Part A isolates
+                        gradient descent completely from neural networks, it runs on the one-parameter
+                        loss \( L(\theta) = (\theta - 3)^2 \) and produces Figure 3 above, which you should
+                        study before anything else. Watching a single number converge (or diverge) under
+                        gradient descent builds the intuition for everything that follows.                        
+                    </p>
+
+                    <p>
+                        Part B generates the two-island dataset, and Part C trains both the logistic
+                        regression and the neural network, printing their AUC scores side by side. The
+                        AUC gap between the two models is the empirical demonstration of what the figure
+                        shows geometrically. Part D explains the ReLU vs sigmoid trade-off in the printed
+                        output. Part E produces Figure 2. Part F prints the parameter count table, which
+                        you should verify by hand for a small example, computing \( 2 \times 32 + 32 \) by hand and confirming the script's output is a good sanity check that you
+                        understand what the weight matrix represents.                        
+                    </p>
+
+                    <hr>
+
+                    <h3 class="fstyle-secondary">The running scorecard</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333;">
+                                <th style="padding: 10px;"></th>
+                                <th style="padding: 10px;">Regression</th>
+                                <th style="padding: 10px;">Classification</th>
+                                <th style="padding: 10px;">Neural network</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Model</strong></td>
+                                <td style="padding: 10px;">\(\hat{y} = \boldsymbol{\theta}^\top \mathbf{x}\)</td>
+                                <td style="padding: 10px;">\(p = \sigma(\boldsymbol{\theta}^\top \mathbf{x})\)</td>
+                                <td style="padding: 10px;">\(p = \sigma(\mathbf{W}_L \dots \phi(\mathbf{W}_1 \mathbf{x}))\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Boundary</strong></td>
+                                <td style="padding: 10px;">None (continuous output)</td>
+                                <td style="padding: 10px;">Hyperplane</td>
+                                <td style="padding: 10px;">Arbitrary curved surface</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Loss</strong></td>
+                                <td style="padding: 10px;">MSE</td>
+                                <td style="padding: 10px;">Cross-entropy</td>
+                                <td style="padding: 10px;">Cross-entropy</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Optimiser</strong></td>
+                                <td style="padding: 10px;">Closed form</td>
+                                <td style="padding: 10px;">Gradient descent</td>
+                                <td style="padding: 10px;">Gradient descent</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Hidden activations</strong></td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">ReLU</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>
+                        The only new ingredients in this row are the composition of layers and the non-linear activations. 
+                        The loss, the optimiser, and the training loop are unchanged.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">What comes next</h3> 
+                    <p>
+                        The neural network in this step has more expressive power than logistic
+                        regression, and that power comes with a cost we have not yet discussed: a model
+                        that is expressive enough to fit complex signal-background boundaries is also
+                        expressive enough to memorise irrelevant noise in the training data, and then
+                        perform poorly on data it has not seen. This is overfitting, and it is the
+                        central practical challenge in applying neural networks to real physics data.                        
+                    </p>
+                    
+                    <p>
+                        The next article addresses this directly, it introduces the <strong>train/validation/test split</strong>,
+                        explains why it mirrors the concept of a <strong>held-out test dataset</strong> in a physics
+                        analysis, and shows three practical cures: L2 regularisation (the Machine Learning name for
+                        <a href="https://en.wikipedia.org/wiki/Tikhonov_regularization" target="_blank" rel="noopener noreferrer">Tikhonov regularisation</a>, which you may already know from inverse problems), early
+                        stopping, and model size reduction. The tools are familiar; the application to
+                        neural networks is new.
+                    </p>
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+</body>
+</html>

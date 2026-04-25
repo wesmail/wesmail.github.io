@@ -1,0 +1,208 @@
+
+<style>
+  .nn-wrap { padding: 1rem 0; }
+  .nn-controls { display:flex; align-items:center; gap:16px; margin-bottom:1rem; flex-wrap:wrap; }
+  .nn-controls label { font-size:13px; color:var(--color-text-secondary); display:flex; align-items:center; gap:6px; }
+  .nn-controls input[type=range] { width:100px; }
+  .nn-controls span.val { font-size:13px; font-weight:500; min-width:36px; }
+  .nn-info { margin-top:.75rem; font-size:13px; color:var(--color-text-secondary); min-height:2.4em; line-height:1.6; }
+  .step-dots { display:flex; gap:8px; margin-top:1rem; align-items:center; }
+  .step-dot { width:8px; height:8px; border-radius:50%; background:var(--color-border-secondary); transition:background .25s; }
+  .step-dot.active { background:#534AB7; }
+  .step-btns { display:flex; gap:8px; margin-top:.75rem; }
+</style>
+
+<div class="nn-wrap">
+  <div class="nn-controls">
+    <label>SNR (x₁) <input type="range" min="4" max="20" value="8" step="0.5" id="sl-snr" oninput="update()"> <span class="val" id="v-snr">8.0</span></label>
+    <label>Chirp mass (x₂) <input type="range" min="5" max="80" value="30" step="1" id="sl-mass" oninput="update()"> <span class="val" id="v-mass">30</span> M☉</label>
+  </div>
+
+  <svg id="nn-svg" width="100%" viewBox="0 0 680 320" style="display:block;">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <g id="edges"></g>
+    <g id="nodes"></g>
+    <g id="labels-layer"></g>
+  </svg>
+
+  <div class="nn-info" id="nn-info">Drag the sliders to send an event through the network.</div>
+
+  <div class="step-dots" id="step-dots"></div>
+  <div class="step-btns">
+    <button onclick="prevStep()" style="font-size:12px;padding:4px 12px;">← Prev</button>
+    <button onclick="nextStep()" style="font-size:12px;padding:4px 12px;">Next →</button>
+    <span style="font-size:12px;color:var(--color-text-secondary);margin-left:8px;" id="step-label"></span>
+  </div>
+</div>
+
+<script>
+const ARCH = [2, 5, 5, 1];
+const LAYER_X = [60, 220, 430, 610];
+const COLORS = ['#534AB7','#1D9E75','#1D9E75','#D85A30'];
+
+const rng = (s) => { let x=s; return ()=>{x=Math.sin(x)*10000;return x-Math.floor(x);} };
+const rand = rng(42);
+function initWeights() {
+  let W=[],B=[];
+  for(let l=0;l<ARCH.length-1;l++){
+    let w=[],b=[];
+    for(let j=0;j<ARCH[l+1];j++){
+      let row=[];
+      for(let i=0;i<ARCH[l];i++) row.push((rand()-.5)*1.5);
+      w.push(row); b.push((rand()-.5)*0.5);
+    }
+    W.push(w); B.push(b);
+  }
+  return {W,B};
+}
+const {W,B} = initWeights();
+const sig = z => 1/(1+Math.exp(-z));
+
+function forward(x1, x2) {
+  let acts=[[x1, x2]];
+  let z_list=[null];
+  for(let l=0;l<W.length;l++){
+    let prev=acts[acts.length-1];
+    let zl=[],al=[];
+    for(let j=0;j<W[l].length;j++){
+      let z=B[l][j];
+      for(let i=0;i<prev.length;i++) z+=W[l][j][i]*prev[i];
+      zl.push(z);
+      al.push(sig(z));
+    }
+    z_list.push(zl);
+    acts.push(al);
+  }
+  return {acts, z_list};
+}
+
+function neuronY(layer, idx) {
+  const n = ARCH[layer];
+  const spacing = Math.min(54, 240/n);
+  const total = (n-1)*spacing;
+  return 160 - total/2 + idx*spacing;
+}
+
+let currentStep = 0;
+const STEPS = [
+  {layer:-1, msg:"Input layer: the two features of this event — SNR and chirp mass — enter the network as raw numbers."},
+  {layer:0,  msg:"Hidden layer 1: each neuron computes z = w·x + b, then applies σ(z). The connections carry different weights — some features matter more."},
+  {layer:1,  msg:"Hidden layer 2: another round of weighted sums + sigmoids. By now the network can combine features in non-linear ways a logistic regression never could."},
+  {layer:2,  msg:"Output neuron: final sigmoid squashes everything to P(signal) ∈ [0,1]. Above 0.5 → classify as GW signal."},
+];
+
+function drawNetwork(acts, highlight) {
+  const svg = document.getElementById('nn-svg');
+  const edgesG = document.getElementById('edges');
+  const nodesG = document.getElementById('nodes');
+  const labelsG = document.getElementById('labels-layer');
+  edgesG.innerHTML=''; nodesG.innerHTML=''; labelsG.innerHTML='';
+
+  for(let l=0;l<ARCH.length-1;l++){
+    for(let j=0;j<ARCH[l+1];j++){
+      for(let i=0;i<ARCH[l];i++){
+        const x1=LAYER_X[l], y1=neuronY(l,i);
+        const x2=LAYER_X[l+1], y2=neuronY(l+1,j);
+        const w=W[l][j][i];
+        const active = highlight===-1||(highlight===l)||(highlight===l+1&&acts);
+        const alpha = active ? Math.min(0.9,Math.abs(w)*0.7+0.1) : 0.06;
+        const col = w>0 ? '#534AB7' : '#D85A30';
+        const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+        line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+        line.setAttribute('stroke',col);
+        line.setAttribute('stroke-width', active ? Math.min(3.5,Math.abs(w)*1.2+0.4) : 0.5);
+        line.setAttribute('opacity',alpha);
+        edgesG.appendChild(line);
+      }
+    }
+  }
+
+  for(let l=0;l<ARCH.length;l++){
+    const isActive = highlight===-1 || highlight===l || (highlight===l-1);
+    for(let i=0;i<ARCH[l];i++){
+      const cx=LAYER_X[l], cy=neuronY(l,i);
+      const act = acts ? acts[l][i] : 0.5;
+      const r=l===0||l===ARCH.length-1 ? 20 : 16;
+      const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx',cx); circle.setAttribute('cy',cy); circle.setAttribute('r',r);
+      const intensity = Math.round(act*255);
+      if(!isActive){
+        circle.setAttribute('fill','var(--color-background-secondary)');
+        circle.setAttribute('stroke','var(--color-border-tertiary)');
+        circle.setAttribute('stroke-width','0.5');
+      } else if(l===ARCH.length-1){
+        const g=act>0.5?`rgb(29,158,117)`:`rgb(216,90,48)`;
+        circle.setAttribute('fill',g); circle.setAttribute('stroke',g);
+        circle.setAttribute('stroke-width','1.5'); circle.setAttribute('opacity','0.9');
+      } else {
+        const b=Math.round(40+(1-act)*215), pur=Math.round(83*act+40);
+        circle.setAttribute('fill',`rgb(${pur},${Math.round(74*act+30)},${b})`);
+        circle.setAttribute('stroke','#534AB7'); circle.setAttribute('stroke-width','0.5');
+        circle.setAttribute('opacity', isActive?'0.9':'0.25');
+      }
+      nodesG.appendChild(circle);
+
+      const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',cx); txt.setAttribute('y',cy);
+      txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
+      txt.setAttribute('font-size','11'); txt.setAttribute('font-weight','500');
+      txt.setAttribute('fill', isActive&&l===ARCH.length-1 ? 'white' : isActive ? '#CECBF6' : 'var(--color-text-tertiary)');
+      txt.setAttribute('pointer-events','none');
+      if(l===0) txt.textContent=i===0?'x₁':'x₂';
+      else if(l===ARCH.length-1) txt.textContent=act.toFixed(2);
+      else txt.textContent=act.toFixed(2);
+      nodesG.appendChild(txt);
+    }
+  }
+
+  const layerNames=['Input','Hidden 1','Hidden 2','Output'];
+  for(let l=0;l<ARCH.length;l++){
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',LAYER_X[l]); lbl.setAttribute('y',295);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('font-size','12');
+    lbl.setAttribute('fill',highlight===l||highlight===-1?'var(--color-text-secondary)':'var(--color-text-tertiary)');
+    lbl.textContent=layerNames[l];
+    labelsG.appendChild(lbl);
+  }
+}
+
+function update() {
+  const x1 = parseFloat(document.getElementById('sl-snr').value);
+  const x2 = parseFloat(document.getElementById('sl-mass').value);
+  document.getElementById('v-snr').textContent=x1.toFixed(1);
+  document.getElementById('v-mass').textContent=x2.toFixed(0);
+
+  const xs1 = (x1-10)/3, xs2 = (x2-35)/15;
+  const {acts} = forward(xs1, xs2);
+  const prob = acts[acts.length-1][0];
+
+  const hl = currentStep===0 ? -1 : currentStep-1;
+  drawNetwork(acts, hl);
+
+  const info = document.getElementById('nn-info');
+  info.textContent = STEPS[Math.min(currentStep, STEPS.length-1)].msg;
+  if(currentStep===STEPS.length-1){
+    const verdict = prob>0.5
+      ? `P(signal) = ${prob.toFixed(3)} → classify as SIGNAL (GW event)`
+      : `P(signal) = ${prob.toFixed(3)} → classify as NOISE (glitch)`;
+    info.textContent = STEPS[3].msg + '  ' + verdict;
+  }
+
+  const dots = document.querySelectorAll('.step-dot');
+  dots.forEach((d,i)=>d.classList.toggle('active', i===currentStep));
+  document.getElementById('step-label').textContent=`Step ${currentStep+1} / ${STEPS.length}`;
+}
+
+function nextStep(){ currentStep=Math.min(currentStep+1,STEPS.length-1); update(); }
+function prevStep(){ currentStep=Math.max(currentStep-1,0); update(); }
+
+const dotsEl=document.getElementById('step-dots');
+STEPS.forEach((_,i)=>{ const d=document.createElement('div'); d.className='step-dot'; dotsEl.appendChild(d); });
+update();
+</script>
