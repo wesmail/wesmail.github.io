@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models V</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models V</h2>
+                    <p class="blog-post-meta">April 26, 2026</p>
+                    <h2 class="fstyle-secondary">Section 5: Density Estimation: Learning the Shape of the Data</h2>
+                    <h3 class="fstyle-secondary">A different kind of question</h3>
+
+                    <p>
+                        Every step so far has been a version of the same basic task: given an input \(\mathbf{x}\), predict an 
+                        output \(y\). In section 1 that output was a continuous number (luminosity). In <a href="../ml-from-scratch-I/index.html">section 2</a> it was a 
+                        probability of class membership (signal or noise). In sections <a href="../ml-from-scratch-II/index.html">3</a> and <a href="../ml-from-scratch-IV/index.html">4</a> we made the model more 
+                        expressive and more robust, but the fundamental question, "given \(\mathbf{x}\), what is \(y\)?" never 
+                        changed.
+                    </p>
+                    
+                    <p>
+                        This section asks something completely different: <strong>what is the probability distribution of \(\mathbf{x}\) 
+                        itself?</strong>
+                    </p>
+                    
+                    <p>
+                        Not "given this event, is it signal?" but "how likely is it to observe an event like this at all?" 
+                        Not a label. Not a regression target. The full shape of the data, where events are common, 
+                        where they are rare, where they simply do not occur. This is called <strong>density estimation</strong>, and 
+                        it is the bridge that leads, step by step, to normalising flows.
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">Why physicists need density estimation</h3>
+
+                    <p>
+                        Before the mathematics, it is worth being concrete about why this matters in your field. There are four 
+                        distinct use cases that appear repeatedly in astrophysics, GW astronomy, and particle physics.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Anomaly detection without labels</h4>
+                    <p>
+                        If you have a model for the probability distribution \(p(\mathbf{x})\) of your known background, then any 
+                        new event with very small \(p(\mathbf{x}_{\text{new}})\) is — by definition — unlike anything you have 
+                        seen before. In GW astronomy this could be a merger that falls outside the known binary black-hole (BBH) 
+                        mass distribution. In collider physics it could be an event with kinematics incompatible with any Standard Model 
+                        process. No signal model is required; you only need a good model of the background.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Population inference</h4>
+                    <p>
+                        LIGO's population papers (e.g. <a href="https://arxiv.org/html/2403.10439v1" target="_blank">P. Kumar et al. 2024</a>), the analyses that characterise the mass spectrum, spin distribution, and redshift 
+                        evolution of compact binary mergers across all detected events, are fundamentally density estimation 
+                        problems. The goal is to fit \(p(m_1, m_2, \chi_{\text{eff}}, z)\), the joint distribution over chirp 
+                        masses, spins, and redshift, to the entire catalogue of observed posteriors. This is hierarchical Bayesian 
+                        inference, and its foundation is a flexible model for \(p(\mathbf{x})\).
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Fast simulation</h4>
+                    <p>
+                        Once you have learned \(p(\mathbf{x})\) from a set of expensive Monte Carlo events, you can sample new 
+                        synthetic events from it instantly, without running the full simulator again. This is the basis of 
+                        surrogate models for detector response and fast MC generation.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Posterior estimation</h4>
+                    <p>
+                        Bayes' theorem tells us that the posterior \(p(\theta \mid d) \propto p(d \mid \theta) \cdot p(\theta)\). 
+                        If we can model the posterior directly as a learned density, which is exactly what normalising flows do in 
+                        <a href="https://arxiv.org/abs/2106.12594" target="_blank">DINGO</a> and <a href="https://arxiv.org/abs/2211.06397" target="_blank">FlowMC</a>, we get samples from the posterior in milliseconds rather than the hours required by 
+                        traditional <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo" target="_blank">Markov Chain Monte Carlo (MCMC)</a>.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The new loss function: negative log-likelihood</h3>
+                    
+                    <p>
+                        In sections <a href="../ml-from-scratch-I/index.html">1</a>–<a href="../ml-from-scratch-IV/index.html">4</a>, the loss function was either MSE or cross-entropy. Both had a physical interpretation: 
+                        MSE penalises the distance between prediction and truth; cross-entropy penalises the log-probability 
+                        of the wrong class. For density estimation, the natural loss function is the 
+                        <strong>negative log-likelihood (NLL)</strong>:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[L(\theta) = -\frac{1}{N} \sum_{i=1}^{N} \log p(x_i; \theta)\]
+                    </p>
+                    
+                    <p>
+                        Let us build this formula from scratch, one step at a time, so every symbol is earned rather than assumed.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Step 1: What does it mean for a model to "fit" a density?</h4>
+                    <p>
+                        Suppose we observe a single data point \(x_1 = 14.2\) \(\text{M}_{\odot}\). We have a model density 
+                        \(p(x; \theta)\) with parameters \(\theta\). The model assigns a probability density value to every 
+                        possible \(x\). A "good" model should assign a high density value to \(x_1 = 14.2\) \(\text{M}_{\odot}\), meaning: 
+                        this model considers such an event to be common or more likely to occur.
+                    </p>
+                    <p>
+                        So for one data point, we want to maximise \(p(x_1; \theta)\).
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Step 2: Extend to many data points</h4>
+                    <p>
+                        We observe \(N\) data points \(x_1, x_2, \dots, x_N\). Assuming the events are independent 
+                        (a reasonable first approximation), the probability of observing this entire dataset under 
+                        the model is the product of individual probabilities:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[\mathcal{L}(\theta) = p(x_1; \theta) \cdot p(x_2; \theta) \cdots p(x_N; \theta) 
+                        = \prod_{i=1}^{N} p(x_i; \theta)\]
+                    </p>
+                    
+                    <p>
+                        This is called the <strong>likelihood</strong>, the probability of seeing the observed data, given the 
+                        model parameters \(\theta\). We want to find the \(\theta\) that makes this as large as possible. 
+                        This is <strong><a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation" target="_blank">Maximum Likelihood Estimation (MLE)</a></strong>.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Step 3: Take the log</h4>
+                    <p>
+                        Maximising a product is numerically unstable. If you multiply 1,000 probabilities together (each between 0 and 1), 
+                        the result will be a number so tiny that a computer will round it to zero (arithmetic underflow). To fix this, 
+                        we take the natural logarithm of the likelihood<sup id="fnref-iid"><a href="#fn-iid" class="text-decoration-none">1</a></sup>. Since \(\log(a \cdot b) = \log a + \log b\), the product of 
+                        probabilities becomes a sum of log-probabilities:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[\log \mathcal{L}(\theta) = \sum_{i=1}^{N} \log p(x_i; \theta)\]
+                    </p>
+                    
+                    <p>
+                        Because \(\log\) is a monotonically increasing function, the \(\theta\) that maximises the log-likelihood 
+                        is exactly the same \(\theta\) that maximises the original likelihood.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Step 4: Flip the sign and average</h4>
+                    <p>
+                        By convention, optimisers in machine learning (like gradient descent) are designed to <em>minimise</em> 
+                        functions rather than maximise them. To turn a maximisation problem into a minimisation problem, we simply 
+                        multiply by \(-1\). We also divide by \(N\) so that the value of our loss function does not depend on 
+                        the size of the dataset. This gives us the <strong>Negative Log-Likelihood (NLL)</strong>:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[L(\theta) = -\frac{1}{N} \sum_{i=1}^{N} \log p(x_i; \theta)\]
+                    </p>
+                    
+                    <p>
+                        This is the standard loss function for density estimation. If the model assigns high probability to 
+                        the observed data, \(\log p\) is close to zero, and the loss is small. If the model assigns low 
+                        probability to the data, \(\log p\) is a large negative number, and the loss is large.
+                    </p>
+                    
+                    <p>
+                        Every generative model we will discuss, from simple Gaussians to complex Normalising Flows, is trained 
+                        by minimising this exact expression.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">The connection to previous articles I-IV</h4>
+
+                    <p>
+                        This is not a new principle. It is the same one, applied more broadly.
+                    </p>
+                    
+                    <p>
+                        In <a href="../ml-from-scratch-I/index.html">Step 1</a> (regression), minimising MSE is equivalent to maximising the log-likelihood of 
+                        the data under a Gaussian noise model: \(p(y_i \mid x_i, \theta) = \mathcal{N}(y_i; f(x_i; \theta), \sigma^2)\).
+                    </p>
+                    
+                    <p>
+                        In <a href="../ml-from-scratch-II/index.html">Step 2</a> (classification), minimising cross-entropy is equivalent to maximising the log-likelihood 
+                        under a Bernoulli model: \(p(y_i \mid x_i, \theta) = p_i^{y_i}(1 - p_i)^{1-y_i}\).
+                    </p>
+                    
+                    <p>
+                        Here, we are now maximising the log-likelihood of \(p(x; \theta)\) directly, without 
+                        conditioning on an output label. The loss function, the optimiser, and the principle are 
+                        unchanged. Only the model changes.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">Three classical density models</h3>
+                    <p>
+                        We need \(p(x; \theta)\) to satisfy two hard constraints: it must be non-negative everywhere 
+                        (\(p(x) \geq 0\)), and it must integrate to one (\(\int p(x) \, dx = 1\)). Three classical methods 
+                        satisfy these constraints, each with a different philosophy.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Method 1: The histogram</h4>
+                    <p>
+                        The simplest density estimator is the histogram: divide the range of \(x\) into \(B\) bins of width 
+                        \(\Delta\), count the events in each bin, and define the density in each bin as:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[p(x) = \frac{\text{count in bin}}{N \cdot \Delta}\]
+                    </p>
+                    
+                    <p>
+                        The division by \(N \cdot \Delta\) ensures the histogram integrates to one. This is the familiar 
+                        "normalised histogram" you have plotted thousands of times.
+                    </p>
+                    
+                    <p>
+                        The histogram is simple, but it has two fundamental problems. First, it assigns \(p(x) = 0\) in 
+                        any empty bin so a single new event in an empty bin gets infinite surprise (\(-\log 0 = \infty\)), 
+                        which is clearly wrong. Second, the number of bins grows exponentially with the number 
+                        of dimensions: with 10 bins per axis and \(D = 10\) features, you need \(10^{10} = 10\) billion bins. 
+                        You will never have enough data to fill them. This exponential scaling is called the 
+                        <strong>curse of dimensionality</strong>.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Method 2: Kernel Density Estimation (KDE)</h4>
+                    <p>
+                        KDE is a more sophisticated non-parametric approach. Instead of counting events 
+                        in fixed bins, it places a smooth kernel function (often a Gaussian) centred 
+                        on every data point, and sums them all up:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[p(x) = \frac{1}{N} \sum_{i=1}^{N} K_h(x - x_i), \quad x \in \mathbb{R}\]
+                    </p>
+                    
+                    <p>
+                        where \(K_h\) is a Gaussian kernel with bandwidth \(h\):
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[K_h(u) = \frac{1}{h\sqrt{2\pi}} \exp\left(-\frac{u^2}{2h^2}\right)\]
+                    </p>
+                    
+                    <p>
+                        The bandwidth \(h\) is the key hyperparameter. Each data point contributes a small 
+                        Gaussian "bump" of width \(h\) to the estimated density. If \(h\) is very small, 
+                        the estimate becomes jagged and overfits individual points. If \(h\) is very large, 
+                        the estimate is overly smooth and loses structure. This is the familiar bias–variance tradeoff discussed in <a href="../ml-from-scratch-IV/index.html">section 4</a>.
+                    </p>
+                    
+                    <p>
+                        The optimal bandwidth is chosen by <strong>cross-validation</strong>: hold out a fraction of the
+                        data, evaluate the log-likelihood of the held-out points under the estimated
+                        density for several values of \(h\), and pick the \(h\) with the highest
+                        log-likelihood. This is gradient descent's cousin applied to a discrete
+                        hyperparameter search.
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <iframe
+                            src="./assets/density_estimation_kde_gmm.html"
+                            title="Density estimation KDE GMM visualisation widget"
+                            style="width: 100%; min-height: 460px; border: 1px solid #d0d7de; border-radius: 8px; background: transparent;"
+                            loading="lazy">
+                        </iframe>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 1: Three density estimators applied to 500 synthetic BBH chirp-mass events drawn from three sub-populations. 
+                                <strong>KDE mode:</strong> drag the bandwidth slider and watch the log-likelihood (top-left statistic) change; the optimal \(h\) 
+                                sits between the spiky overfit curve and the over-smoothed blob, exactly as the bias-variance tradeoff predicts. 
+                                <strong>GMM mode:</strong> the three dashed coloured curves are the individual Gaussian components; 
+                                their sum (solid) is the full estimated density. <strong>Histogram mode:</strong> adjust the bin count to see how coarse or fine 
+                                binning trades resolution for stability. All three estimators are modelling the same \(p(x)\); they differ only in how they represent it.*</em>
+                        </p>
+                    </div>                    
+                    
+                    <p>
+                        KDE has one critical limitation: like the histogram, it suffers from the curse
+                        of dimensionality. With many data points and many dimensions, evaluating the
+                        density at a new point requires computing the kernel contribution from every
+                        single training point, an \(O(N)\) operation that becomes impractical for large
+                        \(N\) or large \(D\).
+                    </p>
+
+                    <h4 class="fstyle-secondary">Method 3: Gaussian Mixture Models (GMM)</h4>
+                    <p>
+                        The GMM addresses the multi-modal structure of real data in a principled parametric way. 
+                        The idea is to represent the density as a weighted sum of \(K\) Gaussian components:
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ p(x) = \sum_{k=1}^{K} \pi_k \cdot \mathcal{N}(x; \mu_k, \sigma_k^2) \]
+                    </p>
+
+                    <p>
+                        Every term in the sum is a properly normalised Gaussian. The weights \(\pi_k\) satisfy 
+                        \(\pi_k \ge 0\) and \(\sum_k \pi_k = 1\). Therefore the whole sum is also a valid density, 
+                        it is non-negative everywhere and integrates to one.
+                    </p>
+
+                    <p>Let us understand the parameters one by one:</p>
+                    <ul>
+                        <li>
+                            <strong>\(\pi_k\)</strong> is the <strong>mixing weight</strong> of component \(k\). 
+                            It tells us what fraction of the data comes from this component. If \(\pi_1 = 0.56\), 
+                            then 56% of events are drawn from the first Gaussian.
+                        </li>
+                        <li>
+                            <strong>\(\mu_k\)</strong> is the <strong>mean</strong> (centre) of component \(k\). 
+                            For a BBH chirp mass distribution, this is the central mass of that sub-population.
+                        </li>
+                        <li>
+                            <strong>\(\sigma_k^2\)</strong> is the <strong>variance</strong> (spread) of component \(k\). 
+                            A narrow Gaussian (\(\sigma\) small) means the sub-population is tightly clustered; 
+                            a broad one means it is spread over a wide mass range.
+                        </li>
+                    </ul>
+
+                    <p>
+                        In multiple dimensions, the variance generalises to a covariance matrix \(\boldsymbol{\Sigma}_k\), 
+                        allowing each component to be an ellipse in 2D or an ellipsoid in higher dimensions.
+                    </p>
+
+                    <h5 class="fstyle-secondary">The hidden variable intuition</h5>
+                    <p>
+                        There is a beautiful generative story behind the GMM. Imagine that to produce each data 
+                        point \(x_i\), nature first secretly flips a \(K\)-sided weighted coin to pick a component 
+                        \(z_i \in \{1, 2, \dots, K\}\) with probabilities \(\pi_1, \dots, \pi_K\). Then it draws 
+                        \(x_i\) from the Gaussian corresponding to that component: \(x_i \sim \mathcal{N}(\mu_{z_i}, \sigma_{z_i}^2)\).
+                    </p>
+
+                    <p>
+                        We never observe \(z_i\) directly, it is a <strong>latent variable</strong> hidden from us. 
+                        All we see is \(x_i\). The GMM marginalises over the unknown component assignment by summing 
+                        over all possibilities:
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ p(x_i) = \sum_{k=1}^{K} p(z_i = k) \cdot p(x_i \mid z_i = k) = \sum_{k=1}^{K} \pi_k \cdot \mathcal{N}(x_i; \mu_k, \sigma_k^2) \]
+                    </p>
+
+                    <p>
+                        This hidden-variable view is important because it motivates the training algorithm, and it 
+                        is the conceptual ancestor of the latent variables \(z\) we will use in autoencoders and 
+                        variational autoencoders in the following sections.
+                    </p>
+
+                    <h5 class="fstyle-secondary">Training the GMM: the EM algorithm</h5>
+                    <p>
+                        We cannot maximise the GMM log-likelihood with a simple gradient step because the labels 
+                        \(z_i\) are unknown. The standard algorithm is <strong>Expectation-Maximisation (EM)</strong>, 
+                        which alternates between two steps until convergence.
+                    </p>
+
+                    <p>
+                        <strong>E-step (compute soft assignments).</strong> For each data point \(x_i\) and each 
+                        component \(k\), compute the <strong>responsibility \(r_{ik}\)</strong> — the probability 
+                        that component \(k\) generated \(x_i\), given the current parameters:
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ r_{ik} = \frac{\pi_k \cdot \mathcal{N}(x_i; \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \cdot \mathcal{N}(x_i; \mu_j, \sigma_j^2)} \]
+                    </p>
+
+                    <p>
+                        This is just <a href="https://en.wikipedia.org/wiki/Bayes'_theorem" target="_blank">Bayes' theorem</a>: the numerator is "how well does component \(k\) explain \(x_i\), 
+                        weighted by how common component \(k\) is?", and the denominator normalises so the 
+                        responsibilities sum to one across components for each point. After this step, every point 
+                        has a soft, fractional assignment to every component.
+                    </p>
+
+                    <p>
+                        <strong>M-step (update parameters).</strong> Given the responsibilities computed in the E-step, 
+                        update each component's parameters as weighted averages, where each data point contributes to 
+                        component \(k\) proportionally to \(r_{ik}\):
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ N_k = \sum_{i=1}^{N} r_{ik} \quad \text{(effective number of points in component \(k\))} \]
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ \pi_k = \frac{N_k}{N} \quad \mu_k = \frac{1}{N_k} \sum_{i=1}^{N} r_{ik}x_i \quad \sigma_k^2 = \frac{1}{N_k} \sum_{i=1}^{N} r_{ik}(x_i - \mu_k)^2 \]
+                    </p>
+
+                    <p>
+                        These updates have an intuitive reading: \(\mu_k\) is the responsibility-weighted mean of 
+                        all data points, \(\sigma_k^2\) is the responsibility-weighted variance, and \(\pi_k\) is 
+                        the fraction of total responsibility absorbed by component \(k\). Repeat E and M until the 
+                        log-likelihood stops increasing. This algorithm is illustrated in the interactive figure below.
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <iframe
+                            src="./assets/gmm_em_algorithm.html"
+                            title="GMM EM algorithm visualisation widget"
+                            style="width: 100%; min-height: 460px; border: 1px solid #d0d7de; border-radius: 8px; background: transparent;"
+                            loading="lazy">
+                        </iframe>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 2: The EM algorithm fitting a three-component GMM to 180 synthetic events. 
+                                Press <strong>Next step</strong> to alternate between the E-step (each point is recoloured by its responsibility \(r_{ik}\)
+                                how strongly component \(k\) claims it) and the M-step (each Gaussian's mean \(\mu_k\) and spread \(\sigma_k\) are updated as responsibility-weighted averages of the data). 
+                                The dashed ellipses show the 1\(\sigma\) contour of each component; the crosshair marks \(\mu_k\); \(\pi_k\) is the current mixing weight. 
+                                The green bar at the bottom tracks the log-likelihood; it increases monotonically and plateaus at convergence. Use <strong>Run to convergence</strong> to watch the full optimisation in one go, 
+                                then <strong>Reset</strong> to start again from a fresh initialisation.*</em>
+                        </p>
+                    </div>                    
+                    
+                    <p>
+                        EM is not gradient descent, it does not compute \(\partial L / \partial \theta\) and step downhill. 
+                        But it is guaranteed to increase the log-likelihood at every iteration, and it converges to a 
+                        local maximum. The key practical detail is that you must choose \(K\), the number of 
+                        components, before training. We use the <strong><a href="https://en.wikipedia.org/wiki/Bayesian_information_criterion" target="_blank">Bayesian Information Criterion (BIC)</a></strong> 
+                        to select \(K\): train GMMs with \(K = 1, 2, 3, \dots\) and choose the \(K\) that minimises BIC, 
+                        which penalises the log-likelihood for the number of parameters (exactly as the validation loss 
+                        penalises overfitting in <a href="../ml-from-scratch-IV/index.html">section 4</a>).
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">Worked example: the BBH chirp mass distribution</h3>
+                    
+                    <p>
+                        The accompanying article script generates a synthetic population of compact binary mergers with three
+                        chirp-mass sub-populations: stellar-origin BBHs centred at 12 \(\text{M}_{\odot}\), a more massive
+                        channel at 28 \(\text{M}_{\odot}\), and a rare high-mass population at 42 \(\text{M}_{\odot}\), broadly consistent
+                        with what LIGO has inferred from the <a href="https://gwosc.org/eventapi/html/GWTC/" target="_blank">GWTC catalogues</a>. We then fit three density
+                        estimators to this data and compare. The figure below shows the results.                        
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step5_density.svg" alt="The machine learning loop diagram" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 3: Six panels for the BBH chirp mass dataset. Top-left: the data 
+                                histogram and the true density (dashed), which is only knowable because we 
+                                generated the data ourselves. Top-middle: KDE at three different bandwidths, 
+                                the red curve (\(h = 0.6\)) overfits individual noise fluctuations; the blue 
+                                (\(h = 6.0\)) smooths all three peaks into one blob; the purple (CV-selected 
+                                optimal) recovers all three modes. Top-right: the GMM decomposed into its 
+                                three coloured Gaussian components; BIC selects \(K = 3\) as the best model. 
+                                Bottom-left: BIC as a function of \(K\), the minimum at \(K = 3\) is the 
+                                model-selection answer. Bottom-middle: 500 synthetic events sampled from 
+                                the fitted GMM overlaid on the true data; the sampled distribution matches 
+                                closely. Bottom-right: the curse of dimensionality; the fraction of a unit 
+                                hypercube that lies in its corners grows toward 1 as dimension increases, 
+                                showing why KDE and histograms fail at high \(D\).*</em>
+                        </p>
+                    </div>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The curse of dimensionality: why classical methods fail</h3>
+                    
+                    <p>
+                        For 1D data, all three methods work well. For 2D or 3D data, KDE and GMM still perform 
+                        reasonably. But as the number of features \(D\) grows, both methods deteriorate rapidly, 
+                        for the same fundamental reason: in high dimensions, data becomes sparse.
+                    </p>
+
+                    <p>
+                        Here is a concrete way to see this. Consider a \(D\)-dimensional unit hypercube \([0, 1]^D\). 
+                        Place a data point at the centre. The fraction of the cube's volume that lies within distance 
+                        \(r\) of the centre is roughly proportional to \(r^D\). For \(r = 0.5\) and \(D = 10\), this 
+                        fraction is \(0.5^{10} \approx 0.001\); only 0.1% of the volume is "nearby." Almost all of 
+                        the volume is in the corners, far from any data point. KDE cannot estimate the density well 
+                        in regions with no data points nearby, and with \(D = 10\) there are essentially no regions 
+                        that are not far from something.
+                    </p>
+
+                    <p>
+                        For KDE: the number of data points needed to maintain the same estimation quality scales 
+                        roughly as \(N \propto h^{-D}\), which grows exponentially. For histograms: with \(B\) 
+                        bins per axis, the total number of bins is \(B^D\); for \(B = 10\) and \(D = 15\) 
+                        (the number of parameters in a GW posterior), this is \(10^{15}\) bins. No dataset will 
+                        ever fill them.
+                    </p>
+
+                    <p>
+                        This is the wall that motivates everything in the following sections. We need a density model that does 
+                        not require covering \(D\)-dimensional space with kernels or bins; one that can learn the 
+                        density of high-dimensional data efficiently. That model is the <strong>normalising flow</strong>.
+                    </p>
+                    
+                    <hr>
+
+                    <h3 class="fstyle-secondary">What the code does</h3>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p> 
+                    
+                    <p>
+                        The accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_05_density_estimation.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> is divided into six parts. 
+                        Part A confirms the KDE formula numerically, it checks the closed-form bandwidth comparison against a naive computation.
+                        Part B generates the three-population BBH chirp mass dataset.
+                        Part C finds the optimal KDE bandwidth using five-fold <a href="https://scikit-learn.org/stable/modules/cross_validation.html" target="_blank">cross-validation</a>, printing
+                        the log-likelihood at each candidate \(h\); you should see a clear maximum at the
+                        optimal bandwidth. Part D fits GMMs for \(K = 1\) through \(8\) and prints the BIC table; the minimum BIC entry is where the model selection lands. 
+                        Part E generates synthetic samples from the best GMM. Part F produces the full six-panel figure shown above.                        
+                    </p>
+
+                    <p>
+                        The most instructive thing to do with the script is to change the number of
+                        generated events from 500 to 50 and rerun. With only 50 points, the optimal KDE
+                        bandwidth changes dramatically, the GMM starts over-splitting the populations,
+                        and the BIC may select the wrong \(K\).
+                        This shows the dependence of all classical density estimators on the amount of data, and motivates the need for structured
+                        parametric models, like flows, that can extract more information from fewer events.                        
+                    </p>
+
+                    
+                    <hr>
+
+                    <h3 class="fstyle-secondary">The running scorecard</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #444; text-align: left;">
+                                <th style="padding: 10px;"></th>
+                                <th style="padding: 10px;">Regression</th>
+                                <th style="padding: 10px;">Classification</th>
+                                <th style="padding: 10px;">Neural net</th>
+                                <th style="padding: 10px;">Regularisation</th>
+                                <th style="padding: 10px;">Density estimation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #444;">
+                                <td style="padding: 10px;"><strong>Output</strong></td>
+                                <td style="padding: 10px;">\(\hat{y} \in \mathbb{R}\)</td>
+                                <td style="padding: 10px;">\(p \in [0, 1]\)</td>
+                                <td style="padding: 10px;">\(p \in [0, 1]\)</td>
+                                <td style="padding: 10px;">same</td>
+                                <td style="padding: 10px;">\(p(x) \ge 0\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #444;">
+                                <td style="padding: 10px;"><strong>Loss</strong></td>
+                                <td style="padding: 10px;">MSE</td>
+                                <td style="padding: 10px;">Cross-entropy</td>
+                                <td style="padding: 10px;">Cross-entropy</td>
+                                <td style="padding: 10px;">\(\text{CE} + \alpha\|\theta\|^2\)</td>
+                                <td style="padding: 10px;">\(-\log p(x)\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #444;">
+                                <td style="padding: 10px;"><strong>Labels needed?</strong></td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;"><strong>No</strong></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #444;">
+                                <td style="padding: 10px;"><strong>What it learns</strong></td>
+                                <td style="padding: 10px;">\(p(y \mid x)\)</td>
+                                <td style="padding: 10px;">\(p(y \mid x)\)</td>
+                                <td style="padding: 10px;">\(p(y \mid x)\)</td>
+                                <td style="padding: 10px;">\(p(y \mid x)\)</td>
+                                <td style="padding: 10px;">\(p(x)\)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p>
+                        The last column is the conceptual break. For the first time in this series, no 
+                        labels are required. The model learns from the data distribution itself, which 
+                        means it can be applied to unlabelled event streams, and it can generate new 
+                        synthetic events by sampling.
+                    </p>
+                    
+                    <hr>
+
+                    <h3 class="fstyle-secondary">What comes next</h3>
+                    
+                    <p>
+                        We now know what we want: a model of \(p(x)\) that can handle high-dimensional data, can be 
+                        trained by maximum likelihood, can generate new samples, and does not suffer from the 
+                        curse of dimensionality.
+                    </p>
+
+                    <p>
+                        The next section introduces the <strong>autoencoder</strong>, a neural network that compresses data 
+                        into a low-dimensional latent representation \(z\) and then reconstructs it. The 
+                        autoencoder is not yet a density model, but it gives us the idea of a bottleneck latent 
+                        space that we will need for everything that follows. Section 7 turns that into the 
+                        <strong>variational autoencoder</strong>, the first proper generative model in this series. 
+                        And section 8 arrives at <strong>normalising flows</strong>, the model that delivers 
+                        everything on the wish list above, exactly and without approximation.
+                    </p>                    
+                    
+
+                    <hr>
+                    <section aria-label="Footnotes">
+                        <p id="fn-iid" class="small text-body-secondary mb-0">
+                            <sup>1</sup> This product form assumes the training examples are i.i.d. (independent and identically distributed), which is the standard assumption in machine learning, including most tabular neural network setups.
+                            <a href="#fnref-iid" class="text-decoration-none" aria-label="Back to reference">↩</a>
+                        </p>
+                    </section>
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+</body>
+</html>

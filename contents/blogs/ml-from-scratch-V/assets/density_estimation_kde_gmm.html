@@ -1,0 +1,252 @@
+
+<style>
+  .de-wrap { padding: 1rem 0 0; }
+  .de-ctrl { display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin-bottom:1rem; }
+  .de-ctrl label { font-size:13px; color:var(--color-text-secondary); display:flex; align-items:center; gap:8px; }
+  .de-ctrl input[type=range] { width:130px; }
+  .de-ctrl span.val { font-size:13px; font-weight:500; min-width:32px; }
+  .de-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:1rem; }
+  .de-stat { background:var(--color-background-secondary); border-radius:8px; padding:.6rem .85rem; }
+  .de-stat .lbl { font-size:11px; color:var(--color-text-tertiary); }
+  .de-stat .val { font-size:17px; font-weight:500; margin-top:2px; }
+  .de-mode { display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; }
+  .de-mode button { font-size:12px; padding:4px 14px; border-radius:99px; }
+  .de-mode button.active { background:var(--color-background-info); color:var(--color-text-info); border-color:transparent; }
+</style>
+
+<div class="de-wrap">
+  <h2 class="sr-only">Interactive density estimation: KDE bandwidth and log-likelihood</h2>
+
+  <div class="de-mode">
+    <button id="btn-kde" class="active" onclick="setMode('kde')">KDE</button>
+    <button id="btn-gmm" onclick="setMode('gmm')">Gaussian mixture (GMM)</button>
+    <button id="btn-hist" onclick="setMode('hist')">Histogram</button>
+  </div>
+
+  <div class="de-ctrl" id="bw-row">
+    <label>KDE bandwidth h
+      <input type="range" min="1" max="40" value="8" step="1" id="sl-bw" oninput="draw()">
+      <span class="val" id="v-bw">0.8</span>
+    </label>
+  </div>
+  <div class="de-ctrl" id="bins-row" style="display:none">
+    <label>Bins
+      <input type="range" min="5" max="50" value="20" step="1" id="sl-bins" oninput="draw()">
+      <span class="val" id="v-bins">20</span>
+    </label>
+  </div>
+
+  <div class="de-stats">
+    <div class="de-stat"><div class="lbl">Log-likelihood</div><div class="val" id="stat-ll" style="color:#534AB7">—</div></div>
+    <div class="de-stat"><div class="lbl">N data points</div><div class="val" id="stat-n">500</div></div>
+    <div class="de-stat"><div class="lbl">Mode(s) found</div><div class="val" id="stat-modes">—</div></div>
+  </div>
+
+  <canvas id="de-canvas" height="240" style="width:100%;display:block;border-radius:8px;border:0.5px solid var(--color-border-tertiary);"></canvas>
+
+  <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:.6rem;" id="de-info">
+    KDE places a small Gaussian on each data point and sums them. Bandwidth h controls smoothness.
+  </div>
+</div>
+
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+
+function lcg(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+function boxMuller(r) {
+  const u = r(), v = r();
+  return Math.sqrt(-2 * Math.log(u + 1e-10)) * Math.cos(2 * Math.PI * v);
+}
+
+const rand = lcg(1337);
+const bm = () => boxMuller(rand);
+
+const DATA = [];
+for (let i = 0; i < 280; i++) DATA.push(bm() * 4.5 + 12);
+for (let i = 0; i < 160; i++) DATA.push(bm() * 3.0 + 28);
+for (let i = 0; i < 60;  i++) DATA.push(bm() * 2.0 + 42);
+DATA.sort((a, b) => a - b);
+const N = DATA.length;
+
+document.getElementById('stat-n').textContent = N;
+
+const XMIN = 0, XMAX = 60;
+
+let mode = 'kde';
+
+function gauss(x, mu, sigma) {
+  const z = (x - mu) / sigma;
+  return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+}
+
+function kdeAt(xs, h) {
+  return xs.map(x => DATA.reduce((s, xi) => s + gauss(x, xi, h), 0) / N);
+}
+
+function gmmFit() {
+  const means = [12, 28, 42];
+  const sigmas = [4.5, 3.0, 2.0];
+  const weights = [0.56, 0.32, 0.12];
+  return (x) => weights.reduce((s, w, k) => s + w * gauss(x, means[k], sigmas[k]), 0);
+}
+
+function logLikelihoodKDE(h) {
+  return DATA.reduce((sum, xi) => {
+    const p = DATA.reduce((s, xj) => s + gauss(xi, xj, h), 0) / N;
+    return sum + Math.log(Math.max(p, 1e-15));
+  }, 0) / N;
+}
+
+function findModes(ys, xs) {
+  const peaks = [];
+  for (let i = 1; i < ys.length - 1; i++) {
+    if (ys[i] > ys[i-1] && ys[i] > ys[i+1] && ys[i] > 0.002) peaks.push(xs[i].toFixed(1));
+  }
+  return peaks;
+}
+
+function draw() {
+  const canvas = document.getElementById('de-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = devicePixelRatio;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = canvas.offsetHeight * dpr;
+  ctx.scale(dpr, dpr);
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  ctx.clearRect(0, 0, W, H);
+
+  const PAD = { l: 40, r: 16, t: 16, b: 30 };
+  const pw = W - PAD.l - PAD.r, ph = H - PAD.t - PAD.b;
+
+  const toX = v => PAD.l + (v - XMIN) / (XMAX - XMIN) * pw;
+  const toY = (v, maxV) => PAD.t + ph - (v / maxV) * ph;
+
+  const textColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const axisColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+
+  ctx.strokeStyle = axisColor; ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(PAD.l, PAD.t); ctx.lineTo(PAD.l, PAD.t + ph); ctx.lineTo(PAD.l + pw, PAD.t + ph); ctx.stroke();
+
+  ctx.font = '11px sans-serif'; ctx.fillStyle = textColor; ctx.textAlign = 'center';
+  for (let v = 0; v <= 60; v += 10) {
+    const x = toX(v);
+    ctx.fillText(v, x, PAD.t + ph + 18);
+    ctx.strokeStyle = gridColor; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + ph); ctx.stroke();
+  }
+  ctx.fillStyle = textColor; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText('chirp mass (M☉)', PAD.l + pw, PAD.t + ph + 28);
+
+  const NX = 300;
+  const xs = Array.from({length: NX}, (_, i) => XMIN + (XMAX - XMIN) * i / (NX - 1));
+
+  if (mode === 'hist') {
+    const bins = parseInt(document.getElementById('sl-bins').value);
+    document.getElementById('v-bins').textContent = bins;
+    const bw = (XMAX - XMIN) / bins;
+    const counts = new Array(bins).fill(0);
+    DATA.forEach(d => { const b = Math.min(Math.floor((d - XMIN) / bw), bins - 1); if (b >= 0) counts[b]++; });
+    const maxC = Math.max(...counts) / (N * bw);
+    counts.forEach((c, i) => {
+      const x0 = toX(XMIN + i * bw), x1 = toX(XMIN + (i+1) * bw);
+      const density = c / (N * bw);
+      const y = toY(density, maxC);
+      ctx.fillStyle = isDark ? 'rgba(83,74,183,0.5)' : 'rgba(83,74,183,0.35)';
+      ctx.strokeStyle = '#534AB7'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.rect(x0 + 1, y, x1 - x0 - 2, PAD.t + ph - y); ctx.fill(); ctx.stroke();
+    });
+    document.getElementById('stat-ll').textContent = '—';
+    document.getElementById('stat-modes').textContent = '—';
+    document.getElementById('de-info').textContent = 'Histogram: bin counts / (N × bin_width) gives a density estimate. Bin size is a hyperparameter.';
+    return;
+  }
+
+  let ys, maxY, ll, modes;
+
+  if (mode === 'kde') {
+    const h = parseInt(document.getElementById('sl-bw').value) / 10;
+    document.getElementById('v-bw').textContent = h.toFixed(1);
+    ys = kdeAt(xs, h);
+    maxY = Math.max(...ys) * 1.15;
+    ll = logLikelihoodKDE(h);
+    modes = findModes(ys, xs);
+    document.getElementById('stat-ll').textContent = ll.toFixed(3);
+    document.getElementById('stat-modes').textContent = modes.length > 0 ? modes.join(', ') : '—';
+
+    const info = h < 1.5 ? 'Bandwidth too small → spiky, overfits noise (overfit!)' :
+                 h > 4   ? 'Bandwidth too large → over-smoothed, loses structure (underfit!)' :
+                           'Good bandwidth → density captures the three sub-populations.';
+    document.getElementById('de-info').textContent = 'KDE: ' + info;
+
+    ctx.beginPath();
+    xs.forEach((x, i) => {
+      const px = toX(x), py = toY(ys[i], maxY);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    });
+    ctx.strokeStyle = '#534AB7'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.lineTo(toX(XMAX), toY(0, maxY)); ctx.lineTo(toX(XMIN), toY(0, maxY));
+    ctx.closePath();
+    ctx.fillStyle = isDark ? 'rgba(83,74,183,0.18)' : 'rgba(83,74,183,0.1)';
+    ctx.fill();
+
+  } else {
+    const gmm = gmmFit();
+    ys = xs.map(gmm);
+    maxY = Math.max(...ys) * 1.15;
+    modes = findModes(ys, xs);
+    const ll_gmm = DATA.reduce((s, xi) => s + Math.log(Math.max(gmm(xi), 1e-15)), 0) / N;
+    document.getElementById('stat-ll').textContent = ll_gmm.toFixed(3);
+    document.getElementById('stat-modes').textContent = modes.join(', ');
+
+    const comps = [
+      {mu:12, sig:4.5, w:0.56, col:'#534AB7'},
+      {mu:28, sig:3.0, w:0.32, col:'#1D9E75'},
+      {mu:42, sig:2.0, w:0.12, col:'#D85A30'},
+    ];
+    comps.forEach(c => {
+      const cy = xs.map(x => c.w * gauss(x, c.mu, c.sig));
+      ctx.beginPath();
+      xs.forEach((x, i) => {
+        const px = toX(x), py = toY(cy[i], maxY);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.strokeStyle = c.col; ctx.lineWidth = 1.2; ctx.setLineDash([4, 3]); ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    ctx.beginPath();
+    xs.forEach((x, i) => {
+      const px = toX(x), py = toY(ys[i], maxY);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    });
+    ctx.strokeStyle = '#BA7517'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.lineTo(toX(XMAX), toY(0, maxY)); ctx.lineTo(toX(XMIN), toY(0, maxY)); ctx.closePath();
+    ctx.fillStyle = isDark ? 'rgba(186,117,23,0.15)' : 'rgba(186,117,23,0.08)'; ctx.fill();
+    document.getElementById('de-info').textContent = 'GMM: sum of K Gaussians, each with its own mean μ, std σ, and weight w. Fitted by maximising log-likelihood.';
+  }
+
+  DATA.forEach(d => {
+    ctx.beginPath();
+    ctx.arc(toX(d), PAD.t + ph + 6, 2, 0, Math.PI * 2);
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)';
+    ctx.fill();
+  });
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('bw-row').style.display   = m === 'kde'  ? '' : 'none';
+  document.getElementById('bins-row').style.display = m === 'hist' ? '' : 'none';
+  ['kde','gmm','hist'].forEach(id => {
+    document.getElementById('btn-'+id).classList.toggle('active', id === m);
+  });
+  draw();
+}
+
+draw();
+window.addEventListener('resize', draw);
+</script>

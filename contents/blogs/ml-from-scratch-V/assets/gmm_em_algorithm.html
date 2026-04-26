@@ -1,0 +1,253 @@
+
+<style>
+  .em-wrap { padding: 1rem 0 0; }
+  .em-top { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:.8rem; }
+  .em-top button { font-size:12px; padding:4px 14px; border-radius:99px; }
+  .em-top button.primary { background:#534AB7; color:#fff; border:none; }
+  .em-top button.secondary { font-size:12px; padding:4px 14px; border-radius:99px; }
+  .em-phase { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:3px 12px; border-radius:99px; }
+  .em-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:.8rem; }
+  .em-stat { background:var(--color-background-secondary); border-radius:8px; padding:.45rem .7rem; }
+  .em-stat .lbl { font-size:11px; color:var(--color-text-tertiary); }
+  .em-stat .val { font-size:15px; font-weight:500; margin-top:1px; }
+  .em-caption { font-size:12px; color:var(--color-text-tertiary); margin-top:.5rem; min-height:2.4em; line-height:1.6; text-align:center; }
+  .em-legend { display:flex; gap:18px; justify-content:center; margin-bottom:.5rem; flex-wrap:wrap; }
+  .em-legend span { font-size:12px; color:var(--color-text-secondary); display:flex; align-items:center; gap:5px; }
+  .em-legend i { width:12px; height:12px; border-radius:50%; display:inline-block; }
+</style>
+
+<div class="em-wrap">
+  <div class="em-top">
+    <button class="primary" id="btn-step" onclick="stepEM()">▶ Next step</button>
+    <button class="secondary" id="btn-reset" onclick="resetEM()">↺ Reset</button>
+    <button class="secondary" id="btn-run" onclick="runAll()">⏩ Run to convergence</button>
+    <span class="em-phase" id="phase-badge" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">Initialisation</span>
+  </div>
+
+  <div class="em-stats">
+    <div class="em-stat"><div class="lbl">Iteration</div><div class="val" id="st-iter">0</div></div>
+    <div class="em-stat"><div class="lbl">Phase</div><div class="val" id="st-phase" style="color:#534AB7">Init</div></div>
+    <div class="em-stat"><div class="lbl">Log-likelihood</div><div class="val" id="st-ll">—</div></div>
+    <div class="em-stat"><div class="lbl">ΔLL</div><div class="val" id="st-dll">—</div></div>
+  </div>
+
+  <div class="em-legend">
+    <span><i style="background:#534AB7"></i> Component 1</span>
+    <span><i style="background:#1D9E75"></i> Component 2</span>
+    <span><i style="background:#D85A30"></i> Component 3</span>
+    <span><i style="background:#888;border:1px dashed #888;border-radius:0;height:2px;width:18px;"></i> Component ellipse</span>
+  </div>
+
+  <canvas id="em-canvas" height="260" style="width:100%;display:block;border-radius:8px;border:0.5px solid var(--color-border-tertiary);"></canvas>
+  <div class="em-caption" id="em-caption">Press "Next step" to begin. The E-step colours each point by its responsibility; the M-step moves the Gaussian centres to follow the coloured points.</div>
+</div>
+
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const COMP_COLORS = ['#534AB7','#1D9E75','#D85A30'];
+const COMP_COLORS_SOFT = isDark
+  ? ['rgba(83,74,183,0.22)','rgba(29,158,117,0.22)','rgba(216,90,48,0.22)']
+  : ['rgba(83,74,183,0.12)','rgba(29,158,117,0.12)','rgba(216,90,48,0.12)'];
+
+// ── reproducible LCG RNG ──────────────────────────────────────────────
+function makeLCG(s){ let v=s>>>0; return ()=>{ v=(v*1664525+1013904223)>>>0; return v/4294967296; }; }
+function boxMuller(r){ const u=r()+1e-10,v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+
+// ── Generate dataset: 3 well-separated clusters ───────────────────────
+const rdata = makeLCG(7);
+const bm = ()=>boxMuller(rdata);
+const TRUE_PARAMS = [
+  {mu:[1.5, 1.4], sx:0.38, sy:0.28, n:80,  w:0.45},
+  {mu:[-1.3,-0.9], sx:0.30, sy:0.42, n:55,  w:0.30},
+  {mu:[0.4,-1.7], sx:0.50, sy:0.25, n:45,  w:0.25},
+];
+const DATA = [];
+TRUE_PARAMS.forEach((p,k)=>{
+  for(let i=0;i<p.n;i++) DATA.push({ x: p.mu[0]+bm()*p.sx, y: p.mu[1]+bm()*p.sy, trueK: k });
+});
+
+const K = 3, N = DATA.length;
+
+// ── State ─────────────────────────────────────────────────────────────
+let mus, sigmas, pis, responsibilities, iter, phase, logLik, prevLL, running;
+
+function resetEM(){
+  clearInterval(running); running = null;
+  document.getElementById('btn-run').textContent = '⏩ Run to convergence';
+  const rinit = makeLCG(99);
+  // initialise means by picking K random data points + small noise
+  const idxs = [0, Math.floor(N/3), Math.floor(2*N/3)];
+  mus    = idxs.map(i=>[ DATA[i].x+(rinit()-0.5)*0.3, DATA[i].y+(rinit()-0.5)*0.3 ]);
+  sigmas = [[0.6,0.6],[0.6,0.6],[0.6,0.6]];
+  pis    = [1/K, 1/K, 1/K];
+  responsibilities = Array.from({length:N}, ()=>new Array(K).fill(1/K));
+  iter   = 0; phase = 'init'; logLik = null; prevLL = null;
+  updateStats(); draw();
+}
+
+// ── Gaussian PDF ──────────────────────────────────────────────────────
+function gaussPDF(x,y,mu,sx,sy){
+  const dx=(x-mu[0])/sx, dy=(y-mu[1])/sy;
+  return Math.exp(-0.5*(dx*dx+dy*dy))/(2*Math.PI*sx*sy);
+}
+
+// ── E-step ────────────────────────────────────────────────────────────
+function eStep(){
+  let ll=0;
+  for(let i=0;i<N;i++){
+    const {x,y}=DATA[i];
+    const raw = mus.map((mu,k)=>pis[k]*gaussPDF(x,y,mu,sigmas[k][0],sigmas[k][1]));
+    const sum = raw.reduce((a,b)=>a+b,0)+1e-300;
+    responsibilities[i] = raw.map(r=>r/sum);
+    ll += Math.log(sum);
+  }
+  prevLL = logLik; logLik = ll/N;
+  phase='e-done';
+}
+
+// ── M-step ────────────────────────────────────────────────────────────
+function mStep(){
+  for(let k=0;k<K;k++){
+    const Nk = responsibilities.reduce((s,r)=>s+r[k],0)+1e-10;
+    const mx = responsibilities.reduce((s,r,i)=>s+r[k]*DATA[i].x,0)/Nk;
+    const my = responsibilities.reduce((s,r,i)=>s+r[k]*DATA[i].y,0)/Nk;
+    const vx = responsibilities.reduce((s,r,i)=>s+r[k]*(DATA[i].x-mx)**2,0)/Nk;
+    const vy = responsibilities.reduce((s,r,i)=>s+r[k]*(DATA[i].y-my)**2,0)/Nk;
+    mus[k]    = [mx,my];
+    sigmas[k] = [Math.max(Math.sqrt(vx),0.05), Math.max(Math.sqrt(vy),0.05)];
+    pis[k]    = Nk/N;
+  }
+  iter++; phase='m-done';
+}
+
+function stepEM(){
+  if(phase==='init'||phase==='m-done'){ eStep(); }
+  else if(phase==='e-done'){ mStep(); }
+  updateStats(); draw();
+}
+
+function runAll(){
+  if(running){ clearInterval(running); running=null; document.getElementById('btn-run').textContent='⏩ Run to convergence'; return; }
+  document.getElementById('btn-run').textContent='⏸ Pause';
+  running = setInterval(()=>{
+    stepEM(); stepEM();
+    const dll = prevLL!==null ? Math.abs(logLik-prevLL) : 1;
+    if(dll < 1e-5 || iter > 60){ clearInterval(running); running=null; document.getElementById('btn-run').textContent='⏩ Run to convergence'; }
+  }, 120);
+}
+
+function updateStats(){
+  document.getElementById('st-iter').textContent = iter;
+  const phaseLabels = {'init':'Init','e-done':'After E-step','m-done':'After M-step'};
+  document.getElementById('st-phase').textContent = phaseLabels[phase]||phase;
+  document.getElementById('st-ll').textContent = logLik!==null ? logLik.toFixed(3) : '—';
+  const dll = (logLik!==null&&prevLL!==null) ? (logLik-prevLL) : null;
+  document.getElementById('st-dll').textContent = dll!==null ? (dll>=0?'+':'')+dll.toFixed(4) : '—';
+  document.getElementById('st-dll').style.color = dll===null?'':dll>=0?'var(--color-text-success)':'var(--color-text-danger)';
+
+  const badges = {'init':['Initialisation','var(--color-background-secondary)','var(--color-text-secondary)'],
+                  'e-done':['E-step done','rgba(83,74,183,0.18)','#534AB7'],
+                  'm-done':['M-step done','rgba(29,158,117,0.18)','#1D9E75']};
+  const [lbl,bg,col] = badges[phase]||badges['init'];
+  const b = document.getElementById('phase-badge');
+  b.textContent=lbl; b.style.background=bg; b.style.color=col;
+
+  const captions = {
+    'init': 'Initialisation: Gaussian components are placed at rough starting positions. Responsibilities are equal — no data point is yet assigned to any component in particular.',
+    'e-done': 'E-step complete: each point is coloured by its responsibility rᵢₖ — how strongly component k "claims" it. Points near two components show mixed colours. Log-likelihood is evaluated here.',
+    'm-done': `M-step complete (iteration ${iter}): each component's mean μₖ and spread σₖ are updated as responsibility-weighted averages of the data. Watch the ellipses snap toward the point clouds.`,
+  };
+  document.getElementById('em-caption').textContent = captions[phase]||'';
+}
+
+// ── Drawing ───────────────────────────────────────────────────────────
+function draw(){
+  const canvas = document.getElementById('em-canvas');
+  const dpr = devicePixelRatio;
+  canvas.width  = canvas.offsetWidth*dpr;
+  canvas.height = canvas.offsetHeight*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const W=canvas.offsetWidth, H=canvas.offsetHeight;
+  ctx.clearRect(0,0,W,H);
+
+  const XMIN=-2.4,XMAX=2.4,YMIN=-2.6,YMAX=2.2;
+  const px=x=>( (x-XMIN)/(XMAX-XMIN))*(W-32)+16;
+  const py=y=>H-16-((y-YMIN)/(YMAX-YMIN))*(H-32);
+
+  // grid
+  ctx.strokeStyle=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'; ctx.lineWidth=0.5;
+  for(let g=-2;g<=2;g++){
+    ctx.beginPath(); ctx.moveTo(px(g),py(YMIN)); ctx.lineTo(px(g),py(YMAX)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px(XMIN),py(g)); ctx.lineTo(px(XMAX),py(g)); ctx.stroke();
+  }
+
+  // axes
+  ctx.strokeStyle=isDark?'rgba(255,255,255,0.14)':'rgba(0,0,0,0.12)'; ctx.lineWidth=0.7;
+  ctx.beginPath(); ctx.moveTo(px(XMIN),py(0)); ctx.lineTo(px(XMAX),py(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px(0),py(YMIN)); ctx.lineTo(px(0),py(YMAX)); ctx.stroke();
+
+  // Gaussian ellipses (1-sigma contour)
+  for(let k=0;k<K;k++){
+    const [mx,my]=mus[k],[sx,sy]=sigmas[k];
+    const col=COMP_COLORS[k];
+    const ew=sx*2*(W-32)/(XMAX-XMIN), eh=sy*2*(H-32)/(YMAX-YMIN);
+    ctx.beginPath();
+    ctx.ellipse(px(mx),py(my),ew,eh,0,0,2*Math.PI);
+    ctx.fillStyle=COMP_COLORS_SOFT[k]; ctx.fill();
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.setLineDash([5,3]); ctx.stroke(); ctx.setLineDash([]);
+
+    // mean marker
+    ctx.beginPath(); ctx.arc(px(mx),py(my),7,0,2*Math.PI);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(px(mx)-10,py(my)); ctx.lineTo(px(mx)+10,py(my));
+    ctx.moveTo(px(mx),py(my)-10); ctx.lineTo(px(mx),py(my)+10);
+    ctx.strokeStyle='white'; ctx.lineWidth=1.5; ctx.setLineDash([]); ctx.stroke();
+
+    // μₖ label
+    ctx.font='11px sans-serif'; ctx.fillStyle=col; ctx.textAlign='left';
+    ctx.fillText(`μ${k+1}  (π=${pis[k].toFixed(2)})`, px(mx)+10, py(my)-8);
+  }
+
+  // data points — coloured by dominant responsibility
+  for(let i=0;i<N;i++){
+    const {x,y}=DATA[i];
+    const r=responsibilities[i];
+    const dom=r.indexOf(Math.max(...r));
+
+    if(phase==='init'){
+      // uniform grey before any E-step
+      ctx.beginPath(); ctx.arc(px(x),py(y),4,0,2*Math.PI);
+      ctx.fillStyle=isDark?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.25)';
+      ctx.fill();
+    } else {
+      // blend colour by responsibility
+      const [r0,r1,r2]=r;
+      const parseHex=h=>{ const n=parseInt(h.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; };
+      const c0=parseHex(COMP_COLORS[0]),c1=parseHex(COMP_COLORS[1]),c2=parseHex(COMP_COLORS[2]);
+      const rc=c0.map((_,j)=>Math.round(r0*c0[j]+r1*c1[j]+r2*c2[j]));
+      ctx.beginPath(); ctx.arc(px(x),py(y),4,0,2*Math.PI);
+      ctx.fillStyle=`rgba(${rc[0]},${rc[1]},${rc[2]},0.85)`;
+      ctx.fill();
+      // small stroke for the dominant component
+      ctx.strokeStyle=COMP_COLORS[dom]; ctx.lineWidth=0.8; ctx.stroke();
+    }
+  }
+
+  // log-likelihood bar at bottom
+  if(logLik!==null){
+    const llRange=[-3.5,-1.0], llFrac=Math.max(0,Math.min(1,(logLik-llRange[0])/(llRange[1]-llRange[0])));
+    const bx=16, by=H-10, bw=W-32, bh=5;
+    ctx.fillStyle=isDark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)';
+    ctx.fillRect(bx,by,bw,bh);
+    ctx.fillStyle='#1D9E75';
+    ctx.fillRect(bx,by,bw*llFrac,bh);
+    ctx.font='10px sans-serif'; ctx.fillStyle=isDark?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.35)';
+    ctx.textAlign='right'; ctx.fillText('LL: '+logLik.toFixed(3), W-18, H-13);
+  }
+}
+
+resetEM();
+window.addEventListener('resize', draw);
+</script>
