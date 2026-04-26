@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models III</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models III</h2>
+                    <p class="blog-post-meta">April 25, 2026</p>
+                    <h2 class="fstyle-secondary">Section 4: Overfitting: When a Model Learns Too Much</h2>
+                    <h3 class="fstyle-secondary">The trap that comes with power</h3>
+
+                    <p>
+                        The previous section (<a href="../ml-from-scratch-III/index.html">section 3</a>) left us with a neural network capable of drawing curved, 
+                        complex decision boundaries in feature space, boundaries that logistic regression could never
+                        produce. That expressiveness is valuable, but it comes with a risk that anyone
+                        who has fitted a high-degree polynomial to a small dataset will recognise
+                        immediately. A model with enough parameters can always find a way to pass
+                        perfectly through <strong>every</strong> training point. Whether that perfect fit means anything
+                        for new data (the <strong>test dataset</strong>) is a different question entirely.                        
+                    </p>
+
+                    <p>
+                        This is the central tension of machine learning, and it has a name:
+                        <strong>overfitting</strong>, when a model learns the training data so thoroughly that it
+                        memorises its noise along with its signal<sup id="fnref-noise"><a href="#fn-noise" class="text-decoration-none">1</a></sup>, and then fails to generalise to unseen
+                        examples. Understanding it, detecting it, and curing it is not a technical
+                        detail. It is arguably the most practically important skill in the whole
+                        discipline, and it maps directly onto one of the most familiar problems in
+                        experimental physics.                        
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">You have seen this before: the polynomial fit analogy</h3>
+
+                    <p>
+                        Before any neural networks, consider a problem you have almost certainly encountered in a physics lab or analysis 
+                        course. You have \(N = 15\) data points drawn from some smooth physical relationship, with added Gaussian 
+                        measurement noise. You want to fit a polynomial of degree \(d\).
+                    </p>
+                    
+                    <p>
+                        When \(d = 1\) (a straight line), the model is too simple. It cannot follow the curvature in the data, leaving 
+                        systematic residuals, a pattern in the errors that the model failed to capture. This is 
+                        <strong>underfitting</strong>. The training error is high, and the test error (the error on the new data) is equally high, for the same 
+                        reason: the model is structurally unable to represent the truth.
+                    </p>
+                    
+                    <p>
+                        When \(d = 12\), the polynomial has enough freedom to pass through every one of your 15 points almost exactly. 
+                        The training error approaches zero. But if you collect 15 new points from the same process and evaluate the 
+                        polynomial there, it oscillates wildly between the new measurements, it is tracing the noise in the original 
+                        dataset, not the underlying physical relationship. This is <strong>overfitting</strong>. Training error is 
+                        very low; test error is high.
+                    </p>
+                    
+                    <p>
+                        When \(d = 3\) or \(4\), something in between happens: the polynomial is flexible enough to follow the broad 
+                        shape of the data without chasing every noise fluctuation. Training error is reasonably low, and test error 
+                        is comparably low. This is <strong>generalisation</strong>, and it is the goal of machine learning.
+                    </p>
+                    
+                    <p>
+                        Neural networks play exactly the same game. A tiny network with two neurons underfits. A network with ten million 
+                        parameters applied to a small dataset overfits. The right answer is somewhere in between, and finding it 
+                        requires a principled methodology.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The bias-variance decomposition</h3>
+                    <p>
+                        The polynomial example suggests a precise way to think about model error on unseen data. For any model and any 
+                        data-generating process, the expected error on a new test point can be decomposed into three terms:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[\text{Total error} = \text{Bias}^2 + \text{Variance} + \text{Irreducible noise}\]
+                    </p>
+                    
+                    <p>
+                        The <strong>irreducible noise</strong> is the variance in the data itself, measurement uncertainty, stochastic 
+                        processes, or any randomness baked into the problem. No model, however perfect, can predict below this floor. This is 
+                        because it is the inherent noise in the data.
+                    </p>
+                    
+                    <p>
+                        The <strong>bias</strong> measures how wrong the model's average prediction is compared to the true function. 
+                        A model with high bias makes systematic errors because its functional form cannot represent the truth, a straight 
+                        line fitted to a quadratic relationship will always be wrong in the same direction, no matter how much data you 
+                        give it or how long you train it. High bias is <strong>underfitting</strong>.
+                    </p>
+                    
+                    <p>
+                        The <strong>variance</strong> measures how sensitive the model's predictions are to the specific training set it 
+                        happened to see. A model with high variance fits the training data very tightly, so small changes in the 
+                        training set, using a different random draw of the same 300 events, produce very different models. 
+                        High variance is <strong>overfitting</strong>.
+                    </p>
+                    
+                    <p>
+                        The tension (trade-off) between bias and variance is fundamental. As you increase model complexity (more layers in case of neural networks), more 
+                        neurons, higher polynomial degree, bias decreases because the model can represent more of the truth, but variance 
+                        increases because the model has more freedom to memorise noise. Total error is the sum, and it has a 
+                        minimum somewhere in between. The figure below makes this concrete.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step4_overfitting.svg" alt="A single neuron computes a weighted sum of its inputs plus a bias, z = w^top x + b, then passes the result through a non-linear activation function phi to produce its output a = phi(z). Stacking many such neurons in layers is all a neural network is." style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>Figure 1: Top-left: training and validation loss over 300 epochs for a large
+                                unregularised network. The blue training loss falls monotonically; the orange
+                                validation loss reaches a minimum around epoch 30–50 and then climbs. The red
+                                shaded gap between the two is the overfit region — the model is learning noise,
+                                not signal. Top-right: the bias-variance tradeoff schematic. Bias² (blue) falls
+                                with complexity; variance (orange) rises. Total error (purple) has a minimum at
+                                the sweet spot. Bottom-left: AUC for five regularisation strategies across train,
+                                validation, and test sets, the gap column is the key diagnostic. Bottom-right:
+                                a learning curve showing how the train-val gap evolves as the training set grows.</em>
+                        </p>
+                    </div>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The three-way data split</h3>
+                    <p>
+                        Before we discuss cures, we need the right measurement apparatus. The standard in machine learning is to divide your 
+                        labelled data into three non-overlapping sets.
+                    </p>
+                    
+                    <p>
+                        The <strong>training set</strong> (~70% of data) is what the model sees during gradient descent. 
+                        Parameters \(\theta\) are updated to minimise the loss on this set and only this set.
+                    </p>
+                    
+                    <p>
+                        The <strong>validation set</strong> (~15%) is used to monitor generalisation during training and to make 
+                        decisions about hyperparameters — architecture size, learning rate, regularisation strength. Crucially, 
+                        the model never trains on validation data. It does not update its weights based on validation loss; 
+                        it only reads the validation loss as a diagnostic.
+                    </p>
+                    
+                    <p>
+                        The <strong>test set</strong> (~15%) is touched exactly once, at the very end, after all hyperparameter 
+                        decisions have been made. It provides an unbiased estimate of how the model will perform on genuinely 
+                        new data. The test AUC is the number you report in your analysis note or paper.
+                    </p>
+                    
+                    <p>
+                        The reason the three-way split is necessary rather than just two sets is subtle but important. If you use 
+                        the validation set to choose hyperparameters, trying ten different regularisation strengths and picking 
+                        whichever gives the best validation AUC (see <a href="../ml-from-scratch-III/index.html">section 3</a>), then the validation set has effectively been used to train 
+                        those hyperparameters. Your validation performance is no longer an unbiased estimate. The test set 
+                        exists to provide an estimate that is genuinely clean.
+                    </p>
+                    
+                    <p>
+                        In physics terms: the training set is your Monte Carlo simulation used to optimise the selection cuts; 
+                        the validation set is an independent MC sample used to evaluate the cuts without bias; the test set is 
+                        the real data, unblinded once and reported. The logic is identical. Unblinding early and iterating on the 
+                        result is precisely the mistake of tuning on the test set.
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">Cures for overfitting</h3>
+
+                    <p>
+                        There are five practical tools, each addressing the problem from a different
+                        angle. They are not mutually exclusive, in practice, you often use several
+                        simultaneously.                        
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">More data</h4>
+                    <p>
+                        The most effective cure for overfitting is also the most obvious: if the model has more training examples, 
+                        the noise in any single example is diluted by the signal across all others, and variance decreases. 
+                        Learning curves, plotting both training AUC and validation AUC as functions of training set size,
+                        are one of the most practically useful diagnostics available.
+                    </p>
+                    <p>
+                        When the gap between the two curves is large at all training set sizes, you have an overfitting problem 
+                        that more data will help. When both curves are low at all training set sizes, you have an underfitting 
+                        problem that more data will not fix. In particle physics and GW astronomy, where labelled data represents 
+                        expensive detector events or CPU-intensive <a href="https://geant4.web.cern.ch/" target="_blank" rel="noopener noreferrer">GEANT4</a> simulations, these curves tell you whether it is 
+                        worth running another batch of simulations before the next iteration.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">L2 regularisation</h4>
+                    <p>
+                        <strong>L2 regularisation</strong> modifies the loss function by adding a penalty proportional to the sum of squared weights:
+                    </p>
+                    
+                    <p style="text-align: center;">
+                        \[L_{\text{total}}(\theta) = L_{\text{cross-entropy}}(\theta) + \alpha \sum_{k} \theta_k^2\]
+                    </p>
+                    
+                    <p>
+                        The hyperparameter \(\alpha\) controls how strongly the penalty is applied. The effect is to penalise 
+                        large weights, any parameter that tries to grow large to memorise a single training example is pulled 
+                        back toward zero by the penalty term. This means that the model is less likely to overfit to the training data. 
+                        The result is a model whose weights are all small and distributed, rather than a few large weights dominating specific training patterns.
+                    </p>
+                    
+                    <p>
+                        You will recognise this immediately: L2 regularisation is <strong>Tikhonov regularisation</strong> (mentioned briefly in <a href="../ml-from-scratch-III/index.html">section 3</a>), the 
+                        same technique used in inverse problems in geophysics, image reconstruction, and any ill-posed 
+                        least-squares system. While the ML community uses \(\alpha\) rather than \(\lambda\) and applies it 
+                        to neural network weights rather than a linear operator, the mathematics and the motivation are identical.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Early stopping</h4>
+                    <p>
+                        As training progresses, the model typically moves from a high-bias state (underfitting) to a low-bias, 
+                        high-variance state (overfitting). Because the training set is a finite sample of the truth, the training 
+                        loss will continue to decrease almost indefinitely as the model begins to memorise noise. The validation 
+                        loss, however, will stop decreasing and eventually start to <em>rise</em> as the model's generalisation 
+                        performance degrades.
+                    </p>
+                    <p>
+                        <strong>Early stopping</strong> is the practice of monitoring the validation loss and terminating training at 
+                         the exact point where it reaches its minimum. This is a remarkably effective "free" regulariser because 
+                         it requires no change to the model architecture or the loss function, it simply prevents the optimiser (such as <a href="../ml-from-scratch-II/" target="_blank" rel="noopener noreferrer">gradient descent</a>)
+                         from entering the high-variance regime.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Dropout</h4>
+                    <p>
+                        <strong>Dropout</strong> is a technique specific to neural networks. During each training step, a random 
+                        subset of neurons (typically 5% to 50%) is "dropped", their activations are set to zero for that pass. 
+                        This prevents the network from becoming overly reliant on any single neuron or specific path through the 
+                        layers.
+                    </p>
+                    <p>
+                        Because the specific neurons being dropped change at every step, the network is forced to learn 
+                        <strong>redundant representations</strong> of the signal. It essentially trains an ensemble of many 
+                        thinner networks simultaneously. At test time, all neurons are active, and the model's prediction is an 
+                        average over the knowledge distributed across the entire architecture. Dropout is one of the most powerful 
+                        tools for regularising very deep networks.
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <iframe
+                            src="./assets/dropout_visualisation.html"
+                            title="Dropout visualisation widget"
+                            style="width: 100%; min-height: 460px; border: 1px solid #d0d7de; border-radius: 8px; background: transparent;"
+                            loading="lazy">
+                        </iframe>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>Figure 2: Dropout in action. In training mode each hidden neuron is independently silenced with probability p; 
+                                click "Resample mask" to see a new random training step. In inference mode all neurons are active and their outputs 
+                                are scaled by (1 − p) to preserve the expected activation magnitude.</em>
+                        </p>
+                    </div>                    
+                    
+                    <p>
+                        The practical rule: <strong>start with early stopping and L2 regularisation; add dropout if the model 
+                        is still overfitting.</strong>
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Smaller models</h4>
+                    <p>
+                        The most direct cure is also the most conceptually clean: reduce the model's
+                        capacity so that it is physically incapable of memorising noise. A network with
+                        32 neurons per layer simply does not have enough parameters to store all the
+                        idiosyncratic features of 300 noisy training examples. The bottom-left panel in
+                        Figure 1 shows that reducing the architecture from 128→128→64 to 32→1632→16 substantially closes the train-validation AUC gap, at the cost of some
+                        peak validation AUC. Whether that trade-off is worth it depends on how much data
+                        you have and how large the overfit gap is in the larger model.
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">The right workflow</h3>
+                    <p>
+                        A practical training workflow brings these tools together in a principled
+                        sequence. Start by splitting data into train, validation, and test sets, and
+                        then do not look at the test set again until the end. Train a baseline model
+                        without regularisation and plot its training history. If the validation loss
+                        diverges from the training loss, the model is overfitting: apply L2
+                        regularisation, enable early stopping, or reduce the model size, and retrain.
+                        Use the validation AUC to compare regularisation strategies and choose the best.
+                        Only then, once and for all, evaluate on the test set and report that number.                        
+                    </p>
+                    
+                    <p>
+                        The comparison table from the script makes this concrete. Five strategies are
+                        compared by their train AUC, validation AUC, and the gap between them. The
+                        unregularised baseline shows a large gap (the signature of overfitting). Each
+                        regularisation strategy reduces the gap by a different mechanism. The best
+                        strategy by validation AUC is selected, and its test AUC is the final reported
+                        performance. That test AUC was never used to make any decision, it is a clean,
+                        unbiased estimate.                        
+                    </p>
+
+                    <hr>
+
+                    <h3 class="fstyle-secondary">What the code does</h3>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p> 
+                    
+                    <p>
+                        The accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_04_overfitting.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> is structured to build the intuition
+                        progressively. Part A deliberately constructs a worst-case dataset: 300 events,
+                        20 features, but only 3 of them carry genuine signal information — exactly the
+                        situation you face with a high-dimensional detector feature vector where most
+                        channels are noise. Ten percent of labels are randomly flipped, mimicking
+                        crowdsourced labelling errors or ambiguous cases in a real classification task.                        
+                    </p>
+                    
+                    <p>
+                        Part B trains a large unregularised network epoch by epoch, saving both training
+                        and validation loss at each step, this is how you build a training history
+                        manually when you need fine-grained control. The printed output at this stage is
+                        the key diagnostic: compare the best-epoch validation loss to the final-epoch
+                        validation loss, and compute the overfit gap explicitly.
+                    </p>
+
+                    <p>
+                        Part C trains five variants side by side and prints the comparison table. Study
+                        the "Gap" column: a large gap means overfitting; small gap means the
+                        regularisation is working. Part D computes learning curves using <a href="https://scikit-learn.org/stable/" target="_blank" rel="noopener noreferrer">sklearn</a>'s
+                        built-in <code><a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.learning_curve.html" target="_blank" rel="noopener noreferrer">learning_curve</a></code> function, which handles the cross-validation correctly.
+                        Part F prints the final model selection, the best model is chosen by validation
+                        AUC, and then the test AUC is reported once.                        
+                    </p>
+
+                    <hr>
+
+                    <h3 class="fstyle-secondary">The running scorecard</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333;">
+                                <th style="padding: 10px;">Technique</th>
+                                <th style="padding: 10px;">Mechanism</th>
+                                <th style="padding: 10px;">Effect</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>More data</strong></td>
+                                <td style="padding: 10px;">Dilutes noise with more signal</td>
+                                <td style="padding: 10px;">Reduces variance directly</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>L2 regularisation</strong></td>
+                                <td style="padding: 10px;">Penalises large weights in the loss: \(\alpha \sum \theta^2\)</td>
+                                <td style="padding: 10px;">Prevents single parameters from memorising noise</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Early stopping</strong></td>
+                                <td style="padding: 10px;">Stops training at the validation loss minimum</td>
+                                <td style="padding: 10px;">Prevents model from entering high-variance regime</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Dropout</strong></td>
+                                <td style="padding: 10px;">Randomly deactivates neurons during training</td>
+                                <td style="padding: 10px;">Forces redundant, robust representations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>
+                        The goal of all these techniques is to move the model away from the "memorisation" regime and toward the 
+                        "generalisation" regime, where it captures the underlying physics rather than the fluctuations of a 
+                        specific dataset.
+                    </p>
+                    
+                    <hr>
+
+                    <h3 class="fstyle-secondary">What comes next</h3>
+                    <p>
+                        With sections 1–4, we have a complete supervised learning toolkit. We can predict
+                        continuous outputs, classify events, learn non-linear boundaries, and prevent
+                        our models from memorising noise. Every piece of this toolkit answers the
+                        question "given x, what is y?"                        
+                    </p>
+                    
+                    <p>
+                        In the next article, section 5 asks a fundamentally different question: "what is the probability
+                        distribution of x itself?" This is density estimation, and it is the bridge
+                        to everything that follows: autoencoders, variational autoencoders, and
+                        normalising flows. The loss function changes from cross-entropy to negative
+                        log-likelihood, but the optimisation principle is to minimise L(\(\theta\)) by gradient
+                        descent, the same as in the previous sections.                        
+                    </p>
+
+                    <hr>
+                    <section aria-label="Footnotes">
+                        <p id="fn-noise" class="small text-body-secondary mb-0">
+                            <sup>1</sup> Real-world data is almost always noisy and imperfect: measurements include uncertainty, instrumentation effects, and random fluctuations.
+                            <a href="#fnref-noise" class="text-decoration-none" aria-label="Back to reference">↩</a>
+                        </p>
+                    </section>
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+</body>
+</html>

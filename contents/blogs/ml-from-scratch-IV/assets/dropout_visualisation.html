@@ -1,0 +1,260 @@
+
+<style>
+  .do-wrap { padding: 1rem 0 0; }
+  .do-ctrl { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:.9rem; }
+  .do-ctrl label { font-size:13px; color:var(--color-text-secondary); display:flex; align-items:center; gap:8px; }
+  .do-ctrl input[type=range] { width:120px; }
+  .do-ctrl .val { font-size:13px; font-weight:500; min-width:28px; }
+  .do-mode { display:flex; gap:8px; margin-bottom:.9rem; }
+  .do-mode button { font-size:12px; padding:4px 14px; border-radius:99px; }
+  .do-mode button.active { background:var(--color-background-info); color:var(--color-text-info); border-color:transparent; }
+  .do-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:.9rem; }
+  .do-stat { background:var(--color-background-secondary); border-radius:8px; padding:.5rem .75rem; }
+  .do-stat .lbl { font-size:11px; color:var(--color-text-tertiary); }
+  .do-stat .val2 { font-size:16px; font-weight:500; margin-top:2px; }
+  .do-caption { font-size:12px; color:var(--color-text-tertiary); margin-top:.6rem; min-height:2.2em; line-height:1.6; text-align:center; }
+</style>
+
+<div class="do-wrap">
+  <div class="do-mode">
+    <button class="active" id="btn-train" onclick="setMode('train')">Training</button>
+    <button id="btn-infer" onclick="setMode('infer')">Inference</button>
+    <button id="btn-resample" onclick="resample()" style="font-size:12px;padding:4px 14px;border-radius:99px;margin-left:8px;">↺ Resample mask</button>
+  </div>
+
+  <div class="do-ctrl">
+    <label>Dropout rate p
+      <input type="range" min="0" max="80" value="40" step="5" id="sl-p" oninput="onRateChange()">
+      <span class="val" id="v-p">0.40</span>
+    </label>
+  </div>
+
+  <div class="do-stats">
+    <div class="do-stat"><div class="lbl">Total neurons</div><div class="val2" id="st-total">—</div></div>
+    <div class="do-stat"><div class="lbl">Active this step</div><div class="val2" id="st-active" style="color:var(--color-text-success)">—</div></div>
+    <div class="do-stat"><div class="lbl">Dropped</div><div class="val2" id="st-dropped" style="color:var(--color-text-danger)">—</div></div>
+  </div>
+
+  <svg id="do-svg" width="100%" viewBox="0 0 680 280" style="display:block;"></svg>
+  <div class="do-caption" id="do-caption"></div>
+</div>
+
+<script>
+const ARCH = [4, 6, 6, 3];
+const LAYER_X = [90, 240, 440, 590];
+const LAYER_LABELS = ['Input', 'Hidden 1', 'Hidden 2', 'Output'];
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+
+let mode = 'train';
+let dropRate = 0.4;
+let mask = [];
+
+function buildMask() {
+  mask = ARCH.map((n, l) => {
+    if (l === 0 || l === ARCH.length - 1) return new Array(n).fill(true);
+    return Array.from({length: n}, () => Math.random() >= dropRate);
+  });
+}
+
+buildMask();
+
+function neuronY(layer, idx) {
+  const n = ARCH[layer];
+  const spacing = Math.min(48, 210 / n);
+  const total = (n - 1) * spacing;
+  return 138 - total / 2 + idx * spacing;
+}
+
+function draw() {
+  const svg = document.getElementById('do-svg');
+  svg.innerHTML = '';
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs) => {
+    const el = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+    return el;
+  };
+
+  const activeMask = mode === 'train' ? mask : ARCH.map(n => new Array(n).fill(true));
+  const scaleColor = mode === 'infer' ? 'rgba(83,74,183,0.18)' : null;
+
+  // edges
+  for (let l = 0; l < ARCH.length - 1; l++) {
+    for (let j = 0; j < ARCH[l+1]; j++) {
+      for (let i = 0; i < ARCH[l]; i++) {
+        const srcAlive = activeMask[l][i];
+        const dstAlive = activeMask[l+1][j];
+        const alive = srcAlive && dstAlive;
+        const line = mk('line', {
+          x1: LAYER_X[l], y1: neuronY(l, i),
+          x2: LAYER_X[l+1], y2: neuronY(l+1, j),
+          stroke: alive
+            ? (isDark ? 'rgba(83,74,183,0.55)' : 'rgba(83,74,183,0.35)')
+            : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+          'stroke-width': alive ? '1.2' : '0.5',
+        });
+        svg.appendChild(line);
+      }
+    }
+  }
+
+  // neurons
+  let totalHidden = 0, activeHidden = 0;
+  for (let l = 0; l < ARCH.length; l++) {
+    const isHidden = l > 0 && l < ARCH.length - 1;
+    for (let i = 0; i < ARCH[l]; i++) {
+      const cx = LAYER_X[l], cy = neuronY(l, i);
+      const alive = activeMask[l][i];
+      const r = (l === 0 || l === ARCH.length - 1) ? 20 : 18;
+
+      if (isHidden) {
+        totalHidden++;
+        if (alive) activeHidden++;
+      }
+
+      // circle
+      const circle = mk('circle', {
+        cx, cy, r,
+        fill: alive
+          ? (mode === 'infer' ? 'rgba(83,74,183,0.22)' : 'rgba(83,74,183,0.72)')
+          : 'var(--color-background-secondary)',
+        stroke: alive ? '#534AB7' : 'var(--color-border-tertiary)',
+        'stroke-width': alive ? '1' : '0.5',
+        opacity: alive ? '1' : '0.4',
+      });
+      svg.appendChild(circle);
+
+      // inference: scale hint ring
+      if (mode === 'infer' && isHidden) {
+        const ring = mk('circle', {
+          cx, cy, r: r + 5,
+          fill: 'none',
+          stroke: 'rgba(29,158,117,0.5)',
+          'stroke-width': '1',
+          'stroke-dasharray': '3 2',
+        });
+        svg.appendChild(ring);
+      }
+
+      // label inside neuron
+      const txt = mk('text', {
+        x: cx, y: cy,
+        'text-anchor': 'middle', 'dominant-baseline': 'central',
+        'font-size': '11', 'font-weight': '500',
+        fill: alive
+          ? (mode === 'infer' ? '#534AB7' : 'white')
+          : 'var(--color-text-tertiary)',
+        'pointer-events': 'none',
+      });
+      if (!alive && mode === 'train') {
+        txt.textContent = '✕';
+        txt.setAttribute('fill', 'var(--color-text-danger)');
+      } else {
+        txt.textContent = l === 0 ? `x${i+1}` : (l === ARCH.length-1 ? `y${i+1}` : '');
+      }
+      svg.appendChild(txt);
+
+      // inference scale badge
+      if (mode === 'infer' && isHidden) {
+        const badge = mk('text', {
+          x: cx, y: cy - r - 6,
+          'text-anchor': 'middle',
+          'font-size': '9', 'font-weight': '400',
+          fill: 'rgba(29,158,117,0.85)',
+          'pointer-events': 'none',
+        });
+        badge.textContent = `×${(1-dropRate).toFixed(2)}`;
+        svg.appendChild(badge);
+      }
+
+      // dropped overlay badge
+      if (!alive && mode === 'train') {
+        const bg = mk('rect', {
+          x: cx - 16, y: cy + r - 1,
+          width: 32, height: 14, rx: 4,
+          fill: 'var(--color-background-danger)',
+        });
+        svg.appendChild(bg);
+        const lbl = mk('text', {
+          x: cx, y: cy + r + 7,
+          'text-anchor': 'middle', 'dominant-baseline': 'central',
+          'font-size': '9', fill: 'var(--color-text-danger)', 'font-weight': '500',
+          'pointer-events': 'none',
+        });
+        lbl.textContent = 'off';
+        svg.appendChild(lbl);
+      }
+    }
+  }
+
+  // layer labels
+  LAYER_LABELS.forEach((lbl, l) => {
+    const t = mk('text', {
+      x: LAYER_X[l], y: 264,
+      'text-anchor': 'middle', 'font-size': '11',
+      fill: 'var(--color-text-tertiary)',
+    });
+    t.textContent = lbl;
+    svg.appendChild(t);
+
+    if (l > 0 && l < ARCH.length - 1 && mode === 'train') {
+      const sub = mk('text', {
+        x: LAYER_X[l], y: 276,
+        'text-anchor': 'middle', 'font-size': '10',
+        fill: 'var(--color-text-danger)',
+      });
+      sub.textContent = `p=${dropRate.toFixed(2)} dropout`;
+      svg.appendChild(sub);
+    }
+    if (l > 0 && l < ARCH.length - 1 && mode === 'infer') {
+      const sub = mk('text', {
+        x: LAYER_X[l], y: 276,
+        'text-anchor': 'middle', 'font-size': '10',
+        fill: 'rgba(29,158,117,0.8)',
+      });
+      sub.textContent = `all on, ×${(1-dropRate).toFixed(2)}`;
+      svg.appendChild(sub);
+    }
+  });
+
+  // stats
+  const dropped = totalHidden - activeHidden;
+  document.getElementById('st-total').textContent = totalHidden;
+  document.getElementById('st-active').textContent = mode === 'train' ? activeHidden : totalHidden;
+  document.getElementById('st-dropped').textContent = mode === 'train' ? dropped : 0;
+
+  // caption
+  const captions = {
+    train: mode === 'train'
+      ? `Training step: ${dropped} neuron${dropped!==1?'s':''} randomly silenced (p = ${dropRate.toFixed(2)}). The network must route information through the remaining ${activeHidden} active neurons — preventing any single path from being memorised.`
+      : '',
+    infer: `Inference: all neurons are active. Each output is scaled by (1 − p) = ${(1-dropRate).toFixed(2)} to match the expected activation magnitude from training.`,
+  };
+  document.getElementById('do-caption').textContent = captions[mode];
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-train').classList.toggle('active', m === 'train');
+  document.getElementById('btn-infer').classList.toggle('active', m === 'infer');
+  document.getElementById('btn-resample').style.opacity = m === 'train' ? '1' : '0.35';
+  document.getElementById('btn-resample').style.pointerEvents = m === 'train' ? '' : 'none';
+  draw();
+}
+
+function resample() {
+  buildMask();
+  draw();
+}
+
+function onRateChange() {
+  dropRate = parseInt(document.getElementById('sl-p').value) / 100;
+  document.getElementById('v-p').textContent = dropRate.toFixed(2);
+  buildMask();
+  draw();
+}
+
+draw();
+window.addEventListener('resize', draw);
+</script>

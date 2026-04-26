@@ -1,0 +1,261 @@
+
+<style>
+  .ov-wrap { padding: 1rem 0 0; }
+  .ov-ctrl { display:flex; align-items:center; gap:12px; margin-bottom:1.25rem; flex-wrap:wrap; }
+  .ov-ctrl label { font-size:13px; color:var(--color-text-secondary); }
+  .ov-ctrl input[type=range] { flex:1; min-width:120px; max-width:300px; }
+  .ov-badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:500; transition: background .3s, color .3s; }
+  .ov-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:1.25rem; }
+  .ov-stat { background:var(--color-background-secondary); border-radius:8px; padding:.65rem .85rem; }
+  .ov-stat .lbl { font-size:11px; color:var(--color-text-tertiary); margin-bottom:2px; }
+  .ov-stat .val { font-size:18px; font-weight:500; }
+</style>
+
+<div class="ov-wrap">
+  <div class="ov-ctrl">
+    <label>Model complexity</label>
+    <input type="range" min="1" max="20" value="5" step="1" id="sl-cplx" oninput="update()">
+    <span style="font-size:13px;font-weight:500;min-width:28px;" id="v-cplx">5</span>
+    <span class="ov-badge" id="regime-badge">just right</span>
+  </div>
+
+  <div class="ov-stats">
+    <div class="ov-stat">
+      <div class="lbl">Train loss</div>
+      <div class="val" id="stat-train" style="color:#534AB7">—</div>
+    </div>
+    <div class="ov-stat">
+      <div class="lbl">Val loss</div>
+      <div class="val" id="stat-val" style="color:#D85A30">—</div>
+    </div>
+    <div class="ov-stat">
+      <div class="lbl">Overfit gap</div>
+      <div class="val" id="stat-gap">—</div>
+    </div>
+  </div>
+
+  <canvas id="ov-chart" height="220" style="width:100%;display:block;"></canvas>
+
+  <div style="margin-top:1.25rem;">
+    <canvas id="fit-canvas" height="160" style="width:100%;display:block;border-radius:8px;border:0.5px solid var(--color-border-tertiary);"></canvas>
+  </div>
+  <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem;text-align:center;" id="fit-label">Fitted curve on training data</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textCol = getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary').trim() || (isDark ? '#9c9a92' : '#73726c');
+const borderCol = getComputedStyle(document.documentElement).getPropertyValue('--color-border-tertiary').trim() || (isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)');
+
+const complexities = Array.from({length:20},(_,i)=>i+1);
+
+function trainLoss(c) {
+  return Math.max(0.04, 0.85 * Math.exp(-0.35 * c) + 0.04);
+}
+function valLoss(c) {
+  const minVal = 0.18;
+  const optimal = 5;
+  if (c <= optimal) {
+    return 0.72 * Math.exp(-0.28 * c) + minVal;
+  } else {
+    return minVal + 0.012 * (c - optimal) ** 1.7;
+  }
+}
+
+const trainData = complexities.map(trainLoss);
+const valData   = complexities.map(valLoss);
+
+const ctx = document.getElementById('ov-chart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: complexities,
+    datasets: [
+      {
+        label: 'Training loss',
+        data: trainData,
+        borderColor: '#534AB7',
+        backgroundColor: 'rgba(83,74,183,0.08)',
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.4,
+      },
+      {
+        label: 'Validation loss',
+        data: valData,
+        borderColor: '#D85A30',
+        backgroundColor: 'rgba(216,90,48,0.08)',
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.4,
+      },
+      {
+        label: 'Current model',
+        data: complexities.map(() => null),
+        borderColor: '#1D9E75',
+        borderWidth: 2,
+        pointRadius: 7,
+        pointStyle: 'circle',
+        pointBackgroundColor: '#1D9E75',
+        fill: false,
+        tension: 0,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 120 },
+    plugins: {
+      legend: { labels: { color: textCol, font: { size: 12 }, boxWidth: 18 } },
+      tooltip: {
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(3)}` }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Model complexity', color: textCol, font: { size: 12 } },
+        ticks: { color: textCol, font: { size: 11 } },
+        grid: { color: borderCol }
+      },
+      y: {
+        title: { display: true, text: 'Loss', color: textCol, font: { size: 12 } },
+        ticks: { color: textCol, font: { size: 11 } },
+        grid: { color: borderCol },
+        min: 0, max: 0.95
+      }
+    }
+  }
+});
+
+const seed42 = (() => { let s=42; return () => { s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/0xffffffff; }; })();
+const dataX = Array.from({length:18}, () => seed42()*8 - 4);
+const trueF = x => 0.12*x*x - 0.4*x + 0.2;
+const noiseAmp = 0.4;
+const dataY = dataX.map(x => trueF(x) + (seed42()-0.5)*noiseAmp*2);
+
+function polyFit(xs, ys, degree) {
+  const n = xs.length, d = degree + 1;
+  const A = [], b = [];
+  for (let i = 0; i < d; i++) {
+    A.push([]); b.push(0);
+    for (let j = 0; j < d; j++) {
+      A[i].push(xs.reduce((s, x) => s + Math.pow(x, i+j), 0));
+    }
+    b[i] = xs.reduce((s, x, k) => s + Math.pow(x, i) * ys[k], 0);
+  }
+  const m = A.map((r,i) => [...r, b[i]]);
+  for (let c = 0; c < d; c++) {
+    let maxR = c;
+    for (let r = c+1; r < d; r++) if (Math.abs(m[r][c]) > Math.abs(m[maxR][c])) maxR = r;
+    [m[c], m[maxR]] = [m[maxR], m[c]];
+    if (Math.abs(m[c][c]) < 1e-10) continue;
+    for (let r = 0; r < d; r++) {
+      if (r === c) continue;
+      const f = m[r][c] / m[c][c];
+      for (let cc = c; cc <= d; cc++) m[r][cc] -= f * m[c][cc];
+    }
+  }
+  return m.map((r, i) => r[d] / r[i]);
+}
+
+function evalPoly(coeffs, x) {
+  return coeffs.reduce((s, c, i) => s + c * Math.pow(x, i), 0);
+}
+
+function drawFit(complexity) {
+  const canvas = document.getElementById('fit-canvas');
+  const ctx2 = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * devicePixelRatio;
+  canvas.height = canvas.offsetHeight * devicePixelRatio;
+  ctx2.scale(devicePixelRatio, devicePixelRatio);
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  ctx2.clearRect(0, 0, W, H);
+
+  const px = x => (x + 4.5) / 9 * (W - 40) + 20;
+  const py = y => H - ((y + 0.8) / 2.8) * (H - 30) - 15;
+
+  const degree = Math.min(complexity, dataX.length - 1);
+  const coeffs = polyFit(dataX, dataY, degree);
+
+  const xs2 = Array.from({length:200}, (_,i) => -4.4 + i * 8.8/199);
+
+  const isBad = complexity >= 12;
+  const isGood = complexity >= 4 && complexity <= 8;
+  ctx2.beginPath();
+  xs2.forEach((x, i) => {
+    const y = evalPoly(coeffs, x);
+    const px_ = px(x), py_ = py(y);
+    if (i === 0) ctx2.moveTo(px_, py_); else ctx2.lineTo(px_, py_);
+  });
+  ctx2.strokeStyle = isBad ? '#D85A30' : isGood ? '#1D9E75' : '#534AB7';
+  ctx2.lineWidth = 2;
+  ctx2.stroke();
+
+  const trueXs = Array.from({length:100}, (_,i) => -4.4 + i * 8.8/99);
+  ctx2.beginPath();
+  trueXs.forEach((x, i) => {
+    const y = trueF(x);
+    if (i === 0) ctx2.moveTo(px(x), py(y)); else ctx2.lineTo(px(x), py(y));
+  });
+  ctx2.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)';
+  ctx2.lineWidth = 1.5;
+  ctx2.setLineDash([5,4]);
+  ctx2.stroke();
+  ctx2.setLineDash([]);
+
+  dataX.forEach((x, i) => {
+    ctx2.beginPath();
+    ctx2.arc(px(x), py(dataY[i]), 3.5, 0, Math.PI*2);
+    ctx2.fillStyle = '#378ADD';
+    ctx2.fill();
+  });
+
+  const legY = 18;
+  ctx2.font = '11px sans-serif';
+  ctx2.fillStyle = isBad ? '#D85A30' : isGood ? '#1D9E75' : '#534AB7';
+  ctx2.fillText('fitted curve', 26, legY);
+  ctx2.setLineDash([5,4]);
+  ctx2.beginPath(); ctx2.moveTo(W-110, legY-4); ctx2.lineTo(W-85, legY-4);
+  ctx2.strokeStyle = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)'; ctx2.lineWidth=1.5; ctx2.stroke();
+  ctx2.setLineDash([]);
+  ctx2.fillStyle = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
+  ctx2.fillText('true function', W-82, legY);
+}
+
+function update() {
+  const c = parseInt(document.getElementById('sl-cplx').value);
+  document.getElementById('v-cplx').textContent = c;
+
+  const tl = trainLoss(c), vl = valLoss(c);
+  document.getElementById('stat-train').textContent = tl.toFixed(3);
+  document.getElementById('stat-val').textContent   = vl.toFixed(3);
+  const gap = vl - tl;
+  document.getElementById('stat-gap').textContent  = gap.toFixed(3);
+
+  const badge = document.getElementById('regime-badge');
+  let regime, bc, tc;
+  if (c <= 3)       { regime='underfitting';  bc='var(--color-background-warning)'; tc='var(--color-text-warning)'; }
+  else if (c <= 8)  { regime='just right';    bc='var(--color-background-success)'; tc='var(--color-text-success)'; }
+  else              { regime='overfitting';   bc='var(--color-background-danger)';  tc='var(--color-text-danger)';  }
+  badge.textContent = regime;
+  badge.style.background = bc; badge.style.color = tc;
+
+  const pointData = complexities.map((_, i) => i+1 === c ? { x: c, y: vl } : null);
+  chart.data.datasets[2].data = complexities.map((cv) => cv === c ? vl : null);
+  chart.update('none');
+
+  document.getElementById('fit-label').textContent =
+    c <= 3 ? 'Underfitting: curve is too simple to capture the pattern' :
+    c <= 8 ? 'Good fit: curve generalises to unseen data' :
+    'Overfitting: curve memorises noise — wiggles wildly on new data';
+
+  setTimeout(() => drawFit(c), 0);
+}
+
+update();
+window.addEventListener('resize', () => drawFit(parseInt(document.getElementById('sl-cplx').value)));
+</script>
