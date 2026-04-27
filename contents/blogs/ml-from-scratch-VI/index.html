@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <!-- for syntax highlighting -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models VI</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models VI</h2>
+                    <p class="blog-post-meta">April 27, 2026</p>
+                    <h2 class="fstyle-secondary">Section 6: Autoencoders: Learning to Compress</h2>
+                    <h3 class="fstyle-secondary">The wall we hit in Section 5</h3>
+
+                    <p>
+                        <a href="../ml-from-scratch-V/index.html">Section 5</a> introduced density estimation, that is, learning \(p(x)\) directly from unlabelled data. 
+                        We saw that classical methods (histograms, KDE, GMM) work well in one or two dimensions 
+                        but collapse above roughly ten, because the volume of high-dimensional space grows so 
+                        fast that data becomes hopelessly sparse. We left with a wish list: a model that can 
+                        represent complex densities in high dimensions, has a tractable log-likelihood for training, 
+                        and can generate new samples.
+                    </p>
+
+                    <p>
+                        We will not arrive at that model immediately. Instead, Sections 6 and 7 build the conceptual 
+                        scaffolding piece by piece. Section 6 introduces the <strong>autoencoder</strong>, a neural 
+                        network that learns to compress high-dimensional data into a compact representation, and 
+                        then reconstruct the original from that representation. It is not yet a proper generative 
+                        model, but it introduces the latent space \(z\) that will be central to everything that 
+                        follows, and it solves real physics problems on its own terms.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">A new tool: PyTorch in two minutes</h3>
+                    <p>
+                        Sections <a href="../ml-from-scratch-I/index.html">1</a>–<a href="../ml-from-scratch-V/index.html">5</a> used <code>sklearn</code>, 
+                        which hides the training loop inside a <code>fit()</code> call.
+                        From here onwards we need to define our own loss functions and our own
+                        architectures, things that <code>sklearn</code> was not designed for. We switch to
+                        <span style="display: inline-flex; gap: 8px; vertical-align: middle; margin: 0 4px;">
+                            <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" aria-label="PyTorch">
+                              <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch" style="height: 24px; border-radius: 6px;">
+                            </a>
+                          </span>, the standard framework for research-grade deep learning in physics.                        
+                    </p>
+                    
+                    <p>
+                        Two concepts are all you need to start.                        
+                    </p>
+
+                    <p>
+                        A <strong>tensor</strong> is PyTorch's version of a <strong>NumPy array</strong>. It behaves identically for
+                        arithmetic, but it can live on a GPU (Graphics Processing Unit) and, crucially, it tracks every operation
+                        performed on it so that gradients can be computed automatically.                        
+                    </p>
+                    
+                    <div class="code-block">
+                        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn"
+                                onclick="copyCodeToClipboard(this)" aria-label="Copy code">
+                            <span class="d-none d-dark">☀️</span>
+                            <span class="d-none d-light">🌙</span>
+                            Copy
+                        </button>
+                        <pre class="bg-body-tertiary rounded"><code class="code-block language-python">import torch
+w = torch.tensor(2.0, requires_grad=True)   # one learnable parameter
+L = (w - 5.0) ** 2                          # loss = (w - 5)²
+L.backward()                                 # compute dL/dw automatically
+print(w.grad)                                # → tensor(−6.)  i.e. 2*(2-5) = −6
+                    </code></pre>
+                    </div>
+                    <p>
+                        That single <code>backward()</code> call is <strong><a href="../ml-from-scratch-III/index.html">backpropagation</a></strong>. PyTorch traced the computation
+                        graph when we wrote <code>(w - 5.0) ** 2</code>, and it can differentiate through any
+                        composition of operations, no matter how deep the network, no matter how
+                        complex the loss.                        
+                    </p>
+                    
+                    <p>
+                        An <code><a href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html" target="_blank" rel="noopener noreferrer" aria-label="nn.Module">nn.Module</a></code> is the base class for any neural network component. You define
+                        a <code></code>forward()</code> method describing the computation, and PyTorch handles the backward
+                        pass. Every layer (<code><a href="https://pytorch.org/docs/stable/generated/torch.nn.Linear.html" target="_blank" rel="noopener noreferrer" aria-label="nn.Linear">nn.Linear</a></code>, <code><a href="https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html" target="_blank" rel="noopener noreferrer" aria-label="nn.ReLU">nn.ReLU</a></code>, and so on) is itself an <code>nn.Module</code>,
+                        so networks are assembled by composing modules, exactly like composing
+                        mathematical functions. This is the only PyTorch you need for this section. The architecture and training loop
+                        that follow use nothing else.                        
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">The autoencoder: compress then reconstruct</h3>
+                    
+                    <p>
+                        An autoencoder is an hourglass-shaped neural network with two components joined 
+                        at a narrow bottleneck.
+                    </p>
+
+                    <p>
+                        The <strong>encoder \(E_\phi\)</strong> takes the \(D\)-dimensional input \(\mathbf{x}\) 
+                        and maps it to a \(d\)-dimensional latent vector \(\mathbf{z}\), where \(d \ll D\):
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ \mathbf{z} = E_\phi(\mathbf{x}) \in \mathbb{R}^d \]
+                    </p>
+
+                    <p>
+                        The <strong>decoder \(D_\theta\)</strong> takes the latent vector and reconstructs an 
+                        approximation \(\mathbf{\hat{x}}\) of the original input:
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ \mathbf{\hat{x}} = D_\theta(\mathbf{z}) = D_\theta(E_\phi(\mathbf{x})) \in \mathbb{R}^D \]
+                    </p>
+
+                    <p>
+                        The subscripts \(\phi\) and \(\theta\) denote the learnable parameters of the encoder and 
+                        decoder respectively. The full model is the composition \(\mathbf{\hat{x}} = (D_\theta \circ E_\phi)(\mathbf{x})\).
+                    </p>
+                    <p>
+                        It is important to be explicit here: \(E_\phi\) and \(D_\theta\) are <strong>not mysterious objects</strong>. 
+                        Each is just a neural network, i.e. a sequence of mathematical transformations of the form 
+                        \(W\mathbf{x} + b\), followed by a nonlinear activation.
+                    </p>
+                    <p>
+                        In PyTorch, these transformations are implemented with one or more <code>nn.Linear</code> layers, 
+                        typically interleaved with nonlinearities such as <code>nn.ReLU</code>, <code>nn.Tanh</code>, or 
+                        <code>nn.Sigmoid</code>. So, at code level, both encoder and decoder are simply stacks like 
+                        <code>Linear -&gt; activation -&gt; Linear -&gt; ...</code>.
+                    </p>
+
+                    <h4 class="fstyle-secondary">The loss function: reconstruction error</h4>
+                    <p>
+                        We want \(\mathbf{\hat{x}}\) to be as close to \(\mathbf{x}\) as possible. For continuous 
+                        real-valued features, the natural measure of closeness is the Mean Squared Error (MSE):
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ L(\phi, \theta) = \frac{1}{N} \sum_{i=1}^{N} \|\mathbf{x}_i - \mathbf{\hat{x}}_i\|^2 \]
+                    </p>
+
+                    <p>
+                        This is the same MSE from section <a href="../ml-from-scratch-I/index.html">1</a>, the loss function did not change; only the model did. 
+                        Minimising this loss over all parameters \((\phi, \theta)\) simultaneously is still gradient 
+                        descent, still backpropagation, still the same algorithm as every previous step.
+                    </p>
+
+                    <h4 class="fstyle-secondary">Why the bottleneck forces learning</h4>
+                    <p>
+                        Here is the key insight. If the latent dimension were \(d = D\), that is, no compression at all, 
+                        the encoder could simply pass the input straight through and the decoder could copy it 
+                        perfectly. The reconstruction loss would be zero without the network learning anything useful.
+                    </p>
+                    
+                    <p>
+                        The bottleneck constraint \(d \ll D\) makes this impossible. The encoder is 
+                        <strong>forced</strong> to discard information that is not essential and retain 
+                        information that is. It cannot memorise every detail of every input; it must 
+                        discover the underlying structure that is common across the dataset. In a GW 
+                        context, if the input is a 16-dimensional feature vector, the encoder with 
+                        \(d = 2\) must find the two numbers that best summarise which population the 
+                        event belongs to, effectively performing non-linear dimensionality reduction 
+                        automatically, without any labels.
+                    </p>
+
+                    <p>
+                        The interactive diagram below shows the hourglass architecture and what happens 
+                        when you sample latent points in different regions of the 2D space.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <iframe
+                            src="./assets/autoencoder_architecture_and_latent_holes.html"
+                            title="Density estimation KDE GMM visualisation widget"
+                            style="width: 100%; min-height: 460px; border: 1px solid #d0d7de; border-radius: 8px; background: transparent;"
+                            loading="lazy">
+                        </iframe>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>
+                                *Figure 1: <strong>Architecture tab:</strong> data flows left to right through the encoder (purple), is squeezed to a 2D latent code \(\mathbf{z}\)
+                                at the bottleneck (amber), then expanded back to the original dimension by the decoder (teal); 
+                                the animated particles illustrate one forward pass. <strong>Latent space tab:</strong> each coloured 
+                                cluster is one GW population as mapped by the encoder; click inside a cluster (green response) to see 
+                                the decoder produce a plausible event, then click in a red dashed hole region to see what happens when 
+                                the decoder is asked to reconstruct a point it was never trained on, the output is meaningless. 
+                                The holes exist because the reconstruction loss \(\|\mathbf{x} - \hat{\mathbf{x}}\|^2\) places no constraint on where in \(\mathbb{R}^2\) 
+                                the encoder is allowed to put its codes.*                                
+                            </em>
+                        </p>
+                    </div>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">Connection to Principle Component Analysis (PCA)</h3>
+                    
+                    <h4 class="fstyle-secondary">A brief aside: What is PCA?</h4>
+                    <p>
+                        Before we dive into the neural network version, we should mention <strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html" target="_blank" rel="noopener noreferrer" aria-label="Principal Component Analysis">Principal Component Analysis (PCA)</a></strong>. 
+                        PCA is the classic "old school" way to reduce dimensionality. It looks for the directions in your data (the "principal components") 
+                        that have the most variance, i.e. the directions along which the data is most spread out.
+                    </p>
+                    <p>
+                        By keeping only the top few directions and throwing away the rest, you project high-dimensional data onto a 
+                        flat, lower-dimensional <strong>linear subspace</strong> (like projecting a 3D shadow onto a 2D floor). 
+                        It is incredibly fast and useful, but it has a major weakness: it can only find flat structures. If your 
+                        data is curved like a spiral or a "Swiss roll," PCA will see right through it and lose the essential shape.
+                    </p>
+
+                    <h4 class="fstyle-secondary">Autoencoders as non-linear PCA</h4>
+                    <p>
+                        For a linear autoencoder, where both encoder and decoder are single linear layers with no 
+                        activation functions and MSE loss, the latent subspace learned by the autoencoder 
+                        converges to exactly the subspace spanned by the top \(d\) principal components of the data 
+                        covariance matrix. In other words, PCA is a special case of the autoencoder with a linear 
+                        architecture.
+                    </p>
+
+                    <p>
+                        The deep non-linear autoencoder generalises this: instead of finding the best flat \(d\)-dimensional 
+                        subspace (a hyperplane), it finds the best <strong>curved \(d\)-dimensional manifold</strong>. 
+                        This is why autoencoders can discover non-linear structure that PCA misses.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">What the latent space looks like</h3>
+                    <p>
+                        In the accompanying notebook, the dataset contains 800 simulated GW trigger events from three
+                        populations; stellar-origin BBHs, high-mass BBHs, and BNSs, represented by 16
+                        features each. The autoencoder has a 2D bottleneck, so we can plot \(\mathbf{z}\)
+                        directly as a scatter plot. The figure below shows the result.                        
+                    </p>
+
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step6_autoencoder.svg" alt="The machine learning loop diagram" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>*Figure 2: Six panels. Top-left: training loss curve, MSE falls smoothly 
+                                over 120 epochs as gradient descent minimises the reconstruction error. 
+                                Top-middle: the 2D latent space coloured by population label (which the 
+                                model never saw during training). Three distinct clusters emerge 
+                                spontaneously, the bottleneck forced the network to discover population 
+                                structure. Top-right: the hole problem, blue points are training-set 
+                                latent codes; red crosses are random samples \(\mathbf{z} \sim \mathcal{N}(0, 1.5^2)\) 
+                                that land far from any training point (holes); green plusses land safely 
+                                inside clusters. Bottom-left: reconstruction error distributions for normal 
+                                events (blue) and injected anomalous events (red); the orange threshold at 
+                                the 95th percentile cleanly separates them. Bottom-middle: original vs reconstructed feature vector for one event, the red shading is the pointwise reconstruction error. Bottom-right: AUC of a logistic regression trained on raw 16D features vs on the 2D latent code, nearly identical, showing the latent code retains the discriminative information at 1/8 the dimensionality.*</em>
+                        </p>
+                    </div>
+                    
+                    <p>
+                        The top-middle panel is the most striking result. The three populations separate
+                        clearly in 2D latent space, with no label information used at any point in
+                        training. The network discovered the population structure because it is the most
+                        efficient way to reduce reconstruction error: if you only have two numbers to
+                        describe each event, the most useful two numbers are ones that distinguish the
+                        main clusters.                        
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">Anomaly detection</h3>
+                    
+                    <p>
+                        One of the most practically useful applications of autoencoders in physics requires no 
+                        generative sampling at all. It exploits a simple property of the reconstruction loss: if the 
+                        model was trained on events from a known distribution, then events from a 
+                        <em>different</em> distribution will generally reconstruct poorly, because the encoder 
+                        has no good latent representation for them.
+                    </p>
+
+                    <p>The procedure is:</p>
+                    <ol>
+                        <li>Train the autoencoder on your background or "normal" (usually background) events.</li>
+                        <li>For every new event, compute the reconstruction error \(\|\mathbf{x} - \hat{\mathbf{x}}\|^2\).</li>
+                        <li>Flag events whose reconstruction error exceeds a threshold as anomalous (these are rare intersting physics events).</li>
+                    </ol>
+
+                    <p>
+                        No signal model is needed. No labels are needed for the anomaly class. The 
+                        threshold is set by choosing an acceptable false positive rate on held-out 
+                        normal events, exactly the same ROC-curve logic as <a href="../ml-from-scratch-II/index.html">section 2</a>.
+                    </p>
+
+                    <p>
+                        In the bottom-left panel of Figure 2, the reconstruction error for 50 injected 
+                        anomalous events (red) is clearly shifted to higher values than the training 
+                        population (blue). The 95th-percentile threshold (orange dashed line) detects 
+                        most anomalies while misclassifying only \(\sim 5\%\) of normal events. This approach has 
+                        been used in <a href="https://atlas.cern/" target="_blank" rel="noopener noreferrer" aria-label="ATLAS">ATLAS</a> and <a href="https://cms.cern/" target="_blank" rel="noopener noreferrer" aria-label="CMS">CMS</a> anomaly searches for new physics (e.g. <a href="https://arxiv.org/html/2501.13789v1" target="_blank" rel="noopener noreferrer" aria-label="ATLAS-CONF-2024-005"> Andrew Brinkerhoff et al. 2025</a>), in <a href="https://www.ligo.org/" target="_blank" rel="noopener noreferrer" aria-label="LIGO">LIGO</a> glitch classification, and 
+                        in radio telescope RFI rejection, anywhere that a model of "what normal looks 
+                        like" is available but a model of "what the anomaly looks like" is not.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The fundamental limitation: holes in latent space</h3>
+                    <p>
+                        The autoencoder has a structural problem that becomes apparent the moment you try to 
+                        use it as a generative model, i.e. to sample new events by drawing a random \(\mathbf{z}\) 
+                        and decoding it, i.e. generating a new event \(\mathbf{x}\).
+                    </p>
+
+                    <p>
+                        The issue is that the encoder places the training latent codes wherever it wants in \(\mathbb{R}^d\). 
+                        It has no incentive to fill the latent space continuously or smoothly. It only needs the decoded 
+                        output to match the input for the specific \(\mathbf{z}\) values it actually uses during training, 
+                        \(\mathcal{Z}_{\text{data}} = \{E_\phi(\mathbf{x}_i)\}_{i=1}^N\). The behaviour of the decoder 
+                        everywhere else is <strong>unconstrained</strong>.
+                    </p>
+
+                    <p>
+                        The result is an uneven scatter of clusters with empty regions, i.e. "holes", between them. If 
+                        you sample \(\mathbf{z} \sim \mathcal{N}(0, I)\) at random, roughly half the samples will land 
+                        in these holes. The decoder, forced to produce something, outputs a confused average 
+                        of unrelated training patterns, i.e. physically meaningless. For example, if the autoencoder was trained on 
+                        detector images, and you sampled a random \(\mathbf{z}\) and decoded it, the output would be a confused average of unrelated detector images.
+                    </p>
+                    <p>
+                        This is not a training failure. It is a fundamental consequence of the loss function. The 
+                        reconstruction loss \(\|\mathbf{x} - \mathbf{\hat{x}}\|^2\) says nothing whatsoever about what 
+                        \(\mathbf{z}\) should look like. The encoder is free to place codes anywhere, and it does, i.e. 
+                        wherever makes reconstruction easiest, regardless of whether the resulting space is smooth 
+                        or sampleable.
+                    </p>
+
+                    <p>
+                        The top-right panel of Figure 2 makes this concrete. The blue cloud is the training-set latent 
+                        codes. The red crosses are random \(\mathcal{N}(0, 1.5^2)\) samples that land in holes, roughly 
+                        half the total. The green plusses land inside the training cloud and would produce plausible 
+                        reconstructions. Generating new events by sampling at random is unreliable precisely 
+                        because of this imbalance, because of the holes in the latent space.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">Regularised variants</h3>
+                    <p>
+                        Several modifications to the basic autoencoder address specific problems without 
+                        solving the hole problem completely.
+                    </p>
+
+                    <h4 class="fstyle-secondary">Denoising Autoencoders</h4>
+
+                    <p>
+                        A <strong>denoising autoencoder</strong> corrupts the input before encoding it, 
+                        adding Gaussian noise, masking random features, or applying dropout to the input 
+                        vector, and trains the decoder to reconstruct the <strong>clean</strong> original from 
+                        the corrupted code. This forces the encoder to learn representations that are robust 
+                        to small perturbations, rather than memorising the exact input. The denoising autoencoder loss is:
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ L_{\text{DAE}} = \mathbb{E}_{\mathbf{\tilde{x}} \sim q(\mathbf{\tilde{x}} \mid \mathbf{x})} \left[ \|\mathbf{x} - D_\theta(E_\phi(\mathbf{\tilde{x}}))\|^2 \right] \]
+                    </p>
+
+                    <div style="background-color: #f4f6f8; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <p style="margin-top: 10px; margin-bottom: 10px;">
+                            Imagine trying to recognise your friend's face in a blurry photo. To get good at this, you might deliberately blur pictures of them and practice identifying the crisp features anyway. That is exactly what this math represents:
+                        </p>
+                        <ul style="margin-bottom: 0;">
+                            <li style="margin-bottom: 5px;"><strong>\(\mathbf{\tilde{x}}\)</strong> (read as "x-tilde") is the corrupted, "blurry" version of the data.</li>
+                            <li style="margin-bottom: 5px;"><strong>\(q(\mathbf{\tilde{x}} \mid \mathbf{x})\)</strong> is just the rule for adding the noise (e.g., "randomly drop 10% of the pixels").</li>
+                            <li style="margin-bottom: 5px;"><strong>\(\mathbb{E}\)</strong> stands for "Expectation" or average. We are calculating the average error across all the different random ways we could corrupt the image.</li>
+                            <li>The core equation <strong>\(\|\mathbf{x} - D_\theta(\dots)\|^2\)</strong> is still just measuring the distance between the <em>perfectly clean</em> original data (\(\mathbf{x}\)) and the decoder's attempt to rebuild it from the noisy version.</li>
+                        </ul>
+                    </div>
+
+                    <p>
+                        ... where \(q(\mathbf{\tilde{x}} \mid \mathbf{x})\) is the corruption distribution. 
+                        In practice this regularises the representation without any explicit penalty term, 
+                        and it is conceptually close to what dropout does in the hidden layers of a classifier.
+                    </p>
+
+                    <h4 class="fstyle-secondary">Sparse Autoencoders</h4>
+
+                    <p>
+                        A <strong>sparse autoencoder</strong> adds an explicit penalty on the activations 
+                        of the hidden layer, encouraging most neurons to be inactive for any given input:
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ L = L_{\text{recon}} + \lambda \sum_j |h_j(\mathbf{x})| \]
+                    </p>
+
+                    <div style="background-color: #f4f6f8; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <p style="margin-top: 10px; margin-bottom: 10px;">
+                            Think of a sparse autoencoder like a company meeting where every person who speaks charges the company $100. You want to communicate the information (good reconstruction) using the absolute fewest number of speakers possible.
+                        </p>
+                        <ul style="margin-bottom: 0;">
+                            <li style="margin-bottom: 5px;"><strong>\(L_{\text{recon}}\)</strong> is the standard reconstruction error we saw earlier (how well the output matches the input).</li>
+                            <li style="margin-bottom: 5px;"><strong>\(h_j(\mathbf{x})\)</strong> represents the activation level (the "loudness") of neuron \(j\) in the bottleneck layer.</li>
+                            <li style="margin-bottom: 5px;">The sum of absolute values <strong>\(\sum |h_j|\)</strong> acts as a "tax". Every time a neuron activates, the loss goes up.</li>
+                            <li><strong>\(\lambda\)</strong> (lambda) is a dial that controls how heavy this tax is. By trying to keep the overall loss \(L\) low, the network learns to turn off (make zero) as many neurons as possible, leaving only a few highly specialised neurons active for any specific input.</li>
+                        </ul>
+                    </div>
+
+                    <p>
+                        This forces the network to represent each input using a small number of active 
+                        neurons, i.e. a dictionary-like code where each dimension has a specific meaning. 
+                        This is used in neuroscience-inspired models of sensory cortex and in feature 
+                        visualisation for large language models.
+                    </p>
+
+                    <p>
+                        However, neither of these cures the hole problem, because neither constrains the 
+                        <strong>distribution</strong> of the latent codes \(\mathbf{z}\). That requires a 
+                        fundamentally different approach, which we will discuss in the next section.
+                    </p>
+                    <hr>
+                    <h3 class="fstyle-secondary">What the code does</h3>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p>
+                    
+                    <p>
+                        The accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_05_autoencoders.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> is divided into seven parts. 
+                        Part A is a two-minute PyTorch primer that runs before any neural network: it creates a 
+                        single tensor, computes a loss, calls <code>.backward()</code>, and prints the gradient. 
+                        Read the printed output carefully, that one-parameter example is the entire 
+                        backpropagation algorithm in miniature, and everything in Parts C through G is a 
+                        scaled-up version of exactly that.
+                    </p>
+
+                    <p>
+                        Part B generates the three-population GW dataset: 400 stellar BBHs, 250 high-mass BBHs, 
+                        and 150 BNSs, each described by 16 features with embedded non-linear correlations. The 
+                        class imbalance is intentional, it mirrors the realistic ratio of event types in a real 
+                        catalogue.
+                    </p>
+
+                    <p>
+                        Part C defines the autoencoder architecture as three <code>nn.Module</code> classes, 
+                        <code>Encoder</code>, <code>Decoder</code>, and <code>Autoencoder</code>, and prints the 
+                        parameter count broken down by layer. Verify the arithmetic by hand for the first layer 
+                        \((16 \times 64 + 64 = 1,088)\) before reading on; this makes the weight matrix concept 
+                        concrete.
+                    </p>
+
+                    <p>
+                        Part D is the training loop. It is written explicitly rather than hidden inside a 
+                        <code>.fit()</code> call, so you can see every step: <code>optimizer.zero_grad()</code> 
+                        clears the previous gradient, the forward pass produces <code>x_hat</code>, 
+                        <code>loss_fn</code> computes the MSE, <code>.backward()</code> propagates gradients, and 
+                        <code>optimizer.step()</code> updates all parameters. This loop runs 120 times; the printed 
+                        loss at every 20th epoch should fall by roughly a factor of two from start to finish.
+                    </p>
+
+                    <p>
+                        Part E encodes the full training set to 2D and computes per-population reconstruction 
+                        errors. The key number to check here is whether the three populations have comparable 
+                        reconstruction errors, if one is significantly higher, the bottleneck is too small to 
+                        represent that population faithfully.
+                    </p>
+
+                    <p>
+                        Part F demonstrates anomaly detection by injecting 50 events drawn from a completely 
+                        different distribution and showing that the 95th-percentile reconstruction threshold 
+                        catches most of them. Try changing the anomaly distribution from <code>rng.normal(5.0, 1.5)</code> 
+                        to something closer to the training distribution (<code>rng.normal(1.0, 0.8)</code>) and 
+                        observe how the detection rate degrades, this shows the fundamental limit of 
+                        reconstruction-based anomaly detection when the anomaly resembles the background.
+                    </p>
+
+                    <p>
+                        Part G is the most instructive part of the script. It samples 200 random points from 
+                        \(\mathcal{N}(0, 1.5^2)\) in the 2D latent space, measures the distance of each to its 
+                        nearest training code, and classifies it as a hole if that distance exceeds 0.8. The 
+                        printed fraction, typically around 40–50%, is the empirical hole rate. Increase the 
+                        latent dimension from 2 to 8 and rerun: the hole fraction will climb steeply, because 
+                        the training codes occupy an increasingly small fraction of the higher-dimensional 
+                        latent volume. This is the curse of dimensionality appearing again, now inside the 
+                        latent space rather than in the original feature space, and it is the quantitative 
+                        argument for why the VAE's (variational autoencoders will be the topic of the next section) regularisation is not optional.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">What comes next</h3>
+                    <p>
+                        The hole problem has a clean solution, and it requires adding exactly one new term to the 
+                        loss function. Instead of training the encoder to produce a single point 
+                        \(\mathbf{z} = E_\phi(\mathbf{x})\), we train it to produce a <strong>Gaussian distribution</strong>:
+                    </p>
+
+                    <p style="text-align: center;">
+                        \[ q_\phi(\mathbf{z} \mid \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}), \boldsymbol{\sigma}^2_\phi(\mathbf{x})) \]
+                    </p>
+
+                    <p>
+                        and we add a penalty that pulls this distribution toward \(\mathcal{N}(\mathbf{0}, \mathbf{I})\). 
+                        Because every input maps to a <strong>spread-out</strong> Gaussian rather than a single point, the latent 
+                        space becomes continuously covered with no gaps. Any sample from \(\mathcal{N}(\mathbf{0}, \mathbf{I})\) 
+                        will land inside a trained region and produce a meaningful output.
+                    </p>
+
+                    <p>
+                        The penalty term that accomplishes this is the <strong>KL divergence</strong> between 
+                        \(q_\phi(\mathbf{z} \mid \mathbf{x})\) and the prior \(p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I})\). 
+                        The next section derives this term from first principles, starting from Bayes' theorem and the 
+                        evidence lower bound, and builds the full <strong>variational autoencoder</strong>.
+                    </p>                    
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The running scorecard</h3>
+                    
+                    <p>
+                        The last cell of the final column captures everything: the autoencoder can decode any 
+                        latent vector \(\mathbf{z}\), but because the latent space has holes, generation is 
+                        unreliable. Section 7 fixes that by introducing the Variational Autoencoder.
+                    </p>
+
+                    <h4 class="fstyle-secondary">Comparison of Learning Paradigms</h4>
+                    <table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333; text-align: left;">
+                                <th style="padding: 10px;">Feature</th>
+                                <th style="padding: 10px;">Regression</th>
+                                <th style="padding: 10px;">Classification</th>
+                                <th style="padding: 10px;">Density Est.</th>
+                                <th style="padding: 10px;">Autoencoder</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Output</strong></td>
+                                <td style="padding: 10px;">\(\hat{y} \in \mathbb{R}\)</td>
+                                <td style="padding: 10px;">\(p \in [0, 1]\)</td>
+                                <td style="padding: 10px;">\(p(x) \geq 0\)</td>
+                                <td style="padding: 10px;">\(\hat{\mathbf{x}} \in \mathbb{R}^D\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Loss</strong></td>
+                                <td style="padding: 10px;">MSE</td>
+                                <td style="padding: 10px;">Cross-entropy</td>
+                                <td style="padding: 10px;">\(-\log p(x)\)</td>
+                                <td style="padding: 10px;">MSE (recon)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Labels?</strong></td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Learns</strong></td>
+                                <td style="padding: 10px;">\(p(y \mid x)\)</td>
+                                <td style="padding: 10px;">\(p(y \mid x)\)</td>
+                                <td style="padding: 10px;">\(p(x)\)</td>
+                                <td style="padding: 10px;">\(\mathbf{z} = E(\mathbf{x})\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Can generate?</strong></td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">Yes (KDE/GMM)</td>
+                                <td style="padding: 10px;"><strong>Unreliably</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>                  
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+
+    <!-- Universal Code Block Functionality -->
+    <script>
+    function copyCodeToClipboard(btn) {
+        const pre = btn.parentElement.querySelector('code');
+        const code = pre.innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Copied!';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.add('btn-outline-secondary');
+                btn.classList.remove('btn-success');
+                updateCopyBtnTheme();
+            }, 1200);
+        });
+    }
+
+    function updateCopyBtnTheme() {
+        const isDark = document.documentElement.dataset.bsTheme === 'dark';
+        document.querySelectorAll('.code-block button').forEach(button => {
+            const darkIcon = button.querySelector('.d-dark');
+            const lightIcon = button.querySelector('.d-light');
+            if (darkIcon && lightIcon) {
+                darkIcon.style.display = isDark ? 'inline' : 'none';
+                lightIcon.style.display = !isDark ? 'inline' : 'none';
+            }
+        });
+    }
+
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(updateCopyBtnTheme);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+        document.addEventListener('DOMContentLoaded', updateCopyBtnTheme);
+    }
+    </script>
+
+    <!-- for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script>
+    function updateCodeBlockTheme() {
+        const isDark = document.documentElement.dataset.bsTheme === 'dark';
+        const codeBlocks = document.querySelectorAll('.code-block pre');
+
+        codeBlocks.forEach(block => {
+            const codeElement = block.querySelector('code');
+            if (!codeElement) return;
+
+            if (isDark) {
+                block.style.backgroundColor = '#1a1a1a';
+                block.style.color = '#e9ecef';
+                codeElement.style.backgroundColor = '#1a1a1a';
+                codeElement.style.color = '#e9ecef';
+            } else {
+                block.style.backgroundColor = '#f8f9fa';
+                block.style.color = '#212529';
+                codeElement.style.backgroundColor = '#f8f9fa';
+                codeElement.style.color = '#212529';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        hljs.highlightAll();
+        updateCodeBlockTheme();
+        updateCopyBtnTheme();
+    });
+
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(() => {
+            updateCodeBlockTheme();
+            updateCopyBtnTheme();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+    }
+    </script>
+</body>
+</html>
