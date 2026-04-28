@@ -1,0 +1,197 @@
+
+<style>
+  .tab-btn { font-size:12px; padding:4px 14px; border-radius:99px; }
+  .tab-btn.active { background:var(--color-background-info); color:var(--color-text-info); border-color:transparent; }
+  .ctrl-row { display:flex; align-items:center; gap:12px; margin-bottom:.75rem; flex-wrap:wrap; }
+  .ctrl-row label { font-size:13px; color:var(--color-text-secondary); display:flex; align-items:center; gap:8px; min-width:120px; }
+  .ctrl-row input[type=range] { flex:1; min-width:100px; max-width:220px; }
+  .ctrl-row .val { font-size:13px; font-weight:500; min-width:36px; }
+  .kl-display { font-size:28px; font-weight:500; margin:.5rem 0; transition: color .3s; }
+  .kl-formula { font-size:12px; color:var(--color-text-tertiary); font-family:var(--font-mono,monospace); margin-bottom:.75rem; }
+  .stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:.75rem; }
+  .stat-card { background:var(--color-background-secondary); border-radius:8px; padding:.5rem .75rem; }
+  .stat-card .lbl { font-size:11px; color:var(--color-text-tertiary); }
+  .stat-card .val { font-size:15px; font-weight:500; margin-top:2px; }
+</style>
+
+<div style="padding:1rem 0 0">
+  <h2 class="sr-only">KL divergence visualiser and VAE reparameterization trick</h2>
+  <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+    <button class="tab-btn active" id="tb-kl"    onclick="setTab('kl')">KL divergence</button>
+    <button class="tab-btn"        id="tb-rep"   onclick="setTab('rep')">Reparameterization trick</button>
+  </div>
+
+  <div id="tab-kl">
+    <div class="ctrl-row">
+      <label>Mean μ <input type="range" min="-30" max="30" value="0" step="1" id="sl-mu" oninput="drawKL()"> <span class="val" id="v-mu">0.0</span></label>
+      <label>Std σ <input type="range" min="1" max="40" value="10" step="1" id="sl-sig" oninput="drawKL()"> <span class="val" id="v-sig">1.0</span></label>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="lbl">KL(q ‖ p)</div><div class="val" id="kl-val" style="color:#534AB7">0.000</div></div>
+      <div class="stat-card"><div class="lbl">μ² / 2</div><div class="val" id="kl-mu2">0.000</div></div>
+      <div class="stat-card"><div class="lbl">σ² / 2 − log σ − ½</div><div class="val" id="kl-sig2">0.000</div></div>
+    </div>
+    <div class="kl-formula" id="kl-formula-text">KL = ½ (μ² + σ² − log σ² − 1) = ½ (0 + 1 − 0 − 1) = 0</div>
+    <canvas id="kl-canvas" height="230" style="width:100%;display:block;border-radius:8px;border:0.5px solid var(--color-border-tertiary);"></canvas>
+    <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem;" id="kl-hint">When q = p = N(0,1), KL = 0. Drag μ away from 0 or make σ very small or large to see the penalty grow.</div>
+  </div>
+
+  <div id="tab-rep" style="display:none">
+    <div class="ctrl-row">
+      <label>μ(x) <input type="range" min="-20" max="20" value="8" step="1" id="sl-mu2" oninput="drawReparam()"> <span class="val" id="v-mu2">0.8</span></label>
+      <label>σ(x) <input type="range" min="2" max="25" value="8" step="1" id="sl-sig2" oninput="drawReparam()"> <span class="val" id="v-sig2">0.8</span></label>
+    </div>
+    <canvas id="rep-canvas" height="270" style="width:100%;display:block;border-radius:8px;border:0.5px solid var(--color-border-tertiary);"></canvas>
+    <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem;">
+      z = μ(x) + σ(x) · ε,  ε ~ N(0,1).  The noise ε is fixed — only μ and σ are learned. This makes z differentiable w.r.t. the encoder parameters.
+    </div>
+  </div>
+</div>
+
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const tc = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+const gc = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+const ax = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.18)';
+
+function gaussPdf(x, mu, sigma) {
+  const z = (x - mu) / sigma;
+  return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+}
+
+function setupCanvas(id) {
+  const c = document.getElementById(id);
+  const dpr = devicePixelRatio;
+  c.width  = c.offsetWidth  * dpr;
+  c.height = c.offsetHeight * dpr;
+  const ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, W: c.offsetWidth, H: c.offsetHeight };
+}
+
+function drawAxes(ctx, W, H, pad, xRange, maxY) {
+  const px = x => pad.l + (x - xRange[0]) / (xRange[1] - xRange[0]) * (W - pad.l - pad.r);
+  const py = y => H - pad.b - (y / maxY) * (H - pad.t - pad.b);
+  ctx.strokeStyle = ax; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H - pad.b); ctx.lineTo(W - pad.r, H - pad.b); ctx.stroke();
+  ctx.strokeStyle = gc; ctx.lineWidth = 0.5;
+  for (let gx = Math.ceil(xRange[0]); gx <= xRange[1]; gx += 1) {
+    if (gx % 2 !== 0) continue;
+    const x_ = px(gx); ctx.beginPath(); ctx.moveTo(x_, pad.t); ctx.lineTo(x_, H - pad.b); ctx.stroke();
+    ctx.font = '11px sans-serif'; ctx.fillStyle = tc; ctx.textAlign = 'center'; ctx.fillText(gx, x_, H - pad.b + 14);
+  }
+  return { px, py };
+}
+
+function drawKL() {
+  const mu  = parseInt(document.getElementById('sl-mu').value)  / 10;
+  const sig = parseInt(document.getElementById('sl-sig').value) / 10;
+  document.getElementById('v-mu').textContent  = mu.toFixed(1);
+  document.getElementById('v-sig').textContent = sig.toFixed(1);
+
+  const kl = 0.5 * (mu*mu + sig*sig - Math.log(sig*sig) - 1);
+  const kl_mu  = 0.5 * mu * mu;
+  const kl_sig = 0.5 * (sig*sig - Math.log(sig*sig) - 1);
+  document.getElementById('kl-val').textContent  = kl.toFixed(3);
+  document.getElementById('kl-mu2').textContent  = kl_mu.toFixed(3);
+  document.getElementById('kl-sig2').textContent = kl_sig.toFixed(3);
+  document.getElementById('kl-val').style.color  = kl < 0.05 ? '#1D9E75' : kl < 1 ? '#BA7517' : '#E24B4A';
+  document.getElementById('kl-formula-text').textContent =
+    `KL = ½(${mu.toFixed(1)}² + ${sig.toFixed(1)}² − log ${sig.toFixed(1)}² − 1) = ${kl.toFixed(3)}`;
+  const hint = kl < 0.02 ? 'KL ≈ 0 — q(z|x) ≈ N(0,1). No penalty. Good for sampling!' :
+               kl < 1    ? 'Small KL — q is close to N(0,1). Mild penalty.' :
+                           'Large KL — q is far from N(0,1). Heavy penalty. The encoder is being forced back.';
+  document.getElementById('kl-hint').textContent = hint;
+
+  const { ctx, W, H } = setupCanvas('kl-canvas');
+  const pad = { l:40, r:16, t:16, b:28 };
+  const xRange = [-5, 5];
+  const xs = Array.from({length:400}, (_,i) => xRange[0] + i * (xRange[1]-xRange[0]) / 399);
+  const ys_p = xs.map(x => gaussPdf(x, 0, 1));
+  const ys_q = xs.map(x => gaussPdf(x, mu, sig));
+  const maxY = Math.max(...ys_p, ...ys_q) * 1.18;
+  const { px, py } = drawAxes(ctx, W, H, pad, xRange, maxY);
+
+  const overlap = xs.map((x, i) => Math.min(ys_p[i], ys_q[i]));
+  ctx.beginPath();
+  xs.forEach((x, i) => { const px_ = px(x), py_ = py(overlap[i]); i===0 ? ctx.moveTo(px_, py_) : ctx.lineTo(px_, py_); });
+  ctx.lineTo(px(xs[xs.length-1]), py(0)); ctx.lineTo(px(xs[0]), py(0)); ctx.closePath();
+  ctx.fillStyle = isDark ? 'rgba(29,158,117,0.2)' : 'rgba(29,158,117,0.15)'; ctx.fill();
+
+  [[ys_p, '#1D9E75', 'p(z) = N(0,1)  [prior]'],
+   [ys_q, '#534AB7', `q(z|x) = N(${mu.toFixed(1)}, ${sig.toFixed(1)}²)  [encoder]`]
+  ].forEach(([ys, col, lbl]) => {
+    ctx.beginPath();
+    xs.forEach((x, i) => { i===0 ? ctx.moveTo(px(x), py(ys[i])) : ctx.lineTo(px(x), py(ys[i])); });
+    ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke();
+    const mid = Math.floor(xs.length * (ys===ys_p ? 0.5 : 0.7));
+    ctx.font = '11px sans-serif'; ctx.fillStyle = col; ctx.textAlign = 'left';
+    ctx.fillText(lbl, px(ys===ys_p ? 0.4 : mu+sig*0.5), py(ys[mid]) - 8);
+  });
+
+  ctx.font='11px sans-serif'; ctx.fillStyle=isDark?'rgba(29,158,117,0.8)':'rgba(29,158,117,0.7)';
+  ctx.textAlign='center'; ctx.fillText('overlap', px((mu+0)/2), py(Math.max(...overlap)*0.4));
+}
+
+function drawReparam() {
+  const mu  = parseInt(document.getElementById('sl-mu2').value)  / 10;
+  const sig = parseInt(document.getElementById('sl-sig2').value) / 10;
+  document.getElementById('v-mu2').textContent = mu.toFixed(1);
+  document.getElementById('v-sig2').textContent = sig.toFixed(1);
+
+  const { ctx, W, H } = setupCanvas('rep-canvas');
+  const pad = { l:44, r:16, t:20, b:28 };
+
+  function drawPanel(yOff, pH, xRange, title, ys, col, fillCol, label) {
+    const px = x => pad.l + (x - xRange[0]) / (xRange[1]-xRange[0]) * (W-pad.l-pad.r);
+    const mY = Math.max(...ys) * 1.2;
+    const py = y => yOff + pH - (y / mY) * (pH - 30);
+    const bot = yOff + pH - 8;
+
+    ctx.strokeStyle = ax; ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.moveTo(pad.l, yOff+4); ctx.lineTo(pad.l, bot); ctx.lineTo(W-pad.r, bot); ctx.stroke();
+
+    ctx.beginPath();
+    Array.from({length:300},(_,i) => xRange[0] + i*(xRange[1]-xRange[0])/299).forEach((x,i) => {
+      const px_=px(x), py_=py(ys[i]); i===0?ctx.moveTo(px_,py_):ctx.lineTo(px_,py_);
+    });
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+    ctx.lineTo(px(xRange[1]),bot); ctx.lineTo(px(xRange[0]),bot); ctx.closePath();
+    ctx.fillStyle=fillCol; ctx.fill();
+
+    ctx.font='11px sans-serif'; ctx.fillStyle=col; ctx.textAlign='left';
+    ctx.fillText(label, pad.l+6, yOff+16);
+    ctx.fillStyle=tc; ctx.textAlign='left'; ctx.fillText(title, pad.l+6, bot-10);
+  }
+
+  const xs3 = Array.from({length:300},(_,i)=>-4+i*8/299);
+  const pH = (H - pad.t - pad.b - 16) / 3;
+
+  drawPanel(pad.t,       pH, [-4,4],   'ε ~ N(0,1)  [fixed noise — not learned]',
+    xs3.map(x=>gaussPdf(x,0,1)), '#888780', isDark?'rgba(136,135,128,0.15)':'rgba(136,135,128,0.1)', 'ε ~ N(0,1)');
+
+  drawPanel(pad.t+pH+8,  pH, [mu-4*sig,mu+4*sig], 'z = μ(x) + σ(x)·ε  [latent sample — gradients flow through μ, σ]',
+    xs3.map(x=>gaussPdf(mu+sig*x,mu,sig)), '#534AB7', isDark?'rgba(83,74,183,0.18)':'rgba(83,74,183,0.1)',
+    `z ~ q(z|x) = N(${mu.toFixed(1)}, ${sig.toFixed(1)}²)`);
+
+  drawPanel(pad.t+2*pH+16, pH, [-4,4], 'p(z) = N(0,1)  [KL pushes z toward this — fills the holes]',
+    xs3.map(x=>gaussPdf(x,0,1)), '#1D9E75', isDark?'rgba(29,158,117,0.15)':'rgba(29,158,117,0.1)', 'p(z) = N(0,1)');
+
+  const kl = 0.5*(mu*mu+sig*sig-Math.log(sig*sig)-1);
+  ctx.font='12px sans-serif'; ctx.fillStyle=kl<0.1?'#1D9E75':'#BA7517';
+  ctx.textAlign='right';
+  ctx.fillText(`KL = ${kl.toFixed(3)}`, W-pad.r-4, pad.t+pH+4);
+}
+
+function setTab(t) {
+  document.getElementById('tab-kl').style.display  = t==='kl'  ? '' : 'none';
+  document.getElementById('tab-rep').style.display = t==='rep' ? '' : 'none';
+  document.getElementById('tb-kl').classList.toggle('active',  t==='kl');
+  document.getElementById('tb-rep').classList.toggle('active', t==='rep');
+  if (t==='kl')  drawKL();
+  if (t==='rep') drawReparam();
+}
+
+drawKL();
+window.addEventListener('resize', () => { drawKL(); if(document.getElementById('tab-rep').style.display!=='none') drawReparam(); });
+</script>

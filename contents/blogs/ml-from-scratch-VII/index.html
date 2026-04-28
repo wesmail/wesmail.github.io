@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <!-- for syntax highlighting -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models VII</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models VII</h2>
+                    <p class="blog-post-meta">April 27, 2026</p>
+                    <h2 class="fstyle-secondary">Section 7: Variational Autoencoders: Filling the Holes</h2>
+                    <h3 class="fstyle-secondary">Where we left off</h3> 
+                    
+                    <p>
+                        Step 6 ended with an uncomfortable diagnosis. The autoencoder learns a beautifully 
+                        organised latent space, with three GW populations separating into three clusters without ever 
+                        seeing a label. But the moment you try to <em>*generate*</em> new events by sampling a random 
+                        \(\mathbf{z}\) and decoding it, roughly half your samples land in empty regions between 
+                        clusters. The decoder, asked to produce an event from a point it was never trained on, 
+                        outputs incoherent garbage.
+                    </p>
+
+                    <p>
+                        The root cause was precise: the reconstruction loss \(\|\mathbf{x} - \hat{\mathbf{x}}\|^2\) 
+                        says nothing about the <strong>shape</strong> of the latent distribution. The encoder places 
+                        codes wherever it likes, creating an uneven scatter of islands surrounded by unexplored 
+                        voids. We called these voids "holes," and we noted that curing them requires adding a 
+                        term to the loss that explicitly constrains the latent distribution.
+                    </p>
+
+                    <p>
+                        That term is the <strong><a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence" target="_blank" rel="noopener noreferrer">KL divergence</a></strong>. 
+                        This section derives it from scratch, starting from the entropy concept introduced in <a href="../ml-from-scratch-II/index.html">section 2</a>, building through the definition of KL, 
+                        working out the closed form for Gaussians, and then assembling the full <strong><a href="https://en.wikipedia.org/wiki/Evidence_lower_bound" target="_blank" rel="noopener noreferrer">Evidence 
+                        Lower Bound (ELBO)</a></strong> that defines the Variational Autoencoder. Finally, we address 
+                        a subtle but critical issue: the <strong>reparameterisation trick</strong>, which makes 
+                        gradient descent through a sampling operation possible.
+                    </p>
+
+                    <p>
+                        Every piece of mathematics in this section follows from things you already know. No 
+                        new principles are introduced. Only new combinations of old ones.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">From entropy to KL divergence: a gentle build</h3>
+
+                    <h4 class="fstyle-secondary">Recall: entropy measures uncertainty</h4>
+
+                    <p>
+                        In <a href="../ml-from-scratch-II/index.html">section 2</a> we introduced <strong>entropy</strong> as a measure of uncertainty 
+                        in a distribution. For a discrete distribution \(P\) over \(K\) outcomes, Shannon's entropy is:
+                    </p>
+                    <p>\[H(P) = -\sum_{k=1}^{K} P(k) \log P(k)\]</p>
+                    <p>A fair coin has entropy \(\log 2 \approx 0.693\) nats. A coin that lands heads 99% of the time has entropy close 
+                    to zero, almost no uncertainty. The higher the entropy, the more "spread out" or "uncertain" the distribution is.</p>
+                
+                    <h4 class="fstyle-secondary">Cross-entropy: measuring mismatch between two distributions</h4>
+                    <p>Cross-entropy, also introduced in <a href="../ml-from-scratch-II/index.html">section 2</a> as the classification loss, 
+                    generalises this idea to compare two distributions. If \(P\) is the true distribution and \(Q\) is our model's approximation:
+                    </p>
+                    <p>
+                        \[H(P, Q) = -\sum_{k} P(k) \log Q(k)\]
+                    </p>
+                    <p>
+                        We showed that \(H(P, Q) \geq H(P)\), with equality only when \(Q = P\). The difference between cross-entropy and entropy measures how much extra "surprise" we incur by using the wrong distribution:
+                    </p>
+                    <p>
+                        \[H(P, Q) - H(P) = -\sum_{k} P(k) \log Q(k) + \sum_{k} P(k) \log P(k) = \sum_{k} P(k) \log \frac{P(k)}{Q(k)}\]
+                    </p>
+                    <p>
+                        This quantity has a name. It is the <strong>Kullback-Leibler divergence</strong>, written \(D_{\text{KL}}(P \parallel Q)\):
+                    </p>
+                    <p>
+                        \[D_{\text{KL}}(P \parallel Q) = \sum_{k} P(k) \log \frac{P(k)}{Q(k)}\]
+                    </p>
+                    <p>For continuous distributions, the sum becomes an integral:</p>
+                    <p>\[D_{\text{KL}}(P \parallel Q) = \int P(x) \log \frac{P(x)}{Q(x)} dx\]</p>
+                    
+                    <p>
+                        The KL divergence is therefore the natural measure of "how different is \(Q\) from \(P\)?". 
+                        It is always non-negative, this follows directly from <a href="https://en.wikipedia.org/wiki/Jensen%27s_inequality" target="_blank" rel="noopener noreferrer">Jensen's inequality</a> 
+                        applied to the concave log function, and it equals zero if and only if \(P = Q\) everywhere. 
+                        It is not symmetric: \(D_{\text{KL}}(P \parallel Q) \neq D_{\text{KL}}(Q \parallel P)\) in general, 
+                        which is why it is called a divergence rather than a distance.
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">The KL divergence between two Gaussians: worked step by step</h3>
+                    <p>
+                        Before the derivation, here is the key VAE idea in plain language. In a standard autoencoder, the encoder outputs 
+                        one fixed latent vector. In a variational autoencoder, the encoder instead outputs the <strong>parameters of a Gaussian</strong>, 
+                        usually a mean \(\mu(\mathbf{x})\) and variance \(\sigma^2(\mathbf{x})\). We then sample a latent point \(z\) from that Gaussian 
+                        and pass this sampled \(z\) to the decoder.
+                    </p>
+                    <p>
+                        So the model does not learn "one code per input", it learns a small <strong>distribution of plausible codes</strong> per input. 
+                        To keep these learned latent distributions well-behaved, we push them toward a simple prior, typically \(\mathcal{N}(0,1)\), 
+                        using a KL penalty. This is exactly why we now need the KL divergence between
+                        \(q = \mathcal{N}(\mu, \sigma^2)\) (encoder output distribution) and \(p = \mathcal{N}(0,1)\) (target prior). 
+                        Let us derive the closed form carefully.
+                    </p>
+                    <p>We start from the definition:</p>
+                    <p>\[D_{\text{KL}}(q \parallel p) = \int q(z) \log \frac{q(z)}{p(z)} dz = \int q(z) [\log q(z) - \log p(z)] dz\]</p>
+                
+                    <h4 class="fstyle-secondary">Step 1: Write out the log terms.</h4>
+                    <p>The log of a Gaussian \(\mathcal{N}(z; \mu, \sigma^2)\) is:</p>
+                    <p>\[\log \mathcal{N}(z; \mu, \sigma^2) = -\frac{1}{2} \log(2\pi\sigma^2) - \frac{(z - \mu)^2}{2\sigma^2}\]</p>
+                    <p>For \(q = \mathcal{N}(\mu, \sigma^2)\) and \(p = \mathcal{N}(0, 1)\):</p>
+                    <p>\[\log q(z) = -\frac{1}{2} \log(2\pi\sigma^2) - \frac{(z - \mu)^2}{2\sigma^2}\]</p>
+                    <p>\[\log p(z) = -\frac{1}{2} \log(2\pi) - \frac{z^2}{2}\]</p>
+                
+                    <h4 class="fstyle-secondary">Step 2: Take the difference.</h4>
+                    <p>The \(\frac{1}{2} \log(2\pi)\) terms cancel:</p>
+                    <p>\[\log q(z) - \log p(z) = -\frac{1}{2} \log \sigma^2 - \frac{(z - \mu)^2}{2\sigma^2} + \frac{z^2}{2}\]</p>
+                
+                    <h4 class="fstyle-secondary">Step 3: Take the expectation under \(q\).</h4>
+                    <p>
+                        We now need \(\mathbb{E}_{z \sim q}[\log q(z) - \log p(z)]\). 
+                        We evaluate each term using the two key facts about a Gaussian with mean \(\mu\) and variance \(\sigma^2\): 
+                        its mean is \(\mathbb{E}[z] = \mu\) and its second moment is \(\mathbb{E}[z^2] = \mu^2 + \sigma^2\).
+                    </p>
+                    <p>
+                        The first term, \(-\frac{1}{2} \log \sigma^2\), is a constant with respect to \(z\), 
+                        so its expectation is itself.
+                    </p>
+                    <p>
+                        The second term: \(\mathbb{E}_q \left[ \frac{(z-\mu)^2}{2\sigma^2} \right] = \frac{1}{2\sigma^2} \mathbb{E} [(z-\mu)^2] = \frac{1}{2\sigma^2} \cdot \sigma^2 = \frac{1}{2}\).
+                    </p>
+                    <p>
+                        The third term: \(\mathbb{E}_q \left[ \frac{z^2}{2} \right] = \frac{1}{2}(\mu^2 + \sigma^2)\).
+                    </p>
+
+                    <h4 class="fstyle-secondary">Step 4: Assemble.</h4>
+                    <p>Putting the three terms together:</p>
+                    <p>\[D_{\text{KL}}(\mathcal{N}(\mu, \sigma^2) \parallel \mathcal{N}(0, 1)) = -\frac{1}{2} \log \sigma^2 - \frac{1}{2} + \frac{1}{2}(\mu^2 + \sigma^2)\]</p>
+                    <p>Rearranging:</p>
+                   <p style="text-align: center; border: 1px solid black; padding: 10px; display: table; margin: 0 auto;">
+                        \[D_{\text{KL}}(\mathcal{N}(\mu, \sigma^2) \parallel \mathcal{N}(0, 1)) = \frac{1}{2}(\mu^2 + \sigma^2 - \log \sigma^2 - 1)\]
+                    </p>
+                
+                    <p>
+                        This is a <strong>closed-form expression</strong>, no integral to evaluate numerically. 
+                        Let us verify it makes sense. When \(\mu = 0\) and \(\sigma = 1\) (the encoder already matches the prior perfectly), the formula gives \(\frac{1}{2}(0 + 1 - 0 - 1) = 0\). When \(\mu\) moves away from zero or \(\sigma\) deviates from one in either direction, the KL grows. The interactive widget from this step lets you drag \(\mu\) and \(\sigma\) and watch the formula evaluate in real time.
+                    </p>
+                
+                    <p>
+                        For a \(d\)-dimensional diagonal Gaussian, where each dimension is independent, we simply sum over all \(d\) dimensions:
+                    </p>
+                    <p>
+                        \[D_{\text{KL}} = \frac{1}{2} \sum_{j=1}^{d} (\mu_j^2 + \sigma_j^2 - \log \sigma_j^2 - 1)\]
+                    </p>
+                
+                    <p>
+                        This is the exact expression used in the VAE training code. No Monte Carlo, no numerical integration, 
+                        just a sum of \(d\) scalar terms.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The generative model behind the VAE</h3>
+
+                    <p>
+                        We now have the tool we need. Before assembling the full loss function, 
+                        it helps to be clear about what generative model the VAE is trying to learn.
+                    </p>
+
+                    <div style="background-color: #f4f6f8; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <p style="margin: 0;">
+                            <strong>Quick reminder:</strong> up to now, our reconstruction objective is the MSE term 
+                            (how close \(\mathbf{\hat{x}}\) is to \(\mathbf{x}\)). In a VAE, we add a <strong>regularization term</strong>: 
+                            the KL divergence. So the loss is conceptually:
+                            reconstruction error (MSE-like term) + KL penalty, where KL pushes the encoder's latent distribution 
+                            toward the prior \(\mathcal{N}(0,1)\).
+                        </p>
+                    </div>
+                
+                    <p>
+                        We want to model the data distribution \(p_{\theta}(\mathbf{x})\). 
+                        The VAE does this by introducing a latent variable \(\mathbf{z}\) and writing the joint distribution as:
+                    </p>
+                
+                    <p>
+                        \[p_{\theta}(\mathbf{x}, \mathbf{z}) = p_{\theta}(\mathbf{x} \mid \mathbf{z}) \cdot p(\mathbf{z})\]
+                    </p>
+                
+                    <p>
+                        where \(p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I})\) is the prior, 
+                        our assumption that latent codes should be standard Gaussian before seeing any data, 
+                        and \(p_{\theta}(\mathbf{x} \mid \mathbf{z})\) is the decoder network: given a latent code \(\mathbf{z}\), 
+                        produce a reconstruction \(\mathbf{\hat{x}}\).
+                    </p>
+                
+                    <p>
+                        To compute \(p_{\theta}(\mathbf{x})\) we would marginalise over \(\mathbf{z}\):
+                    </p>
+                
+                    <p>
+                        \[p_{\theta}(\mathbf{x}) = \int p_{\theta}(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z}) d\mathbf{z}\]
+                    </p>
+                
+                    <p>
+                        This integral is <strong>intractable</strong>, we cannot compute it in closed form for a neural network decoder, 
+                        and numerical integration over even a modest latent dimension (\(d = 2\)) requires evaluating the decoder at exponentially many points. We need a different approach.
+                    </p>
+
+                    <div style="background-color: #f4f6f8; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <p style="margin-top: 0; margin-bottom: 10px;">
+                            <strong>Why is this hard?</strong>
+                        </p>
+                        <ul style="margin-bottom: 0;">
+                            <li style="margin-bottom: 5px;">
+                                <strong>No neat formula:</strong> if the decoder were a very simple linear model, we might solve the integral exactly. 
+                                But the decoder is a neural network (many nonlinear transformations), so there is usually no closed-form expression for this integral.
+                            </li>
+                            <li>
+                                <strong>Brute force scales badly:</strong> numerical integration means testing many possible latent points \(\mathbf{z}\). 
+                                In \(d\) dimensions, using \(m\) points per axis gives roughly \(m^d\) total points (the curse of dimensionality). 
+                                That explodes quickly, and each point needs a decoder forward pass.
+                            </li>
+                        </ul>
+                    </div>
+                
+                    <p>
+                        The key insight of variational inference is to <strong>approximate</strong> the true posterior \(p_{\theta}(\mathbf{z} \mid \mathbf{x})\),
+                        the distribution over latent codes given the observed data, with a simpler distribution \(q_{\phi}(\mathbf{z} \mid \mathbf{x})\) that we can compute. 
+                        The encoder network plays exactly this role: it takes \(\mathbf{x}\) and outputs the parameters of a Gaussian \(q_{\phi}(\mathbf{z} \mid \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_{\phi}(\mathbf{x}), \boldsymbol{\sigma}^2_{\phi}(\mathbf{x}))\).
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">Deriving the ELBO: step by step</h3>
+                    
+                    <p>
+                        We want to maximise \(\log p_{\theta}(\mathbf{x})\), the log-likelihood of the data under our generative model. 
+                        We cannot compute it directly, but we can derive a <strong>lower bound</strong> that we can compute.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Step 1: Introduce the approximate posterior.</h4>
+                    <p>
+                        We multiply and divide inside the integral by \(q_{\phi}(\mathbf{z} \mid \mathbf{x})\), which is a legal operation (multiplying by one changes nothing):
+                    </p>
+                    <p>
+                        \[\log p_{\theta}(\mathbf{x}) = \log \int p_{\theta}(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z}) d\mathbf{z} = \log \int q_{\phi}(\mathbf{z} \mid \mathbf{x}) \cdot \frac{p_{\theta}(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z})}{q_{\phi}(\mathbf{z} \mid \mathbf{x})} d\mathbf{z}\]
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Step 2: Recognise the expectation.</h4>
+                    <p>
+                        The integral is now an expectation under \(q_{\phi}(\mathbf{z} \mid \mathbf{x})\):
+                    </p>
+                    <p>
+                        \[\log p_{\theta}(\mathbf{x}) = \log \mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \left[ \frac{p_{\theta}(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z})}{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \right]\]
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Step 3: Apply Jensen's inequality.</h4>
+                    <p>
+                        Because \(\log\) is concave, <a href="https://en.wikipedia.org/wiki/Jensen%27s_inequality" target="_blank">Jensen's inequality</a> tells us that \(\log \mathbb{E}[X] \geq \mathbb{E}[\log X]\) for any random variable \(X > 0\). Applying this:
+                    </p>
+                    <p>
+                        \[\log p_{\theta}(\mathbf{x}) \geq \mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \left[ \log \frac{p_{\theta}(\mathbf{x} \mid \mathbf{z}) p(\mathbf{z})}{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \right]\]
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Step 4: Split the logarithm.</h4>
+                    <p>
+                        Using \(\log(AB/C) = \log A + \log B - \log C\):
+                    </p>
+                    <p>
+                        \[\geq \mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})}[\log p_{\theta}(\mathbf{x} \mid \mathbf{z})] + \mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \left[ \log \frac{p(\mathbf{z})}{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \right]\]
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Step 5: Recognise the KL.</h4>
+                    <p>
+                        The second expectation is \(-D_{\text{KL}}(q_{\phi}(\mathbf{z} \mid \mathbf{x}) \parallel p(\mathbf{z}))\) by definition:
+                    </p>
+                    <p>
+                        \[\log p_{\theta}(\mathbf{x}) \geq \underbrace{\mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})}[\log p_{\theta}(\mathbf{x} \mid \mathbf{z})]}_{\text{reconstruction term}} - \underbrace{D_{\text{KL}}(q_{\phi}(\mathbf{z} \mid \mathbf{x}) \parallel p(\mathbf{z}))}_{\text{regularisation term}}\]
+                    </p>
+                
+                    <p>
+                        This lower bound is the <strong>ELBO</strong>, the Evidence Lower BOund. Maximising the ELBO pushes \(\log p_{\theta}(\mathbf{x})\) upward (because it is a lower bound), while simultaneously balancing reconstruction quality against latent space regularity. Turning it into a loss function to <em>minimise</em>, we flip the sign:
+                    </p>
+                    
+                    <p style="text-align: center; border: 1px solid black; padding: 10px; display: table; margin: 0 auto;">
+                        \[L_{\text{VAE}}(\phi, \theta) = -\mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})}[\log p_{\theta}(\mathbf{x} \mid \mathbf{z})] + D_{\text{KL}}(q_{\phi}(\mathbf{z} \mid \mathbf{x}) \parallel \mathcal{N}(\mathbf{0}, \mathbf{I}))\]
+                    </p>
+                
+                    <p>
+                        The first term is the <strong>reconstruction loss</strong>: for a Gaussian decoder it reduces to MSE, exactly as in the autoencoder. The second term is the <strong>KL regulariser</strong>: it penalises the encoder for producing a distribution over latent codes that deviates from a standard Gaussian. Both terms are now familiar; their combination is what makes the VAE work.
+                    </p>
+                
+                    <p>
+                        The two terms are in tension. The reconstruction term wants the encoder to produce tight, 
+                        specific latent codes for each input, small \(\sigma\), \(\mu\) wherever is most convenient. 
+                        The KL term wants every latent distribution to be as close to \(\mathcal{N}(0, 1)\) as possible, 
+                        \(\mu = 0, \sigma = 1\) for all inputs. Training finds the balance: latent codes that are informative enough to reconstruct well, 
+                        but regular enough that the latent space has no holes.
+                    </p>
+                
+                    <p>
+                        The hyperparameter \(\beta\) controls the weight of the KL term:
+                    </p>
+                
+                    <p>
+                        \[L_{\beta\text{-VAE}} = L_{\text{recon}} + \beta \cdot D_{\text{KL}}\]
+                    </p>
+                
+                    <p>
+                        At \(\beta = 0\) the VAE degenerates to a plain autoencoder with holes. 
+                        At \(\beta = 1\) we have the standard VAE. At \(\beta \gg 1\) (the \(\beta\)-VAE) the latent space becomes 
+                        very smooth but reconstructions become blurry, because the encoder is forced to use very little of the space. 
+                        Choosing \(\beta\) is a hyperparameter decision, governed by the same validation-set logic as all previous hyperparameters.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The reparameterisation trick: making sampling differentiable</h3>
+                    
+                    <p>
+                        We now face a subtle but critical problem. The ELBO requires computing the expectation \(\mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})}[\log p_{\theta}(\mathbf{x} \mid \mathbf{z})]\). 
+                        In practice we approximate this expectation with a single Monte Carlo sample: draw \(\mathbf{z} \sim q_{\phi}(\mathbf{z} \mid \mathbf{x})\), evaluate \(\log p_{\theta}(\mathbf{x} \mid \mathbf{z})\), 
+                        and use that as the estimate. Then gradient descent updates both \(\theta\) and \(\phi\).
+                    </p>
+                
+                    <p>
+                        The problem is that <strong>sampling is not differentiable</strong>. Specifically, the gradient \(\partial \mathbf{z} / \partial \phi\) 
+                        does not exist in the usual sense, because \(\mathbf{z}\) was drawn from a distribution parameterised by \(\phi\), 
+                        it is a stochastic node in the computation graph, and PyTorch cannot propagate gradients through it. 
+                        The gradient of the reconstruction loss with respect to the encoder parameters \(\phi\) is zero by default, which means \(\phi\) never gets updated. 
+                        The encoder does not learn.
+                    </p>
+                
+                    <p>
+                        Let us be precise about why. The encoder outputs \(\boldsymbol{\mu}_{\phi}(\mathbf{x})\) and \(\boldsymbol{\sigma}_{\phi}(\mathbf{x})\). 
+                        We then sample:
+                    </p>
+                
+                    <p>
+                        \[\mathbf{z} \sim \mathcal{N}(\boldsymbol{\mu}_{\phi}(\mathbf{x}), \boldsymbol{\sigma}^2_{\phi}(\mathbf{x}))\]
+                    </p>
+                
+                    <p>
+                        The randomness in \(\mathbf{z}\) is entangled with the parameters \(\phi\). 
+                        When we differentiate the loss with respect to \(\phi\), we need \(\partial \mathbf{z} / \partial \phi\), but \(\mathbf{z}\) was generated by a random draw, 
+                        there is no deterministic functional relationship between \(\phi\) and the specific value of \(\mathbf{z}\) that was sampled.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">The trick: externalise the randomness</h4>
+                
+                    <p>
+                        The <strong>reparameterisation trick</strong> separates the randomness from the parameters by rewriting the sample as a deterministic function of both the parameters and an independent noise variable:
+                    </p>
+                
+                    <p>
+                        \[\mathbf{z} = \boldsymbol{\mu}_{\phi}(\mathbf{x}) + \boldsymbol{\sigma}_{\phi}(\mathbf{x}) \odot \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\]
+                    </p>
+                
+                    <p>
+                        The symbol \(\odot\) denotes element-wise multiplication. 
+                        The noise \(\boldsymbol{\epsilon}\) is drawn from a <strong>fixed</strong> standard Gaussian that does not depend on \(\phi\) at all. 
+                        The parameters \(\phi\) enter only through the deterministic functions \(\boldsymbol{\mu}_{\phi}\) and \(\boldsymbol{\sigma}_{\phi}\).
+                    </p>
+                
+                    <p>
+                        Now the gradients are straightforward. Because \(\mathbf{z}\) is a deterministic function of \(\phi\) (given \(\boldsymbol{\epsilon}\)):
+                    </p>
+                
+                    <p>
+                        \[\frac{\partial \mathbf{z}}{\partial \boldsymbol{\mu}_{\phi}} = \mathbf{1}, \quad \frac{\partial \mathbf{z}}{\partial \boldsymbol{\sigma}_{\phi}} = \boldsymbol{\epsilon}\]
+                    </p>
+                    
+                    <p>
+                        Both are simple, well-defined derivatives. The computation graph is now deterministic — PyTorch can trace through \(\mathbf{z} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}\) just as it traces through any other arithmetic operation, and gradients flow back to \(\phi\) without obstruction.
+                    </p>
+                
+                    <p>
+                        The figure below shows all three distributions in the reparameterisation picture. The standard Gaussian \(\boldsymbol{\epsilon} \sim \mathcal{N}(0, 1)\) is fixed and external. The encoder shifts and scales it to produce \(\mathbf{z} \sim q_{\phi}(\mathbf{z} \mid \mathbf{x})\). The KL term measures how far this shifted-and-scaled distribution is from the prior \(p(\mathbf{z}) = \mathcal{N}(0, 1)\).
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <iframe
+                            src="./assets/vae_kl_and_reparam.html"
+                            title="Density estimation KDE GMM visualisation widget"
+                            style="width: 100%; min-height: 460px; border: 1px solid #d0d7de; border-radius: 8px; background: transparent;"
+                            loading="lazy">
+                        </iframe>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>
+                                *Figure 1: KL divergence tab: drag \(\mu\) and \(\sigma\) to see the encoder distribution (purple) 
+                                move relative to the prior (green) and watch the closed-form KL value update. 
+                                The green shading is the overlap between the two distributions; maximum overlap means minimum KL. 
+                                Reparameterisation tab: the three-distribution picture, fixed noise \(\epsilon\), 
+                                shifted sample \(z\), and the prior \(p(z)\) that the KL term is pushing \(z\) toward.*                               
+                            </em>
+                        </p>
+                    </div>                    
+                
+                    <h4 class="fstyle-secondary">One practical detail: predict log-variance, not variance</h4>
+                
+                    <p>
+                        In code, the encoder outputs \(\log \sigma^2\) rather than \(\sigma^2\) directly. 
+                        The reason is that \(\sigma^2\) must be positive, but the output of a linear layer can be any real number. 
+                        By predicting the logarithm, which is unconstrained, and exponentiating to recover \(\sigma^2 = \exp(\log \sigma^2)\), 
+                        we guarantee positivity without any clipping or special activation function. The KL formula becomes:
+                    </p>
+                
+                    <p>
+                        \[D_{\text{KL}} = \frac{1}{2} \sum_{j=1}^{d} (\mu_j^2 + e^{\ell_j} - \ell_j - 1), \quad \text{where } \ell_j = \log \sigma_j^2\]
+                    </p>
+                
+                    <p>
+                        This is a numerically stable expression that feeds directly into <a href="https://docs.pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html" target="_blank">PyTorch's autograd</a>.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">What changes in the architecture</h3>
+                    <p>
+                        The VAE differs from the autoencoder in exactly one place: the encoder. 
+                        Instead of outputting a single latent vector \(\mathbf{z}\), it outputs two vectors, \(\boldsymbol{\mu}_{\phi}(\mathbf{x})\) and \(\log \boldsymbol{\sigma}^2_{\phi}(\mathbf{x})\),
+                        using two separate linear layers that branch from the shared encoder trunk. 
+                        Everything else is identical: the decoder architecture is unchanged, the optimiser is still the same (e.g. Adam optimizer), 
+                        the reconstruction term is still MSE. The only addition to the training loop is the two-line KL computation and its addition to the loss.
+                    </p>
+                
+                    <p>
+                        The decoder runs in exactly the same way at inference time. 
+                        To generate a new event, draw \(\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\) and pass it through the decoder. 
+                        Because the KL term has forced every encoder distribution toward this prior, the decoder has been trained on samples from 
+                        throughout the prior, there are no holes, and every point in the prior's support produces a plausible output.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">What the figures show</h3>
+                    
+                    <p>
+                        The accompanying Jupyter notebook produces a two-row, four-column figure summarising the full comparison.                        
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step7_vae.svg" alt="The VAE comparison figure" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>
+                                *Figure 2: Top-left: three encoder distributions at different \((\mu, \sigma)\) values plotted against the \(\mathcal{N}(0, 1)\) prior, 
+                                with their KL values. The green distribution \((\mu = 0, \sigma = 1)\) has KL=0; the others are penalised proportionally to their deviation. 
+                                Top-right: the two loss components during training, reconstruction MSE falls quickly, while the KL term rises from zero as the encoder learns 
+                                to encode structure while staying close to the prior. Middle row: latent spaces for four models, plain AE, VAE with \(\beta = 0\), \(\beta = 1\), and \(\beta = 4\). 
+                                Red crosses are random \(\mathcal{N}(0, 1)\) samples landing in holes; green plusses land in the trained region. From left to right, the hole fraction falls from ~50% to near zero. 
+                                Bottom-left: mean decoded features from 300 random samples for each model, the \(\beta = 0\) mean is displaced from the true data mean; \(\beta = 1\) and \(\beta = 4\) match it. 
+                                Bottom-right: the \(\beta\) trade-off, KL decreases and reconstruction error increases as \(\beta\) grows.*
+                            </em>
+                        </p>
+                    </div>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">What the code does</h3>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p>
+                    
+                    <p>
+                        The accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_07_vae.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> is divided into five parts. 
+                        Part A verifies the KL formula numerically before any neural network appears: it computes \(D_{\text{KL}}(\mathcal{N}(\mu, \sigma^2) \parallel \mathcal{N}(0, 1))\) using the closed form and also via Monte Carlo sampling for five different \((\mu, \sigma)\) combinations and prints both values side by side. 
+                        The two columns should agree to within 0.01 for all test cases. This step is important: never trust a KL formula you have not verified empirically on at least one test case.
+                    </p>
+                
+                    <p>
+                        Part B reconstructs the same three-population GW dataset from <a href="../ml-from-scratch-VI/index.html" target="_blank" rel="noopener noreferrer">section 6</a> so that the latent space plots are directly 
+                        comparable between the two articles. Part C defines the VAE architecture, highlighting the two-branch encoder that outputs \(\boldsymbol{\mu}\) and \(\log \boldsymbol{\sigma}^2\) separately, and the <code>reparameterise()</code> method that implements \(\mathbf{z} = \boldsymbol{\mu} + \exp(\frac{1}{2}\log\boldsymbol{\sigma}^2) \odot \boldsymbol{\epsilon}\). Read this method carefully and trace through its three lines: compute \(\sigma\) from \(\log \sigma^2\), draw \(\boldsymbol{\epsilon}\), return the sum. That is the entire reparameterisation trick.
+                    </p>
+                
+                    <p>
+                        Part D trains three VAEs simultaneously; \(\beta = 0, \beta = 1, \beta = 4\), plus a plain autoencoder for comparison, 
+                        printing the reconstruction and KL components of the loss at every 50th epoch. 
+                        Watch how the KL component behaves differently for each \(\beta\): for \(\beta = 0\) it is never penalised and drifts; 
+                        for \(\beta = 4\) it is pushed aggressively toward zero, at the cost of a higher reconstruction term.
+                    </p>
+                
+                    <p>
+                        Part E is the key comparison. For each model it samples 200 random points from \(\mathcal{N}(0, 1)\) in latent 
+                        space and measures the fraction that land in holes. The printed table should show the hole fraction falling 
+                        monotonically from AE (~ 50%) through \(\beta = 0\) (~ 50%, same as AE) to \(\beta = 1\) (roughly 5-15%) to \(\beta = 4\) (near zero). 
+                        This is the empirical proof that the KL term fills the holes.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The running scorecard</h3>
+                    
+                    <table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333; text-align: left;">
+                                <th style="padding: 10px;">Feature</th>
+                                <th style="padding: 10px;">Regression</th>
+                                <th style="padding: 10px;">Classification</th>
+                                <th style="padding: 10px;">Neural Net</th>
+                                <th style="padding: 10px;">Regularisation</th>
+                                <th style="padding: 10px;">Density Est.</th>
+                                <th style="padding: 10px;">Autoencoder</th>
+                                <th style="padding: 10px;">VAE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Output</strong></td>
+                                <td style="padding: 10px;">\(\hat{y}\)</td>
+                                <td style="padding: 10px;">\(p\)</td>
+                                <td style="padding: 10px;">\(p\)</td>
+                                <td style="padding: 10px;">\(p\)</td>
+                                <td style="padding: 10px;">\(p(x)\)</td>
+                                <td style="padding: 10px;">\(\hat{\mathbf{x}}\)</td>
+                                <td style="padding: 10px;">\(\hat{\mathbf{x}}, \boldsymbol{\mu}, \boldsymbol{\sigma}\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Loss</strong></td>
+                                <td style="padding: 10px;">MSE</td>
+                                <td style="padding: 10px;">CE</td>
+                                <td style="padding: 10px;">CE</td>
+                                <td style="padding: 10px;">\(CE + \alpha||\theta||^2\)</td>
+                                <td style="padding: 10px;">\(-\log p\)</td>
+                                <td style="padding: 10px;">MSE</td>
+                                <td style="padding: 10px;">MSE + \(\beta\) KL</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Labels?</strong></td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Learns</strong></td>
+                                <td style="padding: 10px;">\(p(y|x)\)</td>
+                                <td style="padding: 10px;">\(p(y|x)\)</td>
+                                <td style="padding: 10px;">\(p(y|x)\)</td>
+                                <td style="padding: 10px;">\(p(y|x)\)</td>
+                                <td style="padding: 10px;">\(p(x)\)</td>
+                                <td style="padding: 10px;">\(E(\mathbf{x})\)</td>
+                                <td style="padding: 10px;">\(q(\mathbf{z}|\mathbf{x})\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Generates?</strong></td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">Unreliably</td>
+                                <td style="padding: 10px;"><strong>Yes</strong></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>Exact \(p(x)\)?</strong></td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">Yes (low-D)</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No (ELBO)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>
+                        The last row is the critical new entry. The VAE generates reliably, the KL term has filled the holes, 
+                        but its log-likelihood is an approximation (the ELBO lower bound) rather than the exact value. 
+                        The decoder outputs a mean reconstruction, which means generated samples are slightly blurry: 
+                        the model has averaged over all the ways a given latent code could be decoded. 
+                        This blurring is a direct consequence of the Gaussian decoder assumption, and it is the remaining limitation 
+                        that motivates the following section on normalising flows.
+                    </p>
+                
+                    <p>
+                        The followong section (8) asks: what if, instead of using an approximate lower bound, 
+                        we could compute the exact log-likelihood of the data directly? That is what <strong>normalising flows</strong> achieve, 
+                        using an invertible neural network and the change-of-variables formula to obtain an exact, 
+                        tractable \(\log p(\mathbf{x})\) with no approximation and no blurring.
+                    </p>                    
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+
+    <!-- Universal Code Block Functionality -->
+    <script>
+    function copyCodeToClipboard(btn) {
+        const pre = btn.parentElement.querySelector('code');
+        const code = pre.innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Copied!';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.add('btn-outline-secondary');
+                btn.classList.remove('btn-success');
+                updateCopyBtnTheme();
+            }, 1200);
+        });
+    }
+
+    function updateCopyBtnTheme() {
+        const isDark = document.documentElement.dataset.bsTheme === 'dark';
+        document.querySelectorAll('.code-block button').forEach(button => {
+            const darkIcon = button.querySelector('.d-dark');
+            const lightIcon = button.querySelector('.d-light');
+            if (darkIcon && lightIcon) {
+                darkIcon.style.display = isDark ? 'inline' : 'none';
+                lightIcon.style.display = !isDark ? 'inline' : 'none';
+            }
+        });
+    }
+
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(updateCopyBtnTheme);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+        document.addEventListener('DOMContentLoaded', updateCopyBtnTheme);
+    }
+    </script>
+
+    <!-- for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script>
+    function updateCodeBlockTheme() {
+        const isDark = document.documentElement.dataset.bsTheme === 'dark';
+        const codeBlocks = document.querySelectorAll('.code-block pre');
+
+        codeBlocks.forEach(block => {
+            const codeElement = block.querySelector('code');
+            if (!codeElement) return;
+
+            if (isDark) {
+                block.style.backgroundColor = '#1a1a1a';
+                block.style.color = '#e9ecef';
+                codeElement.style.backgroundColor = '#1a1a1a';
+                codeElement.style.color = '#e9ecef';
+            } else {
+                block.style.backgroundColor = '#f8f9fa';
+                block.style.color = '#212529';
+                codeElement.style.backgroundColor = '#f8f9fa';
+                codeElement.style.color = '#212529';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        hljs.highlightAll();
+        updateCodeBlockTheme();
+        updateCopyBtnTheme();
+    });
+
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(() => {
+            updateCodeBlockTheme();
+            updateCopyBtnTheme();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+    }
+    </script>
+</body>
+</html>
