@@ -755,5 +755,42 @@ print(w.grad)                                # → tensor(−6.)  i.e. 2*(2-5) =
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
     }
     </script>
+    <section class="container my-5" id="comments">
+        <h3 class="fstyle-secondary mb-3">Comments</h3>
+        <script id="giscus-script" src="https://giscus.app/client.js"
+                data-repo="wesmail/wesmail.github.io"
+                data-repo-id="R_kgDOHZwG4Q"
+                data-category="General"
+                data-category-id="DIC_kwDOHZwG4c4C76bg"
+                data-mapping="pathname"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="bottom"
+                data-theme="light"
+                data-lang="en"
+                crossorigin="anonymous"
+                async>
+        </script>
+        <script>
+        (function() {
+            function getGiscusTheme() {
+                return document.documentElement.dataset.bsTheme === 'dark' ? 'dark' : 'light';
+            }
+            function updateGiscusTheme() {
+                const iframe = document.querySelector('iframe.giscus-frame');
+                if (!iframe) return;
+                iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: getGiscusTheme() } } }, 'https://giscus.app');
+            }
+            const script = document.getElementById('giscus-script');
+            if (script) script.setAttribute('data-theme', getGiscusTheme());
+            document.addEventListener('DOMContentLoaded', updateGiscusTheme);
+            if (window.MutationObserver) {
+                const observer = new MutationObserver(updateGiscusTheme);
+                observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+            }
+        })();
+        </script>
+    </section>
 </body>
 </html>
