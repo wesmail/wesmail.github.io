@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Machine Learning from Scratch: a Physicist's Road to Generative Models | By Waleed Esmail</title>
+        <meta name="description" content="Machine Learning from Scratch: a Physicist's Road to Generative Models">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="../../../assets/images/astronomy-education-science-svgrepo-com.svg">
+        <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../../assets/images/favicon-16x16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../../assets/images/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+        <!-- for syntax highlighting -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true
+                }
+            };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+
+    <header class="sticky-top bg-body-tertiary border-bottom">
+        <div class="container">
+            <div class="d-flex align-items-center py-3">
+                <a href="/" class="d-flex align-items-center mb-0 me-auto link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" aria-hidden="true"><use xlink:href="#bootstrap"></use></svg>
+                    <span class="fs-3 fstyle-primary">Waleed Esmail</span>
+                </a>
+
+                <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary-subtle rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                            <a href="../../../index.html#top">Home</a>
+                        </button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link active rounded-5 fstyle-secondary" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true"><a href="../index.html">Blogs</a></button>
+                    </li>
+                    <li class="nav-item fw-semibold" role="presentation">
+                        <button class="nav-link rounded-5 fstyle-secondary" id="experience-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false"><a href="../../../index.html#work-experience">Experience</a></button>
+                    </li>
+                </ul>
+
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-3" type="button" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-3">
+        <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+            <div class="col-lg-10 px-0">
+                <h1 class="display-4 fst-italic">Machine Learning from Scratch: a Physicist's Road to Generative Models VIII</h1>
+                <p class="lead my-3">A practical series from regression to normalising flows, with working Python code at every step.</p>
+                <p class="lead mb-0"><a href="#content" class="text-body-emphasis fw-bold">Continue reading...</a></p>
+            </div>
+        </div>
+
+        <div class="row g-5" id="content">
+            <div class="col-md-8">
+                <h3 class="pb-4 mb-4 fst-italic border-bottom">
+                    Latest Posts
+                </h3>
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">Machine Learning from Scratch: a Physicist's Road to Generative Models VIII</h2>
+                    <p class="blog-post-meta">April 29, 2026</p>
+                    <h2 class="fstyle-secondary">Section 8: Normalising Flows: Exact Densities with Invertible Networks</h2>
+                    <h3 class="fstyle-secondary">The one remaining limitation</h3>
+                    
+                    <p>
+                        After seven sections we have a generative model that actually works. The <a href="../ml-from-scratch-VII/index.html">VAE</a> 
+                        draws samples from a prior \(\mathcal{N}(\mathbf{0}, \mathbf{I})\), decodes them through a neural network, 
+                        and produces plausible events, no holes, no garbage output. 
+                        The KL term in the loss filled the latent space, and the reparameterisation trick made the whole thing differentiable.
+                    </p>
+                
+                    <p>
+                        But there is one last imperfection, and it matters. The <a href="../ml-from-scratch-VII/index.html">VAE</a> does not give us the exact log-likelihood 
+                        \(\log p_{\theta}(\mathbf{x})\). It gives us the ELBO, a lower bound on that quantity. The gap between the bound and the true value is not zero in general, 
+                        and we have no way of knowing how large it is without additional analysis. More concretely: the decoder is trained to minimise the <strong>mean</strong> squared 
+                        reconstruction error over the approximate posterior \(q_{\phi}(\mathbf{z} \mid \mathbf{x})\). This means generated samples are averages, the model hedges 
+                        its bets by producing a blend of all the plausible outputs for a given latent code. In images, this manifests as blurring. In gravitational wave posterior samples, 
+                        it would manifest as oversmoothed distributions that underestimate the true uncertainty structure.
+                    </p>
+                
+                    <p>
+                        The wish list for an ideal model has three items that we have not yet achieved simultaneously:
+                    </p>
+                
+                    <ol>
+                        <li><strong>Exact \(\log p(\mathbf{x})\)</strong>: no approximation, no ELBO.</li>
+                        <li><strong>Fast sampling</strong>: draw \(\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})\) and decode.</li>
+                        <li><strong>No holes</strong>: the latent space is the prior by construction.</li>
+                    </ol>
+                
+                    <p>
+                        <strong>Normalising flows</strong> deliver all three. 
+                        The key is a formula from first-year calculus that most physicists know by another name.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">The core idea: probability is conserved</h3>
+
+                    <h4 class="fstyle-secondary">Start with a physical intuition</h4>
+
+                    <p>
+                        Imagine spreading paint uniformly along a rubber band, so that the paint represents a probability density 
+                        \(p_z(z)\). The total amount of paint is one, probabilities must sum to one. 
+                        Now stretch the rubber band by a factor of two: every point \(z\) maps to \(x = 2z\). 
+                        What happens to the density?
+                    </p>
+                
+                    <p>
+                        The band is twice as long, but the total amount of paint has not changed. 
+                        So the density at every point must halve: \(p_x(x) = p_z(x/2) \cdot \frac{1}{2}\). 
+                        The factor of \(\frac{1}{2}\) is the derivative of the inverse transformation \(z = x/2\) with respect to 
+                        \(x\): \(dz/dx = 1/2\). This is the change-of-variables formula in one dimension.
+                    </p>
+                
+                    <p>
+                        If instead we squash the band by a factor of two (\(x = z/2\), so \(z = 2x\)), 
+                        the density doubles: \(p_x(x) = p_z(2x) \cdot 2\). The derivative of the inverse is now \(dz/dx = 2\).
+                    </p>
+                
+                    <p>
+                        The pattern is:
+                    </p>
+                
+                    <p>
+                        \[p_x(x) = p_z(f^{-1}(x)) \cdot \left| \frac{df^{-1}}{dx} \right|\]
+                    </p>
+                
+                    <p>
+                        The first factor asks "what \(z\) would map to this \(x\)?" The second factor, 
+                        the absolute value of the derivative of the inverse transformation, accounts for the local stretching or squashing. It is what keeps the total probability equal to one even after the transformation.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Taking logarithms</h4>
+                
+                    <p>
+                        As in every previous step, logarithms turn products into sums and make the formula numerically tractable:
+                    </p>
+                
+                    <p>
+                        \[\log p_x(x) = \log p_z(f^{-1}(x)) + \log \left| \frac{df^{-1}}{dx} \right|\]
+                    </p>
+                
+                    <p>
+                        This is <strong>the equation</strong> that defines <strong>normalising flows</strong>. 
+                        Everything else in this article is engineering around these two terms.
+                    </p>
+                
+                    <p>
+                        Let us verify it on a concrete example. Take \(p_z(z) = \mathcal{N}(0, 1)\) and the transformation \(f(z) = 2z\), 
+                        so \(f^{-1}(x) = x/2\) and \(|df^{-1}/dx| = 1/2\). Then:
+                    </p>
+
+                    <p>
+                        \[p_x(x) = \mathcal{N}(x/2; 0, 1) \cdot \frac{1}{2} = \frac{1}{2} \cdot \frac{1}{\sqrt{2\pi}} \exp \left( -\frac{x^2}{8} \right) = \mathcal{N}(x; 0, 4)\]
+                    </p>
+                
+                    <p>
+                        Stretching a standard Gaussian by factor two produces a Gaussian with variance \(4 = 2^2\). 
+                        The formula is consistent: \(\mathcal{N}(0, 1)\) stretched by two gives \(\mathcal{N}(0, 4)\), 
+                        and the Jacobian factor \(1/2\) is what enforces this.
+                    </p>                    
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">From one dimension to many: the Jacobian determinant</h3>
+                    
+                    <p>
+                        In \(D\) dimensions, \(\mathbf{x}\) and \(\mathbf{z}\) are vectors, and the transformation \(\mathbf{x} = f(\mathbf{z})\) 
+                        is a vector-valued function. The derivative \(df^{-1}/dx\) generalises to the <strong>Jacobian matrix J</strong>, 
+                        whose \((i, j)\) entry is \(J_{ij} = \partial z_i / \partial x_j\), the partial derivative of the \(i\)-th output of the 
+                        inverse with respect to the \(j\)-th input.
+                    </p>
+                
+                    <p>
+                        The change-of-variables formula becomes:
+                    </p>
+                
+                    <p>
+                        \[\log p_{\mathbf{x}}(\mathbf{x}) = \log p_{\mathbf{z}}(f^{-1}(\mathbf{x})) + \log |\det \mathbf{J}|\]
+                    </p>
+                
+                    <p>
+                        The \(|\det \mathbf{J}|\) term is the absolute value of the determinant of the Jacobian matrix, 
+                        the multi-dimensional generalisation of "how much is the transformation locally stretching space?". 
+                        Just as the 1D derivative measured the stretch of the rubber band, the Jacobian determinant measures the local volume stretch 
+                        of the full \(D\)-dimensional transformation.
+                    </p>
+                
+                    <p>
+                        In physics you have seen this before. When you change variables from Cartesian to spherical coordinates, 
+                        the volume element picks up a factor \(r^2 \sin \theta\) — that is the Jacobian determinant of the coordinate transformation. 
+                        When you integrate a probability density over a change of variables in a Bayesian calculation, the same factor appears. 
+                        The normalising flow is the same operation, applied to a neural network transformation and computed automatically.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">The computational problem</h4>
+                
+                    <p>
+                        Computing the determinant of a general \(D \times D\) matrix costs \(\mathcal{O}(D^3)\) operations. 
+                        For \(D = 100\) detector features, that is \(10^6\) operations per training step, multiplied by the batch size, 
+                        multiplied by the number of training steps. This is <strong>too slow</strong>.
+                    </p>
+                
+                    <p>
+                        The solution is a <strong>clever architectural choice</strong>: design the transformation \(f\) so that its Jacobian is <strong>triangular</strong>. 
+                        The determinant of a triangular matrix is simply the product of its diagonal entries, \(\mathcal{O}(D)\) operations. 
+                        This is the entire motivation for the <strong>coupling layer</strong>, which we now derive.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">Coupling layers: making the Jacobian triangular by design</h3>
+
+                    <p>
+                        A <strong>coupling layers</strong> is the fundamental building block of modern normalising flows. 
+                        It is constructed so that the Jacobian is triangular by construction, making the determinant trivial to compute.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">The construction</h4>
+                
+                    <p>
+                        Split the \(D\)-dimensional input \(\mathbf{z}\) into two halves: \(\mathbf{z}_a\) (the first \(D/2\) dimensions) and \(\mathbf{z}_b\) (the remaining \(D/2\)). 
+                        The forward transformation is defined as:
+                    </p>
+                
+                    <p>
+                        \[\mathbf{x}_a = \mathbf{z}_a\]
+                    </p>
+                
+                    <p>
+                        \[\mathbf{x}_b = \mathbf{z}_b \odot \exp(s(\mathbf{z}_a)) + t(\mathbf{z}_a)\]
+                    </p>
+                
+                    <p>
+                        where \(s(\cdot)\) and \(t(\cdot)\) are arbitrary neural networks called the <strong>scale network</strong> and the <strong>translation network</strong>, 
+                        and \(\odot\) denotes element-wise multiplication. 
+                        The first half passes through unchanged. The second half is scaled and shifted by amounts that depend on the first half.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Why the Jacobian is triangular</h4>
+                
+                    <p>
+                        Let us compute the Jacobian of this transformation. The output is \((\mathbf{x}_a, \mathbf{x}_b)\) and the input is \((\mathbf{z}_a, \mathbf{z}_b)\). 
+                        The Jacobian matrix has four blocks:
+                    </p>
+                
+                    <p>
+                        \[\mathbf{J} = \begin{pmatrix} \partial \mathbf{x}_a / \partial \mathbf{z}_a & \partial \mathbf{x}_a / \partial \mathbf{z}_b \\ \partial \mathbf{x}_b / \partial \mathbf{z}_a & \partial \mathbf{x}_b / \partial \mathbf{z}_b \end{pmatrix}\]
+                    </p>
+                
+                    <p>
+                        Since \(\mathbf{x}_a = \mathbf{z}_a\) exactly, the top-right block \(\partial \mathbf{x}_a / \partial \mathbf{z}_b = \mathbf{0}\), 
+                        the first half of the output does not depend on the second half of the input at all. The Jacobian is therefore <strong>lower triangular</strong>:
+                    </p>
+                
+                    <p>
+                        \[\mathbf{J} = \begin{pmatrix} \mathbf{I} & \mathbf{0} \\ \partial \mathbf{x}_b / \partial \mathbf{z}_a & \text{diag}(\exp(s(\mathbf{z}_a))) \end{pmatrix}\]
+                    </p>
+                    
+                    <p>
+                        The bottom-right block is diagonal because each output dimension \(x_{b,j}\) 
+                        only depends on the corresponding input dimension \(z_{b,j}\) through the scaling: 
+                        \(x_{b,j} = z_{b,j} \cdot \exp(s_j(\mathbf{z}_a)) + t_j(\mathbf{z}_a)\), so \(\partial x_{b,j} / \partial z_{b,j} = \exp(s_j(\mathbf{z}_a))\).
+                    </p>
+
+                    <p>For a lower triangular matrix, the determinant is the product of diagonal entries. 
+                        The diagonal entries are 1 (from the identity block) and \(\exp(s_j(\mathbf{z}_a))\) (from the scaling block). 
+                        Therefore:
+                    </p>
+                
+                    <p>
+                        \[\log | \det \mathbf{J} | = \sum_{j} s_j(\mathbf{z}_a)\]
+                    </p>
+                
+                    <p>
+                        Just a sum of the scale network outputs. No matrix operations, no \(\mathcal{O}(D^3)\) computation, 
+                        the log-determinant is free.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">The inverse is equally simple</h4>
+                
+                    <p>The inverse transformation, encoding data \(\mathbf{x}\) back to latent code \(\mathbf{z}\), needed during training, is:</p>
+                
+                    <p>
+                        \[\mathbf{z}_a = \mathbf{x}_a\]
+                    </p>
+                
+                    <p>
+                        \[\mathbf{z}_b = (\mathbf{x}_b - t(\mathbf{x}_a)) \odot \exp(-s(\mathbf{x}_a))\]
+                    </p>
+                
+                    <p>
+                        Just reverse the arithmetic. Notice a critical subtlety: 
+                        the scale and translation networks \(s(\cdot)\) and \(t(\cdot)\) are evaluated at \(\mathbf{z}_a = \mathbf{x}_a\) 
+                        in both directions, so the inverse only requires one forward pass through \(s\) and \(t\), not their inverse. 
+                        This is the elegance of the coupling layer: \(s\) and \(t\) can be arbitrarily complex, non-invertible neural networks. 
+                        The invertibility of the overall transformation is guaranteed by the structure, not by any constraint on the subnetworks.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Stacking layers: covering the whole space</h4>
+
+                    <p>
+                        A single coupling layer has one flaw: the first half \(\mathbf{z}_a\) is passed through unchanged, 
+                        so the flow cannot directly transform those dimensions. The fix is simple: 
+                        alternate which half is treated as \(\mathbf{z}_a\) across successive layers. In layer 1, 
+                        the first half is fixed; in layer 2, the second half is fixed; in layer 3, 
+                        the first half again; and so on. After enough layers, 
+                        every dimension has been transformed many times as the "active" half.
+                    </p>
+                
+                    <p>
+                        The log-likelihood for a stack of \(K\) coupling layers is:
+                    </p>
+
+                    <p>
+                        \[\log p_{\mathbf{x}}(\mathbf{x}) = \log p_{\mathbf{z}}(\mathbf{z}) + \sum_{k=1}^{K} \log | \det \mathbf{J}_k |\]
+                    </p>
+                
+                    <p>
+                        \[\log p_{\mathbf{x}}(\mathbf{x}) = \log p_{\mathbf{z}}(\mathbf{z}) + \sum_{k=1}^{K} \log | \det \mathbf{J}_k |\]
+                    </p>
+                
+                    <p>
+                        Each layer contributes its own log-determinant (just a sum of scale outputs), 
+                        and they all add together. The Jacobian of the full composition is the product of the individual Jacobians, 
+                        and the log-determinant of a product is the sum of log-determinants. 
+                        This is the second place where logarithms make life easier.
+                    </p>
+                
+                    <p>
+                        The interactive widget from this step shows this process visually: 
+                        start with \(\mathbf{z} \sim \mathcal{N}(0, 1)\), click through the layers, 
+                        and watch the distribution being sculpted from a Gaussian blob into the two-crescent shape.
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <iframe
+                            src="./assets/normalising_flows_change_of_variables.html"
+                            title="Density estimation KDE GMM visualisation widget"
+                            style="width: 100%; min-height: 460px; border: 1px solid #d0d7de; border-radius: 8px; background: transparent;"
+                            loading="lazy">
+                        </iframe>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>
+                                *Figure 1: Change-of-variables tab: choose a transform from the dropdown and drag the probe to any \(x\) 
+                                value; the formula evaluates in real time showing \(\log p_z(z) + \log |df^{-1}/dx|\) at that point. Stacking layers tab: 
+                                drag the slider from 1 to 5 layers and watch the distribution morph from a Gaussian to a 
+                                progressively more complex shape, each colour is one layer's contribution.*                             
+                            </em>
+                        </p>
+                    </div>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">Training: exact negative log-likelihood</h3>
+
+                    <p>
+                        With the log-likelihood formula in hand, training is conceptually straightforward. 
+                        For a dataset of \(N\) observations \(\{\mathbf{x}_i\}\), the training loss is the exact negative 
+                        log-likelihood:
+                    </p>
+
+                    <p>
+                        \[L(\theta) = -\frac{1}{N} \sum_{i=1}^{N} \log p_{\theta}(\mathbf{x}_i) = -\frac{1}{N} \sum_{i=1}^{N} \left[ \log p_{\mathbf{z}}(f_{\theta}^{-1}(\mathbf{x}_i)) + \sum_{k=1}^{K} \log | \det \mathbf{J}_k(\mathbf{x}_i) | \right]\]
+                    </p>
+                
+                    <p>
+                        The first term inside the brackets is 
+                        \(\log \mathcal{N}(\mathbf{z}_i; \mathbf{0}, \mathbf{I}) = -\frac{1}{2}||\mathbf{z}_i||^2 - \frac{D}{2}\log 2\pi\), where \(\mathbf{z}_i = f_{\theta}^{-1}(\mathbf{x}_i)\) 
+                        is obtained by running the data through the inverse flow (the encoder direction). 
+                        The second term is the sum of log-determinants computed for free at each coupling layer.
+                    </p>
+                
+                    <p>
+                        We minimise \(L(\theta)\) by gradient descent, with backpropagation computing gradients through the entire stack of coupling layers. 
+                        Nothing new, the same algorithm as every step in this series.
+                    </p>
+                
+                    <p>Compare this to the VAE:</p>
+                
+                    <table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333; text-align: left;">
+                                <th style="padding: 10px;"></th>
+                                <th style="padding: 10px;">VAE</th>
+                                <th style="padding: 10px;">Normalising Flow</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">What we optimise</td>
+                                <td style="padding: 10px;">ELBO (lower bound on \(\log p\))</td>
+                                <td style="padding: 10px;">Exact \(\log p\)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Source of approximation</td>
+                                <td style="padding: 10px;">\(q_{\phi}(\mathbf{z} \mid \mathbf{x}) \neq p_{\theta}(\mathbf{z} \mid \mathbf{x})\)</td>
+                                <td style="padding: 10px;">None</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Latent space</td>
+                                <td style="padding: 10px;">Learned, approximate posterior</td>
+                                <td style="padding: 10px;">Prior \(\mathcal{N}(\mathbf{0}, \mathbf{I})\) by construction</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Sampling direction</td>
+                                <td style="padding: 10px;">\(\mathbf{z} \rightarrow \mathbf{x}\) (forward)</td>
+                                <td style="padding: 10px;">\(\mathbf{z} \rightarrow \mathbf{x}\) (forward)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Training direction</td>
+                                <td style="padding: 10px;">\(\mathbf{x} \rightarrow \mathbf{z}\) (inverse, via reparam.)</td>
+                                <td style="padding: 10px;">\(\mathbf{x} \rightarrow \mathbf{z}\) (inverse)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">Generated sample quality</td>
+                                <td style="padding: 10px;">Blurry (decoder outputs mean)</td>
+                                <td style="padding: 10px;">Sharp (exact)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                
+                    <p>
+                        The flow solves the blurring problem because there is no "decoder that outputs a mean", the transformation is deterministic 
+                        and bijective. Given \(\mathbf{z}\), \(f(\mathbf{z})\) is a single point, not a distribution over points.
+                    </p>
+                    
+                    <hr>
+                    <h3 class="fstyle-secondary">A worked example: two crescents</h3>
+                    
+                    <p>
+                        To make this concrete, the script trains a RealNVP flow (eight coupling layers,
+                        hidden dimension 32) on two interleaved crescent-shaped point clouds, a
+                        standard benchmark for density models because no Gaussian mixture can fit it.
+                        The four key diagnostic plots are:
+                    </p>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="./assets/images/step8_flows.svg" alt="The VAE comparison figure" style="max-width: 100%; height: auto;">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            <em>
+                                *Figure 2: Eight panels. Top-left: training data, two thin curved crescents. 
+                                Top-middle: the exact \(p(\mathbf{x})\) learned by the flow, shown as a filled contour map; 
+                                two bright ridges trace the crescents. Top-right: 1000 new events generated 
+                                by sampling \(\mathbf{z} \sim \mathcal{N}(0, 1)\) and applying the forward flow, 
+                                they match the crescents closely. Top-far-right: the data encoded to latent space \(\mathbf{z} = f^{-1}(\mathbf{x})\); 
+                                the concentric circles are \(1\sigma\), \(2\sigma\), \(3\sigma\) contours of the prior, 
+                                the latent codes should fill them evenly. Bottom-left: training curve, 
+                                exact NLL falling below the Gaussian baseline (dashed). Bottom-middle: the forward warp layer by layer, 
+                                from Gaussian (dark) to crescent (yellow). Bottom-right: comparison table of all generative models 
+                                in this series.*
+                            </em>
+                        </p>
+                    </div>
+                    
+                    <p>
+                        The latent space panel (top-far-right) is the crucial diagnostic. If the flow has
+                        learned correctly, the encoded data \(\mathbf{z} = f^{-1}(\mathbf{x})\) should look
+                        like a sample from \(\mathcal{N}(0, 1)\). The two crescents, which are highly
+                        non-Gaussian, should be "unwarped" into a Gaussian blob. If there is clustering or
+                        structure in the latent space, the flow has not converged fully, the log-Jacobian
+                        terms are not yet large enough to account for the density differences between the
+                        data distribution and the prior.                        
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">The physics: where flows are used right now</h3>
+
+                    <p>
+                        We have been building toward this section for eight steps. <strong>Normalising flows</strong> are not a theoretical tool 
+                        in physics, they are in production in data analysis pipelines at LIGO, ATLAS, CMS, and Fermi. 
+                        Here is a precise account of how they are used, with enough detail to connect directly to the mathematics above.
+                    </p>
+
+                    <h4 class="fstyle-secondary">Gravitational-wave parameter estimation: DINGO</h4>
+                
+                    <p>
+                        The canonical application of flows in GW astronomy is <strong><a href="https://arxiv.org/abs/2106.12594" target="_blank">DINGO</a></strong> (Deep INference for Gravitational-wave Observations), 
+                        developed by Dax et al. and now used routinely alongside <a href="https://colmtalbot.github.io/posts/2017/lalinference/" target="_blank">LALInference</a> and <a href="https://github.com/mattpitkin/bilby" target="_blank">Bilby</a>.
+                    </p>
+                
+                    <p>
+                        The problem is: given strain data \(d\) from LIGO-Hanford, LIGO-Livingston, and Virgo, 
+                        what is the posterior distribution \(p(\theta \mid d)\) over source parameters 
+                        \(\theta = (m_1, m_2, \chi_1, \chi_2, d_L, \alpha, \delta, \iota, t_c, \phi_c)\)? 
+                        Traditional <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo" target="_blank">MCMC</a> 
+                        (nested sampling, MCMC, variational) requires \(\mathcal{O}(10^6)\) likelihood evaluations per event, 
+                        each involving the computation of a waveform model, totalling hours of computation for one detection.
+                    </p>
+                
+                    <p>
+                        DINGO replaces this with a <strong>conditional normalising flow</strong>. 
+                        The architecture is a flow \(f_\theta(\mathbf{z}; d)\) whose coupling layers are conditioned on the 
+                        strain data \(d\) through a shared neural network encoder (a GNPE embedding network). 
+                        The flow is trained on millions of simulated \((d, \theta)\) pairs drawn from the prior. 
+                        After training, producing \(\mathcal{O}(10^4)\) posterior samples for a new event takes seconds rather than hours.
+                    </p>
+                
+                    <p>The connection to the mathematics is direct. The conditional flow learns:</p>
+                
+                    <p>
+                        \[p_\theta(\theta \mid d) \approx p_{\mathbf{z}}(f_\theta^{-1}(\theta; d)) \cdot |\det \mathbf{J}_{f^{-1}}(\theta; d)|\]
+                    </p>
+                
+                    <p>
+                        where the Jacobian log-determinant is summed over all coupling layers exactly as derived above, and \(d\) 
+                        enters each coupling layer's scale and translation networks as additional context. 
+                        Training minimises the exact conditional NLL:
+                    </p>
+                
+                    <p>
+                        \[L = -\frac{1}{N} \sum_{i=1}^{N} [\log p_{\mathbf{z}}(f^{-1}(\theta_i; d_i)) + \log | \det \mathbf{J} |]\]
+                    </p>
+                
+                    <p>
+                        No ELBO. No approximation. 
+                        The posterior samples produced by DINGO are drawn directly from the learned exact density.
+                    </p>
+                    
+                    <h4 class="fstyle-secondary">Population inference: the mass spectrum of black holes</h4>
+
+                    <p>
+                        The <a href="https://pnp.ligo.org/ppcomm/Papers.html" target="_blank">LIGO-Virgo-KAGRA</a> collaboration's population papers</a>, most recently the O3b population analysis, 
+                        fit a hyperparameter distribution \(p(\theta \mid \Lambda)\) over the detected events, where \(\Lambda\) encodes the shape of the BBH mass spectrum, the spin distribution, and the redshift evolution. 
+                        This is a <strong>hierarchical Bayesian</strong> analysis: each event contributes its own posterior samples, and the goal is to infer the hyper-prior that is consistent with all of them simultaneously.
+                    </p>
+                
+                    <p>
+                        Flows enter in two places. First, the per-event posteriors from DINGO (or LALInference) 
+                        are modelled as flows themselves, making them differentiable objects that can be evaluated at arbitrary 
+                        \(\theta\) values without kernel density estimation. Second, the population model \(p(\theta \mid \Lambda)\) 
+                        is sometimes itself parameterised as a flow over the physical parameter space, giving a flexible non-parametric 
+                        alternative to the power-law + Gaussian mixture models used in current analyses.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">GW anomaly detection</h4>
+                
+                    <p>
+                        Given a flow trained on confirmed BBH events from the GWTC catalogue, 
+                        any new trigger can be assigned an exact log-likelihood \(\log p_{\text{flow}}(\mathbf{x})\). 
+                        Triggers with very low log-likelihood are unlike anything in the training set, potential new sources, unexpected physics, or previously unseen noise artefacts. 
+                        This is the same anomaly detection principle from Step 6 (autoencoder reconstruction error), but now with an exact probability rather than a proxy. 
+                        An event with \(\log p_{\text{flow}}(\mathbf{x}) < \log p_{\text{flow}}(\mathbf{x}_{5\%})\) — below the fifth percentile of training likelihoods — is a principled alert.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Fast detector simulation: CaloFlow and CaloDiffusion</h4>
+                
+                    <p>
+                        Full <a href="https://geant4.web.cern.ch/" target="_blank">GEANT4</a> simulation of calorimeter showers requires 
+                        minutes per event. CaloFlow (ATLAS/CMS) replaces this with a flow conditioned on the incoming particle type and 
+                        energy. Inference takes microseconds per shower. The training loss is the exact NLL over millions of 
+                        GEANT4-simulated showers; at test time, the flow samples from \(p(\text{shower} \mid E, \text{particle type})\) 
+                        with a single forward pass.
+                    </p>
+                
+                    <h4 class="fstyle-secondary">Simulation-based inference: FlowMC and the sbi library</h4>
+                
+                    <p>
+                        Many physics problems have an intractable likelihood \(p(d \mid \theta)\), the probability of the observed data 
+                        given the model parameters cannot be written down in closed form, only simulated. 
+                        Traditional Bayesian inference is then blocked, because the likelihood is the core ingredient of Bayes' theorem.
+                    </p>
+                    
+                    <p>
+                        <strong>Simulation-based inference (SBI)</strong> bypasses this by training a flow to approximate the posterior 
+                        \(p(\theta \mid d)\) directly from simulated \((\theta, d)\) pairs, without ever evaluating the likelihood. 
+                        The <code>sbi</code> Python library (<a href="https://github.com/sbi-dev/sbi" target="_blank">Cranmer, Brehmer, Louppe 2020</a>) implements this using normalising flows 
+                        as the density estimator. FlowMC combines flows with MCMC sampling to produce efficient proposals for high-dimensional posteriors. 
+                        Both are used for <a href="https://arxiv.org/abs/2512.16869" target="_blank">CMB parameter inference</a>, 
+                        <a href="https://arxiv.org/abs/1109.6012" target="_blank">21-cm cosmology</a>, large-scale structure, and gravitational lensing 
+                        analyses where the forward simulator is available but the likelihood is not.
+                    </p>                    
+
+                    <hr>
+                    <h3 class="fstyle-secondary">What the code does</h3>
+                    <p>
+                        The hands-on material for this section is in a dedicated Jupyter notebook in the accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1 ms-1" href="https://github.com/wesmail/PhysML/" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>. 
+                        Each section of this series has its own notebook, so you can work through them independently and at your own pace without 
+                        wading through unrelated code 😇.
+                    </p>
+                    
+                    <p>
+                        The accompanying <a class="link-primary fw-semibold text-decoration-none border border-primary-subtle rounded-pill px-2 py-1" href="https://github.com/wesmail/PhysML/blob/main/tutorial_08_flows.ipynb" target="_blank" rel="noopener noreferrer">tutorial notebook ↗</a> is divided into five parts. 
+                        Part A is the most important starting point: before any neural network appears, it verifies the 
+                        change-of-variables formula numerically for the 1D transformation \(x = 2z\), 
+                        comparing the formula \(p_x(x) = p_z(x/2) \cdot 1/2\) against direct evaluation of 
+                        \(\mathcal{N}(x; 0, 4)\) at five test points. Every entry in the table should show "match=True". 
+                        If you understand why this check makes sense, you understand the formula. 
+                    </p>
+
+                    <p>
+                        Part B generates the two-crescent dataset and standardises it. 
+                        The crescent shape is the standard 2D benchmark for density models because it cannot be 
+                        fit by any GMM and requires the flow to learn a non-trivially curved boundary.
+                    </p>
+                
+                    <p>
+                        Part C defines the full RealNVP architecture: the <code>ScaleTranslateNet</code> class (the \(s\) and \(t\) 
+                        subnetworks inside each coupling layer), the <code>CouplingLayer</code> class 
+                        (which implements the triangular Jacobian construction described above), and the 
+                        <code>RealNVP</code> class (which stacks the layers and implements both <code>forward</code> 
+                        for generation and <code>inverse</code> for training, plus <code>log_prob</code> which assembles 
+                        the full change-of-variables formula). Read the <code>log_prob</code> method carefully, 
+                        it is three lines of code that implement the entire mathematical derivation above: 
+                        run the inverse flow to get \(\mathbf{z}\), compute \(\log p_z(\mathbf{z})\) 
+                        as a Gaussian log-density, add the log-Jacobian accumulated during the inverse pass.
+                    </p>
+                
+                    <p>
+                        Part D trains the flow for 200 epochs with the Adam optimiser and a step learning rate schedule, 
+                        printing both the NLL and the bits-per-dimension at every 40th epoch. Bits-per-dimension is the NLL 
+                        divided by \(\log 2\) and the dimensionality, a units-normalised measure of compression quality used in 
+                        the deep learning literature. Watch how it falls from near the Gaussian baseline value toward a lower limit 
+                        as the flow learns the crescent structure.
+                    </p>
+                
+                    <p>
+                        Part E evaluates the trained model: it computes the log-likelihood on the full training set, 
+                        generates 1000 new samples, encodes the training data to latent space, and evaluates the density on a 
+                        \(80 \times 80\) grid for the contour plot. The key number is the gap between the flow NLL and the Gaussian 
+                        baseline NLL, this is the information the flow has learned about the non-Gaussian structure of the data.
+                    </p>
+
+                    <hr>
+                    <h3 class="fstyle-secondary">The complete picture</h3>
+
+                    <p>
+                        After eight steps, the full story can be told in one table.                        
+                    </p>
+
+                    <table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #333; text-align: left;">
+                                <th style="padding: 10px;">Step</th>
+                                <th style="padding: 10px;">Model</th>
+                                <th style="padding: 10px;">Loss</th>
+                                <th style="padding: 10px;">Labels?</th>
+                                <th style="padding: 10px;">Exact \(\log p\)?</th>
+                                <th style="padding: 10px;">Generates?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">1</td>
+                                <td style="padding: 10px;">Linear regression</td>
+                                <td style="padding: 10px;">MSE = \(-\log p_{\text{Gauss}}(y \mid x)\)</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">2</td>
+                                <td style="padding: 10px;">Logistic regression</td>
+                                <td style="padding: 10px;">Cross-entropy = \(-\log p_{\text{Bernoulli}}(y \mid x)\)</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">3</td>
+                                <td style="padding: 10px;">Neural network</td>
+                                <td style="padding: 10px;">Cross-entropy (deeper model)</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">4</td>
+                                <td style="padding: 10px;">Regularised NN</td>
+                                <td style="padding: 10px;">CE + \(\alpha\|\theta\|^2\)</td>
+                                <td style="padding: 10px;">Yes</td>
+                                <td style="padding: 10px;">—</td>
+                                <td style="padding: 10px;">No</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">5</td>
+                                <td style="padding: 10px;">KDE / GMM</td>
+                                <td style="padding: 10px;">\(-\log p(x)\)</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">Yes (low-D)</td>
+                                <td style="padding: 10px;">Yes</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">6</td>
+                                <td style="padding: 10px;">Autoencoder</td>
+                                <td style="padding: 10px;">MSE (recon)</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">Unreliably</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;">7</td>
+                                <td style="padding: 10px;">VAE</td>
+                                <td style="padding: 10px;">MSE + \(\beta\) KL (ELBO)</td>
+                                <td style="padding: 10px;">No</td>
+                                <td style="padding: 10px;">No (bound)</td>
+                                <td style="padding: 10px;">Yes</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 10px;"><strong>8</strong></td>
+                                <td style="padding: 10px;"><strong>Normalising flow</strong></td>
+                                <td style="padding: 10px;"><strong>Exact</strong> \(-\log p(x)\)</td>
+                                <td style="padding: 10px;"><strong>No</strong></td>
+                                <td style="padding: 10px;"><strong>Yes</strong></td>
+                                <td style="padding: 10px;"><strong>Yes</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p>
+                        Every row in this table is a different choice of model \(f(x;\theta)\) and loss
+                        function \(L(\theta)\). The optimisation algorithm, gradient descent plus
+                        backpropagation, never changed. The learning rate, the batch size, the Adam
+                        update rule: identical from Step 1 to Step 8. The models became more expressive
+                        and the losses became more carefully motivated, but the loop
+                    </p>
+
+                    <p>
+                        \[\theta \leftarrow \theta - \eta \cdot \nabla_\theta L(\theta)\]
+                    </p>
+
+                    <p>
+                        ran without modification every time.
+                    </p>
+
+                    <p>
+                        This is the central lesson of the series. Machine learning is not a collection
+                        of unrelated methods. It is one idea, minimise a carefully chosen loss over a
+                        carefully chosen model, using gradient descent, instantiated at different levels
+                        of expressiveness and applied to different statistical questions. Fitting a line
+                        to star luminosities, classifying GW triggers as signal or noise, learning the
+                        BBH chirp mass spectrum, and sampling posteriors over merger parameters without
+                        MCMC: these are all the same algorithm, with different models and different loss
+                        functions plugged in.
+                    </p>
+
+                    <p>
+                        The physicist's version of this statement is: you have been doing machine
+                        learning since the first time you minimised a \(\chi^2\). Every step from linear
+                        regression to normalising flows has been a generalisation of that operation. What
+                        changed is the richness of the function class available to \(f(x;\theta)\), not the
+                        principle behind the optimisation.
+                    </p>
+
+
+                </article>
+            </div>
+
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About</h4>
+                        <p class="mb-0">👋 Welcome to my blog!<br>
+                            This blog is a space where I share reflections, research notes, and ideas at the intersection of particle physics and artificial intelligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
+                    <svg class="bi" width="30" height="24" aria-hidden="true">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+
+    const stored = localStorage.getItem('theme');
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+        html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', html.dataset.bsTheme);
+        updateBtn();
+    });
+
+    function updateBtn() {
+        btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+        btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+        btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+    }
+    </script>
+
+    <!-- Universal Code Block Functionality -->
+    <script>
+    function copyCodeToClipboard(btn) {
+        const pre = btn.parentElement.querySelector('code');
+        const code = pre.innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Copied!';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.add('btn-outline-secondary');
+                btn.classList.remove('btn-success');
+                updateCopyBtnTheme();
+            }, 1200);
+        });
+    }
+
+    function updateCopyBtnTheme() {
+        const isDark = document.documentElement.dataset.bsTheme === 'dark';
+        document.querySelectorAll('.code-block button').forEach(button => {
+            const darkIcon = button.querySelector('.d-dark');
+            const lightIcon = button.querySelector('.d-light');
+            if (darkIcon && lightIcon) {
+                darkIcon.style.display = isDark ? 'inline' : 'none';
+                lightIcon.style.display = !isDark ? 'inline' : 'none';
+            }
+        });
+    }
+
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(updateCopyBtnTheme);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+        document.addEventListener('DOMContentLoaded', updateCopyBtnTheme);
+    }
+    </script>
+
+    <!-- for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script>
+    function updateCodeBlockTheme() {
+        const isDark = document.documentElement.dataset.bsTheme === 'dark';
+        const codeBlocks = document.querySelectorAll('.code-block pre');
+
+        codeBlocks.forEach(block => {
+            const codeElement = block.querySelector('code');
+            if (!codeElement) return;
+
+            if (isDark) {
+                block.style.backgroundColor = '#1a1a1a';
+                block.style.color = '#e9ecef';
+                codeElement.style.backgroundColor = '#1a1a1a';
+                codeElement.style.color = '#e9ecef';
+            } else {
+                block.style.backgroundColor = '#f8f9fa';
+                block.style.color = '#212529';
+                codeElement.style.backgroundColor = '#f8f9fa';
+                codeElement.style.color = '#212529';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        hljs.highlightAll();
+        updateCodeBlockTheme();
+        updateCopyBtnTheme();
+    });
+
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(() => {
+            updateCodeBlockTheme();
+            updateCopyBtnTheme();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+    }
+    </script>
+    <section class="container my-5" id="comments">
+        <h3 class="fstyle-secondary mb-3">Comments</h3>
+        <script id="giscus-script" src="https://giscus.app/client.js"
+                data-repo="wesmail/wesmail.github.io"
+                data-repo-id="R_kgDOHZwG4Q"
+                data-category="General"
+                data-category-id="DIC_kwDOHZwG4c4C76bg"
+                data-mapping="pathname"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="bottom"
+                data-theme="light"
+                data-lang="en"
+                crossorigin="anonymous"
+                async>
+        </script>
+        <script>
+        (function() {
+            function getGiscusTheme() {
+                return document.documentElement.dataset.bsTheme === 'dark' ? 'dark' : 'light';
+            }
+            function updateGiscusTheme() {
+                const iframe = document.querySelector('iframe.giscus-frame');
+                if (!iframe) return;
+                iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: getGiscusTheme() } } }, 'https://giscus.app');
+            }
+            const script = document.getElementById('giscus-script');
+            if (script) script.setAttribute('data-theme', getGiscusTheme());
+            document.addEventListener('DOMContentLoaded', updateGiscusTheme);
+            if (window.MutationObserver) {
+                const observer = new MutationObserver(updateGiscusTheme);
+                observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+            }
+        })();
+        </script>
+    </section>
+</body>
+</html>

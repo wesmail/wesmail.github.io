@@ -1,0 +1,321 @@
+
+<style>
+  .tab-btn{font-size:12px;padding:4px 14px;border-radius:99px;}
+  .tab-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent;}
+  .ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap;}
+  .ctrl-row label{font-size:13px;color:var(--color-text-secondary);display:flex;align-items:center;gap:8px;}
+  .ctrl-row input[type=range]{flex:1;min-width:100px;max-width:200px;}
+  .ctrl-row .val{font-size:13px;font-weight:500;min-width:32px;}
+  .formula-box{background:var(--color-background-secondary);border-radius:8px;padding:.6rem 1rem;font-family:var(--font-mono,monospace);font-size:12px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7;}
+  .formula-box .hi{color:#534AB7;font-weight:500;}
+  .formula-box .hi2{color:#1D9E75;font-weight:500;}
+  .formula-box .hi3{color:#D85A30;font-weight:500;}
+</style>
+
+<div style="padding:1rem 0 0">
+  <h2 class="sr-only">Normalising flows: interactive change-of-variables and layer stacking</h2>
+  <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+    <button class="tab-btn active" id="tb-cov" onclick="setTab('cov')">Change of variables</button>
+    <button class="tab-btn" id="tb-stack" onclick="setTab('stack')">Stacking layers</button>
+  </div>
+
+  <div id="tab-cov">
+    <div class="ctrl-row">
+      <label>Transform f(z) =
+        <select id="sel-f" onchange="drawCoV()" style="font-size:13px;padding:2px 6px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);">
+          <option value="linear_stretch">2z  (stretch × 2)</option>
+          <option value="linear_squish">z/2  (squish ÷ 2)</option>
+          <option value="shift">z + 1.5  (shift right)</option>
+          <option value="tanh">3·tanh(z/2)  (nonlinear)</option>
+          <option value="exp">sign(z)·(e^|z| − 1)  (exponential)</option>
+        </select>
+      </label>
+      <label>Probe x = <input type="range" min="-40" max="40" value="10" step="1" id="sl-probe" oninput="drawCoV()"> <span class="val" id="v-probe">1.0</span></label>
+    </div>
+    <div class="formula-box" id="formula-display">
+      log p(x) = <span class="hi">log p_z(f⁻¹(x))</span>  +  <span class="hi2">log|df⁻¹/dx|</span>
+    </div>
+    <canvas id="cov-canvas" height="260" style="width:100%;display:block;border-radius:8px;border:0.5px solid var(--color-border-tertiary);"></canvas>
+    <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem;" id="cov-hint">
+      The orange probe x tracks through the formula live. Stretching spreads probability — density must shrink. Squishing concentrates it — density grows.
+    </div>
+  </div>
+
+  <div id="tab-stack" style="display:none;">
+    <div class="ctrl-row">
+      <label>Layers <input type="range" min="1" max="5" value="1" step="1" id="sl-layers" oninput="drawStack()"> <span class="val" id="v-layers">1</span></label>
+      <label style="margin-left:8px;font-size:12px;color:var(--color-text-tertiary);" id="stack-caption">After 1 layer</label>
+    </div>
+    <canvas id="stack-canvas" height="270" style="width:100%;display:block;border-radius:8px;border:0.5px solid var(--color-border-tertiary);"></canvas>
+    <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem;">
+      Each layer f_k is a simple invertible function. Stacking K layers: x = f_K(f_{K−1}(…f_1(z)…)). The log-likelihood just sums the log-Jacobians:  log p(x) = log p_z(z) + Σ_k log|det J_{f_k}|
+    </div>
+  </div>
+</div>
+
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const tc  = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+const gc  = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+const axc = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)';
+
+function gaussPdf(x, mu=0, sigma=1) {
+  const z = (x-mu)/sigma;
+  return Math.exp(-0.5*z*z)/(sigma*Math.sqrt(2*Math.PI));
+}
+
+const TRANSFORMS = {
+  linear_stretch: {
+    f:    z => 2*z,
+    finv: x => x/2,
+    dfinv: x => 0.5,
+    label: 'x = 2z  (f⁻¹: z = x/2,  |df⁻¹/dx| = ½)',
+    xRange: [-6,6],
+  },
+  linear_squish: {
+    f:    z => z/2,
+    finv: x => x*2,
+    dfinv: x => 2,
+    label: 'x = z/2  (f⁻¹: z = 2x,  |df⁻¹/dx| = 2)',
+    xRange: [-2,2],
+  },
+  shift: {
+    f:    z => z+1.5,
+    finv: x => x-1.5,
+    dfinv: x => 1,
+    label: 'x = z + 1.5  (f⁻¹: z = x−1.5,  |df⁻¹/dx| = 1)',
+    xRange: [-4,6],
+  },
+  tanh: {
+    f:    z => 3*Math.tanh(z/2),
+    finv: x => { const c=Math.max(-0.9999,Math.min(0.9999,x/3)); return 2*Math.atanh(c); },
+    dfinv: x => { const s=1-(x/3)**2; return s>0?2/(3*s):0.01; },
+    label: 'x = 3·tanh(z/2)  — nonlinear squeeze',
+    xRange: [-3.2,3.2],
+  },
+  exp: {
+    f:    z => Math.sign(z)*(Math.exp(Math.abs(z))-1),
+    finv: x => Math.sign(x)*Math.log(Math.abs(x)+1),
+    dfinv: x => 1/(Math.abs(x)+1),
+    label: 'x = sign(z)·(e^|z|−1)  — exponential warp',
+    xRange: [-8,8],
+  },
+};
+
+function setupC(id) {
+  const c=document.getElementById(id);
+  const dpr=devicePixelRatio;
+  c.width=c.offsetWidth*dpr; c.height=c.offsetHeight*dpr;
+  const ctx=c.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx,W:c.offsetWidth,H:c.offsetHeight};
+}
+
+function drawPanel(ctx,x0,y0,w,h,xRange,ys,col,fillCol,label,title) {
+  const px=x=>x0+(x-xRange[0])/(xRange[1]-xRange[0])*w;
+  const maxY=Math.max(...ys)*1.18;
+  const py=y=>y0+h-(y/maxY)*(h-22);
+  const bot=y0+h;
+
+  ctx.strokeStyle=axc; ctx.lineWidth=0.6;
+  ctx.beginPath(); ctx.moveTo(x0,y0+4); ctx.lineTo(x0,bot); ctx.lineTo(x0+w,bot); ctx.stroke();
+
+  const NX=ys.length, xs2=Array.from({length:NX},(_,i)=>xRange[0]+i*(xRange[1]-xRange[0])/(NX-1));
+  ctx.beginPath();
+  xs2.forEach((x,i)=>{ i===0?ctx.moveTo(px(x),py(ys[i])):ctx.lineTo(px(x),py(ys[i])); });
+  ctx.strokeStyle=col; ctx.lineWidth=2.2; ctx.stroke();
+  ctx.lineTo(px(xs2[NX-1]),bot); ctx.lineTo(px(xs2[0]),bot); ctx.closePath();
+  ctx.fillStyle=fillCol; ctx.fill();
+
+  ctx.font='11px sans-serif'; ctx.fillStyle=col; ctx.textAlign='center';
+  ctx.fillText(title, x0+w/2, y0+14);
+  ctx.fillStyle=tc; ctx.fillText(label, x0+w/2, bot-6);
+}
+
+function drawArrow(ctx,x1,y,x2,col) {
+  ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2-8,y);
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2-8,y-5); ctx.lineTo(x2,y); ctx.lineTo(x2-8,y+5);
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.lineJoin='round'; ctx.stroke();
+}
+
+function drawCoV() {
+  const key = document.getElementById('sel-f').value;
+  const T   = TRANSFORMS[key];
+  const probeX = parseInt(document.getElementById('sl-probe').value)/10;
+  document.getElementById('v-probe').textContent = probeX.toFixed(1);
+
+  const {ctx,W,H} = setupC('cov-canvas');
+  const PAD=10, GAP=36, ASIZE=28;
+  const panW = (W-2*PAD-2*GAP-2*ASIZE)/3;
+  const panH = H-20;
+
+  const NZ=300;
+  const zRange=[-3.5,3.5];
+  const zXs=Array.from({length:NZ},(_,i)=>zRange[0]+i*7/(NZ-1));
+  const zYs=zXs.map(z=>gaussPdf(z));
+
+  const xRange = T.xRange;
+  const xXs=Array.from({length:NZ},(_,i)=>xRange[0]+i*(xRange[1]-xRange[0])/(NZ-1));
+  const xYs=xXs.map(x=>{ const z=T.finv(x); const jac=Math.abs(T.dfinv(x)); return gaussPdf(z)*jac; });
+
+  // Panel 1: source z
+  drawPanel(ctx,PAD,8,panW,panH,zRange,zYs,'#534AB7',
+    isDark?'rgba(83,74,183,0.18)':'rgba(83,74,183,0.1)','z ~ N(0,1)','Source  p_z(z)');
+
+  // Arrow 1 + f label
+  const a1x=PAD+panW+2;
+  drawArrow(ctx,a1x,H/2,a1x+ASIZE+GAP-4,'#888780');
+  ctx.font='11px sans-serif'; ctx.fillStyle='#BA7517'; ctx.textAlign='center';
+  ctx.fillText('f(z)',a1x+ASIZE/2+GAP/2,H/2-8);
+  ctx.fillStyle=tc; ctx.fillText('→',a1x+ASIZE/2+GAP/2,H/2+10);
+
+  // Panel 2: the transformation curve
+  const fXs=zXs; const fYs=fXs.map(z=>T.f(z));
+  const fx=x=>PAD+panW+ASIZE+GAP+(x-zRange[0])/7*panW;
+  const fmaxY=Math.max(...fYs.map(Math.abs))*1.2;
+  const fy=y=>(8+panH/2)-(y/fmaxY)*(panH/2-12);
+  const fp2=PAD+panW+ASIZE+GAP;
+
+  ctx.strokeStyle=axc; ctx.lineWidth=0.6;
+  ctx.beginPath(); ctx.moveTo(fp2,8+panH); ctx.lineTo(fp2+panW,8+panH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(fp2,8); ctx.lineTo(fp2,8+panH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(fp2,8+panH/2); ctx.lineTo(fp2+panW,8+panH/2);
+  ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+
+  ctx.beginPath();
+  fXs.forEach((z,i)=>{ i===0?ctx.moveTo(fx(z),fy(fYs[i])):ctx.lineTo(fx(z),fy(fYs[i])); });
+  ctx.strokeStyle='#BA7517'; ctx.lineWidth=2; ctx.stroke();
+
+  ctx.font='11px sans-serif'; ctx.fillStyle='#BA7517'; ctx.textAlign='center';
+  ctx.fillText('Transform f',fp2+panW/2,22);
+  ctx.fillStyle=tc; ctx.fillText(T.label,fp2+panW/2,8+panH-6);
+
+  // Arrow 2
+  const a2x=fp2+panW+2;
+  drawArrow(ctx,a2x,H/2,a2x+ASIZE+GAP-4,'#888780');
+  ctx.font='11px sans-serif'; ctx.fillStyle='#1D9E75'; ctx.textAlign='center';
+  ctx.fillText('p_x',a2x+ASIZE/2+GAP/2,H/2-8);
+  ctx.fillStyle=tc; ctx.fillText('→',a2x+ASIZE/2+GAP/2,H/2+10);
+
+  // Panel 3: resulting density
+  const p3x=a2x+ASIZE+GAP;
+  drawPanel(ctx,p3x,8,panW,panH,xRange,xYs,'#1D9E75',
+    isDark?'rgba(29,158,117,0.18)':'rgba(29,158,117,0.1)','x = f(z)','Result  p_x(x)');
+
+  // Probe line
+  const probeZ = T.finv(probeX);
+  const probePz= gaussPdf(probeZ);
+  const probeJac= Math.abs(T.dfinv(probeX));
+  const probePx = probePz*probeJac;
+  const logPx   = Math.log(Math.max(probePx,1e-10));
+  const logPz   = Math.log(Math.max(probePz,1e-10));
+  const logJac  = Math.log(Math.max(probeJac,1e-10));
+
+  if(probeX>=xRange[0]&&probeX<=xRange[1]) {
+    const px3=x=>p3x+(x-xRange[0])/(xRange[1]-xRange[0])*panW;
+    ctx.beginPath(); ctx.moveTo(px3(probeX),8); ctx.lineTo(px3(probeX),8+panH);
+    ctx.strokeStyle='#D85A30'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font='11px sans-serif'; ctx.fillStyle='#D85A30'; ctx.textAlign='center';
+    ctx.fillText('x='+probeX.toFixed(1), px3(probeX), 22);
+  }
+  if(probeZ>=zRange[0]&&probeZ<=zRange[1]) {
+    const pz=x=>PAD+(x-zRange[0])/7*panW;
+    ctx.beginPath(); ctx.moveTo(pz(probeZ),8); ctx.lineTo(pz(probeZ),8+panH);
+    ctx.strokeStyle='#D85A30'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font='11px sans-serif'; ctx.fillStyle='#D85A30'; ctx.textAlign='center';
+    ctx.fillText('z='+probeZ.toFixed(2),pz(probeZ),22);
+  }
+
+  // Update formula display
+  document.getElementById('formula-display').innerHTML =
+    `log p(x=${probeX.toFixed(1)}) &nbsp;=&nbsp; `+
+    `<span class="hi">log p_z(z=${probeZ.toFixed(2)}) = ${logPz.toFixed(3)}</span>`+
+    `  +  `+
+    `<span class="hi2">log|df⁻¹/dx| = ${logJac.toFixed(3)}</span>`+
+    `  =  <b>${logPx.toFixed(3)}</b>`;
+}
+
+function drawStack() {
+  const K = parseInt(document.getElementById('sl-layers').value);
+  document.getElementById('v-layers').textContent = K;
+  const captions = ['','After 1 layer (affine shift)','After 2 layers (+ scale)','After 3 layers (+ tanh warp)','After 4 layers (+ exp expand)','After 5 layers (+ affine)'];
+  document.getElementById('stack-caption').textContent = captions[K];
+
+  const {ctx,W,H} = setupC('stack-canvas');
+  const PAD=12, panH=H-20, panW=(W-2*PAD-(K)*28)/( K+1 );
+
+  // Define a sequence of transforms
+  const STACK = [
+    { f: z=>z,              label:'z ~ N(0,1)' },
+    { f: z=>z+1.2,          label:'z₁ = z + 1.2' },
+    { f: z=>z*0.6,          label:'z₂ = 0.6·z₁' },
+    { f: z=>2.5*Math.tanh(z/1.5), label:'z₃ = tanh warp' },
+    { f: z=>Math.sign(z)*(Math.exp(Math.abs(z)*0.5)-1)*1.5, label:'z₄ = exp expand' },
+    { f: z=>z-0.8,          label:'x = z₅ − 0.8' },
+  ];
+
+  const NZ=400;
+  let current=Array.from({length:NZ},(_,i)=>-3.5+i*7/(NZ-1));
+  let currentPdf=current.map(z=>gaussPdf(z));
+
+  const colors=['#888780','#534AB7','#1D9E75','#D85A30','#BA7517','#534AB7'];
+  const fills = isDark
+    ? ['rgba(136,135,128,0.15)','rgba(83,74,183,0.18)','rgba(29,158,117,0.18)','rgba(216,90,48,0.15)','rgba(186,117,23,0.15)','rgba(83,74,183,0.18)']
+    : ['rgba(136,135,128,0.1)', 'rgba(83,74,183,0.1)', 'rgba(29,158,117,0.1)','rgba(216,90,48,0.1)', 'rgba(186,117,23,0.1)', 'rgba(83,74,183,0.1)'];
+
+  for(let k=0;k<=K;k++) {
+    const x0=PAD+k*(panW+28);
+    // compute transformed xs and density
+    let txs, tpdf;
+    if(k===0){
+      txs=current; tpdf=currentPdf;
+    } else {
+      const ft=STACK[k].f;
+      txs=current.map(z=>ft(z));
+      // density via approximate numerical Jacobian
+      const dx=0.002;
+      tpdf=current.map((z,i)=>{
+        const jac=Math.abs((STACK[k].f(z+dx)-STACK[k].f(z-dx))/(2*dx));
+        return currentPdf[i]/(jac<1e-6?1e-6:jac);
+      });
+    }
+    const xmin=Math.min(...txs), xmax=Math.max(...txs);
+    const xRange=[xmin-(xmax-xmin)*0.1, xmax+(xmax-xmin)*0.1];
+    const pxF=x=>x0+(x-xRange[0])/(xRange[1]-xRange[0])*panW;
+    const maxP=Math.max(...tpdf)*1.18;
+    const pyF=y=>8+panH-(y/maxP)*(panH-22);
+    const bot=8+panH;
+
+    ctx.strokeStyle=axc; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(x0,8); ctx.lineTo(x0,bot); ctx.lineTo(x0+panW,bot); ctx.stroke();
+
+    ctx.beginPath();
+    txs.forEach((x,i)=>{ i===0?ctx.moveTo(pxF(x),pyF(tpdf[i])):ctx.lineTo(pxF(x),pyF(tpdf[i])); });
+    ctx.strokeStyle=colors[k]; ctx.lineWidth=2; ctx.stroke();
+    ctx.lineTo(pxF(txs[NZ-1]),bot); ctx.lineTo(pxF(txs[0]),bot); ctx.closePath();
+    ctx.fillStyle=fills[k]; ctx.fill();
+
+    ctx.font='11px sans-serif'; ctx.fillStyle=colors[k]; ctx.textAlign='center';
+    ctx.fillText(k===0?'Start':('f'+k),x0+panW/2,22);
+    ctx.fillStyle=tc; ctx.fillText(STACK[k].label,x0+panW/2,bot-5);
+
+    if(k>0) {
+      ctx.font='18px sans-serif'; ctx.fillStyle=tc; ctx.textAlign='center';
+      ctx.fillText('→', x0-14, H/2+6);
+    }
+  }
+}
+
+function setTab(t){
+  document.getElementById('tab-cov').style.display=t==='cov'?'':'none';
+  document.getElementById('tab-stack').style.display=t==='stack'?'':'none';
+  document.getElementById('tb-cov').classList.toggle('active',t==='cov');
+  document.getElementById('tb-stack').classList.toggle('active',t==='stack');
+  if(t==='cov') drawCoV();
+  if(t==='stack') drawStack();
+}
+
+drawCoV();
+window.addEventListener('resize',()=>{ drawCoV(); if(document.getElementById('tab-stack').style.display!=='none')drawStack(); });
+</script>
