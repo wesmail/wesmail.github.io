@@ -1,0 +1,21 @@
+project:
+  type: default
+  output-dir: .
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    code-fold: false
+    html-math-method: mathjax
+    include-in-header: partials/head-extra.html
+    include-before-body: partials/header.html
+    include-after-body: partials/footer-scripts.html
+
+execute:
+  enabled: false
+  echo: true
+  warning: false
+  message: false

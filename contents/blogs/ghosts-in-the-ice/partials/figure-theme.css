@@ -1,0 +1,74 @@
+/* Theme-aware figures for Ghosts in the Ice (follows Bootstrap data-bs-theme) */
+.blog-figure {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.blog-figure img,
+.blog-figure svg {
+  width: 100%;
+  max-width: 820px;
+  height: auto;
+  display: block;
+}
+
+.blog-feature {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 24px;
+}
+
+.blog-feature img {
+  width: 100%;
+  max-width: 960px;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.blog-caption {
+  text-align: center;
+  font-size: 0.88em;
+  color: var(--bs-secondary-color);
+  margin-top: 6px;
+  margin-bottom: 1.5rem;
+}
+
+/* CDS palette used by the diagram SVGs — driven by the blog theme toggle */
+html[data-bs-theme="light"] .blog-figure,
+html:not([data-bs-theme]) .blog-figure {
+  --fig-bg: transparent;
+  --fig-sun: #f5c518;
+  --cds-text-primary: #1a1a1a;
+  --cds-text-secondary: #5c5c5c;
+  --cds-chart-axis: #b8b6ac;
+  --cds-chart-grid: #e2e0d8;
+  --cds-chart-reference-tint: #ecebe6;
+  --cds-chart-categorical-1: #2e7bd9;
+  --cds-chart-categorical-2: #ea6a37;
+  --cds-chart-categorical-3: #1fa67a;
+  --cds-chart-categorical-4: #143866;
+  --cds-chart-categorical-5: #d24b7e;
+  --cds-chart-status-good: #2ea44f;
+  --cds-chart-status-warning: #d9a21b;
+  --cds-chart-status-critical: #d93a3a;
+}
+
+html[data-bs-theme="dark"] .blog-figure {
+  --fig-bg: transparent;
+  --fig-sun: #ffd54f;
+  --cds-text-primary: #ececec;
+  --cds-text-secondary: #a9a9a9;
+  --cds-chart-axis: #7a7870;
+  --cds-chart-grid: #3b3a36;
+  --cds-chart-reference-tint: #262729;
+  --cds-chart-categorical-1: #5b9cf0;
+  --cds-chart-categorical-2: #f08355;
+  --cds-chart-categorical-3: #3cc495;
+  --cds-chart-categorical-4: #86a8e0;
+  --cds-chart-categorical-5: #e872a0;
+  --cds-chart-status-good: #4cc26b;
+  --cds-chart-status-warning: #e6b43a;
+  --cds-chart-status-critical: #f05a5a;
+}

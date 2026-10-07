@@ -1,0 +1,69 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+<div class="container">
+  <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+    <div class="col-4 d-flex align-items-center">
+      <span class="mb-3 mb-md-0 text-body-secondary">© 2025 Esmail, Waleed</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+const html = document.documentElement;
+const btn = document.getElementById('themeToggle');
+if (btn) {
+  const stored = localStorage.getItem('theme');
+  const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  html.dataset.bsTheme = stored || (preferDark ? 'dark' : 'light');
+  updateBtn();
+  btn.addEventListener('click', () => {
+    html.dataset.bsTheme = html.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', html.dataset.bsTheme);
+    updateBtn();
+    updateGiscusTheme();
+  });
+  function updateBtn() {
+    btn.textContent = html.dataset.bsTheme === 'dark' ? '☀️' : '🌙';
+    btn.classList.toggle('btn-outline-light', html.dataset.bsTheme === 'dark');
+    btn.classList.toggle('btn-outline-secondary', html.dataset.bsTheme !== 'dark');
+  }
+}
+function getGiscusTheme() {
+  return document.documentElement.dataset.bsTheme === 'dark' ? 'dark' : 'light';
+}
+function updateGiscusTheme() {
+  const iframe = document.querySelector('iframe.giscus-frame');
+  if (!iframe) return;
+  iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: getGiscusTheme() } } }, 'https://giscus.app');
+}
+</script>
+
+<section class="container my-5" id="comments">
+  <h3 class="fstyle-secondary mb-3">Comments</h3>
+  <script id="giscus-script" src="https://giscus.app/client.js"
+          data-repo="wesmail/wesmail.github.io"
+          data-repo-id="R_kgDOHZwG4Q"
+          data-category="General"
+          data-category-id="DIC_kwDOHZwG4c4C76bg"
+          data-mapping="pathname"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="bottom"
+          data-theme="light"
+          data-lang="en"
+          crossorigin="anonymous"
+          async>
+  </script>
+  <script>
+  (function() {
+    const script = document.getElementById('giscus-script');
+    if (script) script.setAttribute('data-theme', getGiscusTheme());
+    document.addEventListener('DOMContentLoaded', updateGiscusTheme);
+    if (window.MutationObserver) {
+      const observer = new MutationObserver(updateGiscusTheme);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+    }
+  })();
+  </script>
+</section>
