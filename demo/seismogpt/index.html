@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SeismoGPT — live demo</title>
+<meta name="description" content="Live research demo of SeismoGPT: autoregressive forecasting of three-component seismograms. Not an early-warning service.">
+<meta name="robots" content="index,follow">
+<link rel="icon" type="image/svg+xml" href="../../assets/images/astronomy-education-science-svgrepo-com.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b1014;
+    --panel: #121820;
+    --line: #243041;
+    --text: #e8eef4;
+    --muted: #93a1b0;
+    --accent: #7eb6ff;
+    --accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
+    --warn: #e6c07b;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    font: 15px/1.45 "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(1200px 500px at 12% -10%, #1a2a3d 0%, transparent 55%),
+      radial-gradient(900px 420px at 90% 0%, #1c2430 0%, transparent 50%),
+      var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover { text-decoration: underline; }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    flex-wrap: wrap;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in oklab, var(--panel) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  .bar-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: min(100%, 28rem);
+  }
+
+  .bar h1 {
+    margin: 0;
+    font-family: "DM Serif Display", Georgia, serif;
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .bar .tagline {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+    max-width: 52rem;
+  }
+
+  .bar .tagline .note,
+  footer .note {
+    color: var(--warn);
+  }
+
+  .bar-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--text);
+    font-size: 0.86rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .chip:hover {
+    border-color: color-mix(in oklab, var(--accent) 55%, var(--line));
+    background: color-mix(in oklab, var(--accent) 28%, transparent);
+    text-decoration: none;
+  }
+  .chip.ghost {
+    background: transparent;
+  }
+
+  .frame {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background: #05080c;
+  }
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #05080c;
+  }
+
+  .waking {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 40%, #152033 0%, transparent 55%),
+      #05080c;
+  }
+
+  .waking[hidden] { display: none !important; }
+
+  .waking-card {
+    width: min(26rem, 100%);
+    text-align: center;
+    padding: 1.5rem 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: color-mix(in oklab, var(--panel) 92%, transparent);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  }
+
+  .pulse {
+    width: 2.25rem;
+    height: 2.25rem;
+    margin: 0 auto 0.9rem;
+    border-radius: 50%;
+    border: 2px solid color-mix(in oklab, var(--accent) 35%, transparent);
+    border-top-color: var(--accent);
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .waking-card strong {
+    display: block;
+    font-family: "DM Serif Display", Georgia, serif;
+    font-size: 1.15rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .waking-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  footer {
+    padding: 0.65rem 1.25rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.82rem;
+    background: color-mix(in oklab, var(--panel) 90%, transparent);
+  }
+
+  @media (max-width: 640px) {
+    .bar { padding: 0.75rem 0.9rem; }
+    .bar-links { width: 100%; }
+    .chip { flex: 1 1 auto; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+  <header class="bar">
+    <div class="bar-main">
+      <h1>SeismoGPT — live demo</h1>
+      <p class="tagline">
+        A research demo: the model continues real three-component seismograms from the P arrival.
+        <span class="note">Not an early-warning service.</span>
+      </p>
+    </div>
+    <nav class="bar-links" aria-label="Demo links">
+      <a class="chip" href="https://github.com/wesmail/seismogpt" target="_blank" rel="noopener noreferrer">Code</a>
+      <a class="chip ghost" href="../../#projects">Back to site</a>
+    </nav>
+  </header>
+
+  <div class="frame">
+    <div class="waking" id="waking" role="status" aria-live="polite">
+      <div class="waking-card">
+        <div class="pulse" aria-hidden="true"></div>
+        <strong>Starting the workbench…</strong>
+        <p>Cloud Run cold start is usually about 10–20 seconds on the first request.</p>
+      </div>
+    </div>
+    <iframe
+      id="demo"
+      title="SeismoGPT workbench"
+      src="https://seismogpt-workbench-212334708999.europe-west1.run.app/"
+      allow="clipboard-write"
+      loading="eager"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+
+  <footer>
+    Forecasts come from one station’s own record.
+    <span class="note">Research demonstration only — not operational seismic monitoring or early warning.</span>
+  </footer>
+
+  <script>
+    (function () {
+      var frame = document.getElementById("demo");
+      var waking = document.getElementById("waking");
+      var hide = function () { waking.hidden = true; };
+      frame.addEventListener("load", hide);
+      // Failsafe: if the iframe never fires load (rare), clear the overlay later.
+      setTimeout(hide, 25000);
+    })();
+  </script>
+</body>
+</html>
